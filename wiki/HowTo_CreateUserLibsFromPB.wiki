@@ -1,0 +1,23 @@
+#summary HowTo : Create Userlibs From PB
+
+= Introduction =
+This page explains how to create userlibs from PB.
+Thank to [http://www.purebasic.fr/english/viewtopic.php?p=254236#254236 Srod] for explanations.
+
+= Details =
+ # PB Compiler generates the ASM code using the switch /COMMENTED 
+ # The tool extracts lists :
+  * exported functions
+  * internal functions
+  * global variables
+  * labels
+  * imported libraries
+  * user-libraries required by the source
+ # Modify names of all exported functions to match those given in the PB source (to be declared Public in the relevant .asm file) and all references to these functions throughout the asm source is modified in keeping with first modifications.
+ # All global variables, labels etc. are renamed prior to being made 'Public' (so that they can be accessed by individual ASM files) and marked with 'Extern' in all external ASM files in which they are required.
+ # Individual ASM files created, one for each function (exported and internal) and one 'shared file' containing the data sections with global variables etc. 
+ # An Init function is also created (if not already present in the PB source).
+ # Each ASM file is passed in turn to Fasm for the creation of a COFF object file (extension : obj (Windows)).
+ # The resulting set of object files are passed to POLIB (Windows) or AR (Linux) for creating the .lib.
+ # Using information gathered during the above steps, Tailbite creates a .desc file for use by the library-maker tool.
+ # The tool is using the .desc file (together with the .lib file) in argument to the library-maker tool which creates the final user library. 
