@@ -152,9 +152,9 @@ Procedure.s PB_ListFunctions(Function.s)
     EndIf
   Next
 EndProcedure
- 
+
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 81
+; CursorPosition = 154
 ; Folding = +-tc-
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
