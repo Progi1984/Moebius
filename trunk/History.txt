@@ -1,0 +1,31 @@
+Release
+0.1
+	Compiling a simple userlib : Sample_00
+0.2 to 0.9
+	Logging Function	
+	Unicode
+	ThreadSafe
+	CPU modifiers
+	Parameter with default value
+	Parameter with type : linked list
+	Parameter with type : tables
+	Management of Profile
+		- ProgramParameter
+			/CHM:<Name of helpfile>	The name of the helpfile without extension .chm (supresses the inputrequester)
+			/DONT				Don't build library, only source files: only the ASM files and .Desc file will be created.
+			/KEEP				Keep source files after making the library: the intermediate ASM files used to build the library will be copied to the 'Asm source files' folder below. By default, they are deleted.
+			/LIBN:<Name>			Uses the supplied name instead of the sourcename
+			/LOGF				A logfile is generated in the temp folder.	Hint : you can find it here : C:\Documents and settings\[Username]\Local settings\temp\TailBite_Logfile.txt
+			/MULT				Allows to run more than one instance of TailBite
+			/OUTP "Path"			The compiled library will be saved into the supplied path.
+			/UCOD				The library will be UNICODE compiled
+			/SUBS:<Subsystem>	Path to subsystem folder (starting from SubSystems). 
+			/THRD				The library will be THREADSAFE compiled
+			/WRIT				Generate build batch file: TailBite will generate a batch file in the library source folder to allow fast rebuilding which, anyway, you can do more easyly with TailBite itself (processing the .Desc file).
+		- INI File
+	Help
+1.0
+	Equivalent to Tailbite : Windows, Linux, MacOS
+
+Thanks to :
+	Denis	for having help us to resolve some ASM problems
