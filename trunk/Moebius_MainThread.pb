@@ -184,14 +184,44 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step4()
   ; 4. POLIB creates the LIB library from the *.OBJ files
   ; Creating descriptor file
+  Protected StringTmp.s
+  Protected hDescFile.l = CreateFile(#PB_Any, gProject\FileDesc)
+  If hDescFile
+    WriteStringN(hDescFile,"ASM")
+    WriteStringN(hDescFile,"0")
+    WriteStringN(hDescFile,"OBJ")
+    StringTmp=""
+    ForEach LL_LibUsed()
+      If LL_LibUsed() = "glibc"
+        DeleteElement(LL_LibUsed(), 1)
+        ; libused ()="./linux/glibc"
+      EndIf
+      If FindString(StringTmp,"~"+libused()+"~",1)
+        DeleteElement(libused(),1)
+      Else
+        StringTmp=StringTmp+"~"+libused()+"~"
+      EndIf
+    Next
+    WriteStringN(hDescFile,Str(CountList(LL_LibUsed())))
+    StringTmp=""
+    ForEach LL_LibUsed()
+      WriteStringN(hDescFile,LL_LibUsed())
+    Next
+    WriteStringN(hDescFile,gProject\LibName)
+    ForEach LL_DLLFunctions()
+      WriteStringN(hDescFile,LL_DLLFunctions()\FuncName+LL_DLLFunctions()\Params+"("+LL_DLLFunctions()\ParamsRetType+") - "+LL_DLLFunctions()\FuncDesc)
+      WriteStringN(hDescFile,LL_DLLFunctions()\FuncRetTypel+" | StdCall")        
+    Next
+    CloseFile(hDescFile)
+  EndIf
   ; Creating archive
 EndProcedure
 ProcedureDLL Moebius_Compile_Step5()
   ; 5. LibraryMaker creates userlibrary from the LIB file
 EndProcedure
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 161
-; FirstLine = 1
-; Folding = IAQBAH+
+; CursorPosition = 216
+; FirstLine = 9
+; Folding = IAQBAHG5
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
