@@ -4,6 +4,7 @@ DeclareDLL Moebius_Compile_Step2()
 DeclareDLL Moebius_Compile_Step3()
 DeclareDLL Moebius_Compile_Step4()
 DeclareDLL Moebius_Compile_Step5()
+DeclareDLL Moebius_Compile_Step6()
 
 ProcedureDLL Moebius_MainThread(Param.l)
   Moebius_Compile_Step0()
@@ -12,6 +13,7 @@ ProcedureDLL Moebius_MainThread(Param.l)
   Moebius_Compile_Step3()
   Moebius_Compile_Step4()
   Moebius_Compile_Step5()
+  Moebius_Compile_Step6()
 EndProcedure
 
 ProcedureDLL Moebius_Compile_Step0()
@@ -62,17 +64,17 @@ ProcedureDLL Moebius_Compile_Step2()
           ; Type of the Return Value
           If Mid(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName)-1, 1) = "."
             Select Mid(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName), 1)
-              Case "b"  : LL_DLLFunctions()\FuncRetType = ", Byte"
-              Case "c"  : LL_DLLFunctions()\FuncRetType = ", Character"
-              Case "d"  : LL_DLLFunctions()\FuncRetType = ", Double"
-              Case "f"  : LL_DLLFunctions()\FuncRetType = ", Float"
-              Case "q"  : LL_DLLFunctions()\FuncRetType = ", Quad"
-              Case "s"  : LL_DLLFunctions()\FuncRetType = ", String"
-              Case "w"  : LL_DLLFunctions()\FuncRetType = ", Word"
-              Default  : LL_DLLFunctions()\FuncRetType = ", Long"
+              Case "b"  : LL_DLLFunctions()\FuncRetType = "Byte"
+              Case "c"  : LL_DLLFunctions()\FuncRetType = "Character"
+              Case "d"  : LL_DLLFunctions()\FuncRetType = "Double"
+              Case "f"  : LL_DLLFunctions()\FuncRetType = "Float"
+              Case "q"  : LL_DLLFunctions()\FuncRetType = "Quad"
+              Case "s"  : LL_DLLFunctions()\FuncRetType = "String"
+              Case "w"  : LL_DLLFunctions()\FuncRetType = "Word"
+              Default  : LL_DLLFunctions()\FuncRetType = "Long"
             EndSelect
           Else
-            LL_DLLFunctions()\FuncRetType = ", Long"
+            LL_DLLFunctions()\FuncRetType = "Long"
           EndIf
           ; Type of Parameters
           For IncA = 1 To CountString(LL_DLLFunctions()\Params, ",")+1
@@ -115,7 +117,7 @@ ProcedureDLL Moebius_Compile_Step2()
             LibName = Trim(PB_ListFunctions(Function))
             If LibName <> ""
               AddElement(LL_LibUsed())
-              LL_LibUsed() = LibName
+              LL_LibUsed() = LCase(LibName)
             EndIf
             If NotCapture = 0
               CodeCleaned + CodeField + #System_EOL
@@ -165,9 +167,20 @@ ProcedureDLL Moebius_Compile_Step2()
     FunctionList.s + "public " + LL_Functions() + #System_EOL
   Next
   ForEach LL_DLLFunctions()
-    FunctionList.s + "public " + "PB_"+LL_DLLFunctions()\FuncName + #System_EOL
+    FunctionList.s + "public PB_" +  LL_DLLFunctions()\FuncName + #System_EOL
   Next
-  CodeCleaned2 = ReplaceString(CodeCleaned, ";TB-Function-List", FunctionList)
+  CodeCleaned = ReplaceString(CodeCleaned, ";TB-Function-List", FunctionList)
+  For Inc = 0 To CountString(CodeCleaned, #System_EOL)
+    CodeField = StringField(CodeCleaned, Inc, #System_EOL)
+    TrCodeField = Trim(CodeField)
+    ForEach LL_DLLFunctions()
+      If LL_DLLFunctions()\FuncName+":" = TrCodeField
+        TrCodeField = "PB_"+TrCodeField
+        Break
+      EndIf
+    Next
+    CodeCleaned2 + TrCodeField + #System_EOL
+  Next
   ;}
   ;{ Rewrite the new ASM Code
   If CreateFile(0, gProject\FileAsm)
@@ -193,13 +206,14 @@ ProcedureDLL Moebius_Compile_Step4()
     StringTmp=""
     ForEach LL_LibUsed()
       If LL_LibUsed() = "glibc"
-        DeleteElement(LL_LibUsed(), 1)
-        ; libused ()="./linux/glibc"
+        DeleteElement(LL_LibUsed())
       EndIf
-      If FindString(StringTmp,"~"+libused()+"~",1)
-        DeleteElement(libused(),1)
+    Next
+    ForEach LL_LibUsed()
+      If FindString(StringTmp,"~"+LL_LibUsed()+"~",1)
+        DeleteElement(LL_LibUsed(),1)
       Else
-        StringTmp=StringTmp+"~"+libused()+"~"
+        StringTmp=StringTmp+"~"+LL_LibUsed()+"~"
       EndIf
     Next
     WriteStringN(hDescFile,Str(CountList(LL_LibUsed())))
@@ -209,19 +223,30 @@ ProcedureDLL Moebius_Compile_Step4()
     Next
     WriteStringN(hDescFile,gProject\LibName)
     ForEach LL_DLLFunctions()
-      WriteStringN(hDescFile,LL_DLLFunctions()\FuncName+LL_DLLFunctions()\Params+"("+LL_DLLFunctions()\ParamsRetType+") - "+LL_DLLFunctions()\FuncDesc)
-      WriteStringN(hDescFile,LL_DLLFunctions()\FuncRetTypel+" | StdCall")        
+      WriteStringN(hDescFile,LL_DLLFunctions()\FuncName+LL_DLLFunctions()\ParamsRetType+" ("+LL_DLLFunctions()\Params+") - "+LL_DLLFunctions()\FuncDesc)
+      WriteStringN(hDescFile,LL_DLLFunctions()\FuncRetType+" | StdCall")        
     Next
     CloseFile(hDescFile)
   EndIf
   ; Creating archive
+  RunProgram("ar ", "rvs "+Chr(34)+gProject\FileA+Chr(34)+" "+Chr(34)+#Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator+"*.o"+Chr(34), "", #PB_Program_Wait)
 EndProcedure
 ProcedureDLL Moebius_Compile_Step5()
   ; 5. LibraryMaker creates userlibrary from the LIB file
+  RunProgram(#Path_PBLIBMAKER+#System_ExtExec, Chr(34)+gProject\FileDesc+Chr(34)+" /To "+Chr(34)+#PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator+Chr(34), #Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator, #PB_Program_Wait)
 EndProcedure
+ProcedureDLL Moebius_Compile_Step6()
+  ; 6. Cleans the place
+;   Protected hFile = ReadFile(#PB_Any,#Work_Dir+#System_Separator+"purebasic.out")
+;   If hFile
+;     CloseFile(hFile)
+;     DeleteFile(#Work_Dir+#System_Separator+"purebasic.out")
+;   EndIf
+EndProcedure
+
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 216
-; FirstLine = 9
-; Folding = IAQBAHG5
+; CursorPosition = 236
+; FirstLine = 80
+; Folding = ovdPA-X+8
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
