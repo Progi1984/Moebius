@@ -128,7 +128,7 @@ ProcedureDLL Moebius_Compile_Step2()
             If NotCapture = 0
               Select StringField(CodeField, 2, " ")
                 Case "main"
-                  CodeCleaned + ";TB-Function-List" + #System_EOL
+                  ;CodeCleaned + ";TB-Function-List" + #System_EOL
                 Default
                   ;Do nothing
               EndSelect
@@ -149,6 +149,12 @@ ProcedureDLL Moebius_Compile_Step2()
               NotCapture = 0
             Else
               CodeCleaned + CodeField + #System_EOL
+            EndIf
+          ;}
+          Case "section"
+          ;{
+            If StringField(TrCodeField, 2, " ") = "'.text'"
+              CodeCleaned + ";TB-Function-List" +#System_EOL + TrCodeField + #System_EOL
             EndIf
           ;}
           Default
@@ -243,10 +249,9 @@ ProcedureDLL Moebius_Compile_Step6()
 ;     DeleteFile(#Work_Dir+#System_Separator+"purebasic.out")
 ;   EndIf
 EndProcedure
-
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 236
-; FirstLine = 80
-; Folding = ovdPA-X+8
+; CursorPosition = 130
+; FirstLine = 32
+; Folding = IA5hjfAAg
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
