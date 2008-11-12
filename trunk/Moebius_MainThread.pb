@@ -235,7 +235,11 @@ ProcedureDLL Moebius_Compile_Step4()
     CloseFile(hDescFile)
   EndIf
   ; Creating archive
-  RunProgram("ar ", "rvs "+Chr(34)+gProject\FileA+Chr(34)+" "+Chr(34)+#Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator+"*.o"+Chr(34), "", #PB_Program_Wait)
+  CompilerIf #PB_Compiler_OS = #PB_OS_Windows
+    RunProgram(#PureBasic_Path+"compilers\polib.exe", "/out:"+Chr(34)+gProject\FileA+Chr(34)+" "+Chr(34)+gProject\FileO +Chr(34), "", #PB_Program_Wait)
+  CompilerElse
+    RunProgram("ar ", "rvs "++" "+Chr(34)+#Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator+"*.o"+Chr(34), "", #PB_Program_Wait)
+  CompilerEndIf
 EndProcedure
 ProcedureDLL Moebius_Compile_Step5()
   ; 5. LibraryMaker creates userlibrary from the LIB file
@@ -249,9 +253,9 @@ ProcedureDLL Moebius_Compile_Step6()
 ;     DeleteFile(#Work_Dir+#System_Separator+"purebasic.out")
 ;   EndIf
 EndProcedure
-; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 130
-; FirstLine = 32
-; Folding = IA5hjfAAg
+; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
+; CursorPosition = 238
+; FirstLine = 14
+; Folding = AAQ+
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
