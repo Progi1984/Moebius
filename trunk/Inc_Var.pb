@@ -13,6 +13,8 @@ Structure S_DLLFunctions
   FuncDesc.s
   Params.s
   ParamsRetType.s
+  Code.s
+  IsDLLFunction.b
 EndStructure
 Structure S_PBFunctionInfo
   FuncName.s
@@ -33,8 +35,7 @@ Global NewList LL_DLLFunctions.S_DLLFunctions()
 Global NewList LL_PBFunctions.S_PBFunctionInfo()
 Global NewList LL_Functions.s()
 Global NewList LL_LibUsed.s()
-
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 35
-; Folding = w
+; CursorPosition = 15
+; Folding = y
 ; EnableXP

@@ -20,6 +20,7 @@ ProcedureDLL Moebius_Compile_Step0()
   ; 0. Prepares the location for Moebius
   DeleteDirectory(#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive)
   CreateDirectory(#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator)
+  CreateDirectory(#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"ASM"+#System_Separator)
 EndProcedure
 ProcedureDLL Moebius_Compile_Step1()
   ; 1. PBCOMPILER creates the EXE (using POLINK) that we don't need, but also the ASM file (/COMMENTED)
@@ -29,6 +30,8 @@ ProcedureDLL Moebius_Compile_Step2()
   ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
   Protected CodeContent.s, CodeCleaned.s, CodeCleaned2.s, CodeField.s, TrCodeField.s, FunctionList.s
   Protected Inc.l, IncA.l, NotCapture.l
+  Protected bInFunction.b
+  Protected sNameOfFunction.s
   If ReadFile(0, #Work_Dir  +"purebasic.asm")
     CodeContent = Space(Lof(0)+1)
     ReadData(0,@CodeContent, Lof(0))
@@ -41,19 +44,30 @@ ProcedureDLL Moebius_Compile_Step2()
     If Left(TrCodeField, 1) =";"
       TrCodeField = Right(TrCodeField, Len(TrCodeField) - 2)
       If TrCodeField <> ""
-        If Left(LCase(TrCodeField), 12) = "proceduredll" Or Left(LCase(TrCodeField), 13) = "procedurecdll"
+        CodeCleaned2 = Trim(StringField(TrCodeField, 1, " "))
+        CodeCleaned2 = Trim(StringField(CodeCleaned2, 1, "."))
+        If LCase(CodeCleaned2) = "proceduredll" Or LCase(CodeCleaned2) = "procedurecdll" Or LCase(CodeCleaned2) = "procedurec" Or LCase(CodeCleaned2) = "procedure"
           AddElement(LL_DLLFunctions())
+          If LCase(CodeCleaned2) = "proceduredll" Or LCase(CodeCleaned2) = "procedurecdll"
+            LL_DLLFunctions()\IsDLLFunction = #True
+          Else
+            LL_DLLFunctions()\IsDLLFunction = #False
+          EndIf
           TrCodeField = ReplaceString(TrCodeField, "proceduredll", "")
           TrCodeField = ReplaceString(TrCodeField, "ProcedureDLL", "")
           TrCodeField = ReplaceString(TrCodeField, "procedurecdll", "")
           TrCodeField = ReplaceString(TrCodeField, "ProcedureCDLL", "")
+          TrCodeField = ReplaceString(TrCodeField, "procedure", "")
+          TrCodeField = ReplaceString(TrCodeField, "Procedure", "")
+          TrCodeField = ReplaceString(TrCodeField, "procedurec", "")
+          TrCodeField = ReplaceString(TrCodeField, "ProcedureC", "")
           TrCodeField = Trim(TrCodeField)
           TrCodeField = ReplaceString(TrCodeField, "  ", " ")
           TrCodeField = ReplaceString(TrCodeField, " .", ".")
           TrCodeField = ReplaceString(TrCodeField, " ,", ",")
           TrCodeField = ReplaceString(TrCodeField, ", ", ",")
           TrCodeField = ReplaceString(TrCodeField, " (", "(")
-
+          
           LL_DLLFunctions()\FuncName = StringField(TrCodeField, 1, " ")
           LL_DLLFunctions()\Params = Right(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName)-(FindString(LL_DLLFunctions()\FuncName, "(", 1)))
           LL_DLLFunctions()\Params = Left(LL_DLLFunctions()\Params, (FindString(LL_DLLFunctions()\Params, ")", 1)-1))
@@ -93,6 +107,7 @@ ProcedureDLL Moebius_Compile_Step2()
       EndIf
     EndIf
   Next
+  CodeCleaned2 = ""
   ;}
   ;{ Remove some ASM code
   For Inc = 0 To CountString(CodeContent, #System_EOL)
@@ -136,8 +151,19 @@ ProcedureDLL Moebius_Compile_Step2()
           ;}
           Case "macro"     
           ;{
-            NotCapture = 0            
+            If NotCapture = 1
+              CodeCleaned + StringField(CodeContent, Inc-1, #System_EOL)+#System_EOL
+            EndIf
             CodeCleaned + CodeField + #System_EOL
+            NotCapture = 0
+            sNameOfFunction = StringField(StringField(StringField(StringField(CodeContent, Inc-1, #System_EOL), 3, " "), 1, "("), 1, ".")
+            ForEach LL_DLLFunctions()
+              If LL_DLLFunctions()\FuncName = sNameOfFunction
+                bInFunction = #True
+                LL_DLLFunctions()\Code + CodeField + #System_EOL
+                Break
+              EndIf
+            Next
           ;}
           Case "main:"
           ;{
@@ -157,36 +183,43 @@ ProcedureDLL Moebius_Compile_Step2()
               CodeCleaned + ";TB-Function-List" +#System_EOL + TrCodeField + #System_EOL
             EndIf
           ;}
+          Case "}"
+          ;{
+            If bInFunction = #True
+              LL_DLLFunctions()\Code + CodeField
+              bInFunction = #False
+            EndIf
+          ;}
           Default
           ;{
             If NotCapture = 0
               CodeCleaned + CodeField + #System_EOL
+              If bInFunction = #True
+                LL_DLLFunctions()\Code + CodeField + #System_EOL
+              EndIf
             EndIf
           ;}
         EndSelect
     EndIf
   Next
   ;}
-  ;{ Add some ASM code
-  CodeCleaned.s = RemoveString(CodeCleaned, #CR$)
-  ForEach LL_Functions()
-    FunctionList.s + "public " + LL_Functions() + #System_EOL
-  Next
-  ForEach LL_DLLFunctions()
-    FunctionList.s + "public PB_" +  LL_DLLFunctions()\FuncName + #System_EOL
-  Next
-  CodeCleaned = ReplaceString(CodeCleaned, ";TB-Function-List", FunctionList)
-  For Inc = 0 To CountString(CodeCleaned, #System_EOL)
-    CodeField = StringField(CodeCleaned, Inc, #System_EOL)
-    TrCodeField = Trim(CodeField)
+  ;{ Create ASM Files
+  Protected lFile.l
     ForEach LL_DLLFunctions()
-      If LL_DLLFunctions()\FuncName+":" = TrCodeField
-        TrCodeField = "PB_"+TrCodeField
-        Break
+      lFile = CreateFile(#PB_Any, #Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
+      WriteStringN(lFile, "format ELF")
+      WriteStringN(lFile, "")
+      If LL_DLLFunctions()\IsDLLFunction = #True
+        WriteStringN(lFile, "public PB_"+LL_DLLFunctions()\FuncName)
+        WriteStringN(lFile, "")
+        WriteStringN(lFile, ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName,"PB_"+LL_DLLFunctions()\FuncName))
+      Else
+        WriteStringN(lFile, "public "+ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
+        WriteStringN(lFile, "")
+        WriteStringN(lFile, ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName, ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName))
       EndIf
+      CloseFile(lFile)
     Next
-    CodeCleaned2 + TrCodeField + #System_EOL
-  Next
   ;}
   ;{ Rewrite the new ASM Code
   If CreateFile(0, gProject\FileAsm)
@@ -238,13 +271,15 @@ ProcedureDLL Moebius_Compile_Step4()
   CompilerIf #PB_Compiler_OS = #PB_OS_Windows
     RunProgram(#PureBasic_Path+"compilers\polib.exe", "/out:"+Chr(34)+gProject\FileA+Chr(34)+" "+Chr(34)+gProject\FileO +Chr(34), "", #PB_Program_Wait)
   CompilerElse
-    RunProgram("ar ", "rvs "++" "+Chr(34)+#Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator+"*.o"+Chr(34), "", #PB_Program_Wait)
+    RunProgram("ar ", "rvs "+Chr(34)+gProject\FileA+Chr(34)+" "+Chr(34)+#Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator+"*.o"+Chr(34), "", #PB_Program_Wait)
   CompilerEndIf
 EndProcedure
+
 ProcedureDLL Moebius_Compile_Step5()
   ; 5. LibraryMaker creates userlibrary from the LIB file
   RunProgram(#Path_PBLIBMAKER+#System_ExtExec, Chr(34)+gProject\FileDesc+Chr(34)+" /To "+Chr(34)+#PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator+Chr(34), #Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator, #PB_Program_Wait)
 EndProcedure
+
 ProcedureDLL Moebius_Compile_Step6()
   ; 6. Cleans the place
 ;   Protected hFile = ReadFile(#PB_Any,#Work_Dir+#System_Separator+"purebasic.out")
@@ -253,9 +288,9 @@ ProcedureDLL Moebius_Compile_Step6()
 ;     DeleteFile(#Work_Dir+#System_Separator+"purebasic.out")
 ;   EndIf
 EndProcedure
-; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 238
-; FirstLine = 14
-; Folding = AAQ+
+; IDE Options = PureBasic 4.20 (Linux - x86)
+; CursorPosition = 216
+; FirstLine = 15
+; Folding = I-O5mpyP-z
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
