@@ -14,12 +14,17 @@ gProject\FileName = "/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/
 gProject\LibName = Left(GetFilePart(gProject\FileName),Len(GetFilePart(gProject\FileName))-Len(GetExtensionPart(gProject\FileName))-1)
 gProject\FileAsm   = #Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"Moebius_"+gProject\LibName+".asm"
 gProject\FileDesc  = #Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+gProject\LibName+".desc"      
-gProject\FileO        = #Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+gProject\LibName+".o"
-gProject\FileA        = #Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+gProject\LibName+".a"
+CompilerIf #PB_Compiler_OS = #PB_OS_Windows
+  gProject\FileO        = #Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+gProject\LibName+".obj"
+  gProject\FileA        = #Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+gProject\LibName+".lib"
+CompilerElse
+  gProject\FileO        = #Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+gProject\LibName+".o"
+  gProject\FileA        = #Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+gProject\LibName+".a"
+CompilerEndIf
 ;CreateThread(@Moebius_MainThread(),0)
 Moebius_MainThread(0)
-; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 12
+; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
+; CursorPosition = 18
 ; Folding = -
 ; EnableThread
 ; Executable = Moebius.exe
