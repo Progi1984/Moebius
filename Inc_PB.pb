@@ -108,7 +108,6 @@ Procedure.s PB_ListFunctions(Function.s)
   Protected NextDir.l, NameOfLib.s, LibFileName.s
   Function.s = LCase(Trim(Function))
   If CountList(LL_PBFunctions()) = 0
-  
     ; List all functions contained in purelibraries
     ExamineDirectory(0, #PureBasic_Path+"purelibraries"+#System_Separator, "")
     NextDir = NextDirectoryEntry(0)
@@ -145,7 +144,6 @@ Procedure.s PB_ListFunctions(Function.s)
 ;       NextDir = NextDirectoryEntry(0)
 ;     Until NextDir = #False
   EndIf
-  
   ForEach LL_PBFunctions()
     If LCase(LL_PBFunctions()\FuncName) = Function
       ProcedureReturn LL_PBFunctions()\LibContaining
@@ -153,8 +151,8 @@ Procedure.s PB_ListFunctions(Function.s)
   Next
 EndProcedure
 
-; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 113
-; Folding = 5
+; IDE Options = PureBasic 4.20 (Linux - x86)
+; CursorPosition = 146
+; Folding = 5-No-
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb

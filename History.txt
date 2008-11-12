@@ -1,14 +1,16 @@
 Release
 0.1
 	Compiling a simple userlib : Sample_00
-0.2 to 0.9
-	Logging Function	
-	Unicode
-	ThreadSafe
+0.2
+	Unicode & ThreadSafe
+0.3
+	Logging Function
 	CPU modifiers
+0.4
 	Parameter with default value
 	Parameter with type : linked list
 	Parameter with type : tables
+0.5
 	Management of Profile
 		- ProgramParameter
 			/CHM:<Name of helpfile>	The name of the helpfile without extension .chm (supresses the inputrequester)
@@ -23,6 +25,7 @@ Release
 			/THRD				The library will be THREADSAFE compiled
 			/WRIT				Generate build batch file: TailBite will generate a batch file in the library source folder to allow fast rebuilding which, anyway, you can do more easyly with TailBite itself (processing the .Desc file).
 		- INI File
+0.9
 	Help
 1.0
 	Equivalent to Tailbite : Windows, Linux, MacOS
