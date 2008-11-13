@@ -21,6 +21,8 @@ ProcedureDLL Moebius_Compile_Step0()
   DeleteDirectory(#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive)
   CreateDirectory(#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator)
   CreateDirectory(#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"ASM"+#System_Separator)
+  CreateDirectory(#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"OBJ"+#System_Separator)
+  CreateDirectory(#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"LIB"+#System_Separator)
 EndProcedure
 ProcedureDLL Moebius_Compile_Step1()
   ; 1. PBCOMPILER creates the EXE (using POLINK) that we don't need, but also the ASM file (/COMMENTED)
@@ -29,9 +31,9 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step2()
   ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
   Protected CodeContent.s, CodeCleaned.s, CodeCleaned2.s, CodeField.s, TrCodeField.s, FunctionList.s
-  Protected Inc.l, IncA.l, NotCapture.l
+  Protected Inc.l, IncA.l, NotCapture.l, lFound.l
   Protected bInFunction.b
-  Protected sNameOfFunction.s
+  Protected sNameOfFunction.s, sCallExtrn.s
   If ReadFile(0, #Work_Dir  +"purebasic.asm")
     CodeContent = Space(Lof(0)+1)
     ReadData(0,@CodeContent, Lof(0))
@@ -160,7 +162,6 @@ ProcedureDLL Moebius_Compile_Step2()
             ForEach LL_DLLFunctions()
               If LL_DLLFunctions()\FuncName = sNameOfFunction
                 bInFunction = #True
-                LL_DLLFunctions()\Code + CodeField + #System_EOL
                 Break
               EndIf
             Next
@@ -186,9 +187,9 @@ ProcedureDLL Moebius_Compile_Step2()
           Case "}"
           ;{
             If bInFunction = #True
-              LL_DLLFunctions()\Code + CodeField
               bInFunction = #False
             EndIf
+            CodeCleaned + CodeField + #System_EOL
           ;}
           Default
           ;{
@@ -209,21 +210,77 @@ ProcedureDLL Moebius_Compile_Step2()
       lFile = CreateFile(#PB_Any, #Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
       WriteStringN(lFile, "format ELF")
       WriteStringN(lFile, "")
+      ;{ déclarations
       If LL_DLLFunctions()\IsDLLFunction = #True
         WriteStringN(lFile, "public PB_"+LL_DLLFunctions()\FuncName)
-        WriteStringN(lFile, "")
-        WriteStringN(lFile, ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName,"PB_"+LL_DLLFunctions()\FuncName))
       Else
         WriteStringN(lFile, "public "+ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
-        WriteStringN(lFile, "")
-        WriteStringN(lFile, ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName, ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName))
-      EndIf
+      EndIf;}
+      WriteStringN(lFile, "")
+      ;{ extrn
+      For IncA = 0 To CountString(LL_DLLFunctions()\Code, #System_EOL)
+        CodeField = Trim(StringField(LL_DLLFunctions()\Code, IncA, #System_EOL))
+        If LCase(StringField(CodeField, 1, " ")) = "call"
+          WriteStringN(lFile, "extrn "+StringField(CodeField, CountString(CodeField, " ")+1, " "))
+        EndIf
+      Next;}
+      WriteStringN(lFile, "")      
+      ;{ code
+      If LL_DLLFunctions()\IsDLLFunction = #True
+        CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName,"PB_"+LL_DLLFunctions()\FuncName)
+        WriteStringN(lFile, CodeField)
+      Else
+        CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName, ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
+        If Right(Trim(StringField(CodeField, 1, #System_EOL)), 1) = ":" ; declaration de la function
+          TrCodeField = ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
+          TrCodeField + Right(CodeField, Len(CodeField) - Len(StringField(CodeField, 1, #System_EOL)))
+        EndIf
+        WriteStringN(lFile, TrCodeField)
+      EndIf;}
       CloseFile(lFile)
     Next
+    ; _Init Function
+    AddElement(LL_DLLFunctions())
+    LL_DLLFunctions()\FuncName = ReplaceString(gProject\Name, " ", "_")+"_Init" 
+    LL_DLLFunctions()\FuncRetType = "InitFunction"
+    LL_DLLFunctions()\FuncDesc = ""
+    LL_DLLFunctions()\Params = ""
+    LL_DLLFunctions()\ParamsRetType = ""
+    LL_DLLFunctions()\Code = "format ELF" + #System_EOL
+    LL_DLLFunctions()\Code + "extrn _SYS_InitString@0" + #System_EOL
+    LL_DLLFunctions()\Code + "Public PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init"  + #System_EOL
+    ;LL_DLLFunctions()\Code + "section '.text' code readable executable" + #System_EOL
+    LL_DLLFunctions()\Code + "PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init:" + #System_EOL
+    LL_DLLFunctions()\Code + "call _SYS_InitString@0" + #System_EOL
+    LL_DLLFunctions()\Code + "RET " + #System_EOL
+    LL_DLLFunctions()\IsDLLFunction.b = #False
+    lFile = CreateFile(#PB_Any, #Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
+      WriteStringN(lFile, LL_DLLFunctions()\Code)
+    CloseFile(lFile)
+    ;--------------------------------------------------------------
+;     CodeCleaned.s = RemoveString(CodeCleaned, #CR$)
+;     ForEach LL_Functions()
+;       FunctionList.s + "public " + LL_Functions() + #System_EOL
+;     Next
+;     ForEach LL_DLLFunctions()
+;       FunctionList.s + "public PB_" +  LL_DLLFunctions()\FuncName + #System_EOL
+;     Next
+;     CodeCleaned = ReplaceString(CodeCleaned, ";TB-Function-List", FunctionList)
+;     For Inc = 0 To CountString(CodeCleaned, #System_EOL)
+;       CodeField = StringField(CodeCleaned, Inc, #System_EOL)
+;       TrCodeField = Trim(CodeField)
+;       ForEach LL_DLLFunctions()
+;         If LL_DLLFunctions()\FuncName+":" = TrCodeField
+;           TrCodeField = "PB_"+TrCodeField
+;           Break
+;         EndIf
+;       Next
+;       CodeCleaned2 + TrCodeField + #System_EOL
+;     Next
   ;}
   ;{ Rewrite the new ASM Code
   If CreateFile(0, gProject\FileAsm)
-    WriteString(0,CodeCleaned2)
+    WriteString(0,CodeCleaned)
     CloseFile(0)
   EndIf
   ;}
@@ -231,7 +288,10 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step3()
   ; 3. FASM compiles the ASM files created by tailbite To OBJ
   ;     Compiling ASM sources
-  RunProgram(#Path_FASM+#System_ExtExec, Chr(34)+gProject\FileAsm+Chr(34)+" "+Chr(34)+gProject\FileO+Chr(34), "", #PB_Program_Wait) 
+  ;RunProgram(#Path_FASM+#System_ExtExec, Chr(34)+gProject\FileAsm+Chr(34)+" "+Chr(34)+gProject\FileO+Chr(34), "", #PB_Program_Wait) 
+  ForEach LL_DLLFunctions()
+    RunProgram(#Path_FASM+#System_ExtExec, Chr(34)+#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+Chr(34)+" "+Chr(34)+#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"OBJ"+#System_Separator+LL_DLLFunctions()\FuncName+".o"+Chr(34), "", #PB_Program_Wait)
+  Next
 EndProcedure
 ProcedureDLL Moebius_Compile_Step4()
   ; 4. POLIB creates the LIB library from the *.OBJ files
@@ -262,7 +322,11 @@ ProcedureDLL Moebius_Compile_Step4()
     Next
     WriteStringN(hDescFile,gProject\LibName)
     ForEach LL_DLLFunctions()
-      WriteStringN(hDescFile,LL_DLLFunctions()\FuncName+LL_DLLFunctions()\ParamsRetType+" ("+LL_DLLFunctions()\Params+") - "+LL_DLLFunctions()\FuncDesc)
+      If LL_DLLFunctions()\FuncRetType <> "InitFunction"
+        WriteStringN(hDescFile,LL_DLLFunctions()\FuncName+LL_DLLFunctions()\ParamsRetType+" ("+LL_DLLFunctions()\Params+") - "+LL_DLLFunctions()\FuncDesc)
+      Else ; FuncType = InitFunction
+        WriteStringN(hDescFile,LL_DLLFunctions()\FuncName)
+      EndIf
       WriteStringN(hDescFile,LL_DLLFunctions()\FuncRetType+" | StdCall")        
     Next
     CloseFile(hDescFile)
@@ -271,13 +335,21 @@ ProcedureDLL Moebius_Compile_Step4()
   CompilerIf #PB_Compiler_OS = #PB_OS_Windows
     RunProgram(#PureBasic_Path+"compilers\polib.exe", "/out:"+Chr(34)+gProject\FileA+Chr(34)+" "+Chr(34)+gProject\FileO +Chr(34), "", #PB_Program_Wait)
   CompilerElse
-    RunProgram("ar ", "rvs "+Chr(34)+gProject\FileA+Chr(34)+" "+Chr(34)+#Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator+"*.o"+Chr(34), "", #PB_Program_Wait)
+    StringTmp = "rvs "
+    StringTmp + Chr(34)+gProject\FileA+Chr(34)+" "
+    StringTmp + #Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"OBJ"+#System_Separator+"*.o"
+    ;ForEach LL_DLLFunctions()
+    ;  StringTmp + Chr(34)+#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".o"+Chr(34)+" "
+    ;Next
+    Debug StringTmp
+    RunProgram("ar ", StringTmp, "", #PB_Program_Wait)
+    RunProgram("ar ", "rvs "+Chr(34)+gProject\FileA+Chr(34)+" "+#Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator+"OBJ"+#System_Separator+"*.o", "", #PB_Program_Wait)
   CompilerEndIf
 EndProcedure
 
 ProcedureDLL Moebius_Compile_Step5()
   ; 5. LibraryMaker creates userlibrary from the LIB file
-  RunProgram(#Path_PBLIBMAKER+#System_ExtExec, Chr(34)+gProject\FileDesc+Chr(34)+" /To "+Chr(34)+#PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator+Chr(34), #Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator, #PB_Program_Wait)
+  ;RunProgram(#Path_PBLIBMAKER+#System_ExtExec, Chr(34)+gProject\FileDesc+Chr(34)+" /To "+Chr(34)+#PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator+Chr(34), #Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator, #PB_Program_Wait)
 EndProcedure
 
 ProcedureDLL Moebius_Compile_Step6()
@@ -289,8 +361,8 @@ ProcedureDLL Moebius_Compile_Step6()
 ;   EndIf
 EndProcedure
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 216
-; FirstLine = 15
-; Folding = I-O5mpyP-z
+; CursorPosition = 345
+; FirstLine = 129
+; Folding = q4u8Gp7z+X0+
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
