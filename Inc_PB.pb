@@ -109,37 +109,37 @@ Procedure.s PB_ListFunctions(Function.s)
   Function.s = LCase(Trim(Function))
   If CountList(LL_PBFunctions()) = 0
     ; List all functions contained in purelibraries
-    ExamineDirectory(0, #PureBasic_Path+"purelibraries"+#System_Separator, "")
+    ExamineDirectory(0, gConf_PureBasic_Path+"purelibraries"+#System_Separator, "")
     NextDir = NextDirectoryEntry(0)
     Repeat
       NameOfLib = DirectoryEntryName(0)
-      LibFileName = #PureBasic_Path+"purelibraries"+#System_Separator+NameOfLib
+      LibFileName = gConf_PureBasic_Path+"purelibraries"+#System_Separator+NameOfLib
       PB_GetInfoUserLib(LibFileName)
       NextDir = NextDirectoryEntry(0)
     Until NextDir = #False
     
     ; List all functions contained in {System}Libraries
     CompilerSelect #PB_Compiler_OS
-      CompilerCase #PB_OS_Linux : ExamineDirectory(0, #PureBasic_Path+"purelibraries/linux/", "")
-      CompilerCase #PB_OS_Windows : ExamineDirectory(0, #PureBasic_Path+"purelibraries\windows\", "")
+      CompilerCase #PB_OS_Linux : ExamineDirectory(0, gConf_PureBasic_Path+"purelibraries/linux/", "")
+      CompilerCase #PB_OS_Windows : ExamineDirectory(0, gConf_PureBasic_Path+"purelibraries\windows\", "")
     CompilerEndSelect
     NextDir = NextDirectoryEntry(0)
     Repeat
       NameOfLib = DirectoryEntryName(0)
       CompilerSelect #PB_Compiler_OS
-        CompilerCase #PB_OS_Linux : LibFileName = #PureBasic_Path+"purelibraries/linux/"+NameOfLib
-        CompilerCase #PB_OS_Windows : LibFileName = #PureBasic_Path+"purelibraries\windows\"+NameOfLib
+        CompilerCase #PB_OS_Linux : LibFileName = gConf_PureBasic_Path+"purelibraries/linux/"+NameOfLib
+        CompilerCase #PB_OS_Windows : LibFileName = gConf_PureBasic_Path+"purelibraries\windows\"+NameOfLib
       CompilerEndSelect
       PB_GetInfoLib(LibFileName)
       NextDir = NextDirectoryEntry(0)
     Until NextDir = #False
 
     ; List all functions contained in PureLibraries
-;     ExamineDirectory(0, #PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator, "")
+;     ExamineDirectory(0, gConf_PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator, "")
 ;     NextDir = NextDirectoryEntry(0)
 ;     Repeat
 ;       NameOfLib = DirectoryEntryName(0)
-;       LibFileName = #PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator+NameOfLib
+;       LibFileName = gConf_PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator+NameOfLib
 ;       GetUserLibInfo(LibFileName)
 ;       NextDir = NextDirectoryEntry(0)
 ;     Until NextDir = #False
@@ -151,8 +151,9 @@ Procedure.s PB_ListFunctions(Function.s)
   Next
 EndProcedure
 
-; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 146
-; Folding = 5-No-
+; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
+; CursorPosition = 141
+; FirstLine = 8
+; Folding = 9
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb

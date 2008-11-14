@@ -18,15 +18,16 @@ EndProcedure
 
 ProcedureDLL Moebius_Compile_Step0()
   ; 0. Prepares the location for Moebius
-  DeleteDirectory(#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive)
-  CreateDirectory(#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator)
-  CreateDirectory(#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"ASM"+#System_Separator)
-  CreateDirectory(#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"OBJ"+#System_Separator)
-  CreateDirectory(#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"LIB"+#System_Separator)
+  DeleteDirectory(gConf_ProjectDir, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive)
+  CreateDirectory(gConf_ProjectDir)
+  CreateDirectory(gConf_ProjectDir+"ASM"+#System_Separator)
+  CreateDirectory(gConf_ProjectDir+"DESC"+#System_Separator)
+  CreateDirectory(gConf_ProjectDir+"LIB"+#System_Separator)
+  CreateDirectory(gConf_ProjectDir+"OBJ"+#System_Separator)
 EndProcedure
 ProcedureDLL Moebius_Compile_Step1()
   ; 1. PBCOMPILER creates the EXE (using POLINK) that we don't need, but also the ASM file (/COMMENTED)
-  RunProgram(#PureBasic_Path+"compilers"+#System_Separator+"pbcompiler"+#System_ExtExec, #Sample_Dir+"Sample_00.pb "+#Switch_Commented,"", #PB_Program_Wait)
+  RunProgram(gConf_Path_PBCOMPILER, gConf_SourceDir+"Sample_00.pb "+#Switch_Commented,gConf_ProjectDir, #PB_Program_Wait)
 EndProcedure
 ProcedureDLL Moebius_Compile_Step2()
   ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
@@ -34,20 +35,24 @@ ProcedureDLL Moebius_Compile_Step2()
   Protected Inc.l, IncA.l, NotCapture.l, lFound.l
   Protected bInFunction.b
   Protected sNameOfFunction.s, sCallExtrn.s
-  If ReadFile(0, #Work_Dir  +"purebasic.asm")
+  If ReadFile(0, gConf_ProjectDir+"purebasic.asm")
     CodeContent = Space(Lof(0)+1)
     ReadData(0,@CodeContent, Lof(0))
     CloseFile(0)
   EndIf
   ;{ Extracts information for the future creation of the DESC File
+  Debug CountString(CodeContent, #System_EOL)
   For Inc = 0 To CountString(CodeContent, #System_EOL)
-    CodeField = StringField(CodeContent, Inc, #System_EOL)
-    TrCodeField = Trim(CodeField)
+    CodeField = StringField(CodeContent, Inc+1, #System_EOL)
+    TrCodeField = ReplaceString(CodeField, Chr(13), "")
+    TrCodeField = ReplaceString(TrCodeField, Chr(10), "")
+    TrCodeField = Trim(TrCodeField)
     If Left(TrCodeField, 1) =";"
       TrCodeField = Right(TrCodeField, Len(TrCodeField) - 2)
       If TrCodeField <> ""
         CodeCleaned2 = Trim(StringField(TrCodeField, 1, " "))
         CodeCleaned2 = Trim(StringField(CodeCleaned2, 1, "."))
+        CodeCleaned2 = Trim(CodeCleaned2)
         If LCase(CodeCleaned2) = "proceduredll" Or LCase(CodeCleaned2) = "procedurecdll" Or LCase(CodeCleaned2) = "procedurec" Or LCase(CodeCleaned2) = "procedure"
           AddElement(LL_DLLFunctions())
           If LCase(CodeCleaned2) = "proceduredll" Or LCase(CodeCleaned2) = "procedurecdll"
@@ -69,7 +74,7 @@ ProcedureDLL Moebius_Compile_Step2()
           TrCodeField = ReplaceString(TrCodeField, " ,", ",")
           TrCodeField = ReplaceString(TrCodeField, ", ", ",")
           TrCodeField = ReplaceString(TrCodeField, " (", "(")
-          
+          Debug StringField(TrCodeField, 1, " ")
           LL_DLLFunctions()\FuncName = StringField(TrCodeField, 1, " ")
           LL_DLLFunctions()\Params = Right(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName)-(FindString(LL_DLLFunctions()\FuncName, "(", 1)))
           LL_DLLFunctions()\Params = Left(LL_DLLFunctions()\Params, (FindString(LL_DLLFunctions()\Params, ")", 1)-1))
@@ -207,7 +212,7 @@ ProcedureDLL Moebius_Compile_Step2()
   ;{ Create ASM Files
   Protected lFile.l
     ForEach LL_DLLFunctions()
-      lFile = CreateFile(#PB_Any, #Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
+      lFile = CreateFile(#PB_Any, gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
       WriteStringN(lFile, "format ELF")
       WriteStringN(lFile, "")
       ;{ déclarations
@@ -254,10 +259,11 @@ ProcedureDLL Moebius_Compile_Step2()
     LL_DLLFunctions()\Code + "call _SYS_InitString@0" + #System_EOL
     LL_DLLFunctions()\Code + "RET " + #System_EOL
     LL_DLLFunctions()\IsDLLFunction.b = #False
-    lFile = CreateFile(#PB_Any, #Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
+    lFile = CreateFile(#PB_Any, gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
       WriteStringN(lFile, LL_DLLFunctions()\Code)
     CloseFile(lFile)
-    ;--------------------------------------------------------------
+
+
 ;     CodeCleaned.s = RemoveString(CodeCleaned, #CR$)
 ;     ForEach LL_Functions()
 ;       FunctionList.s + "public " + LL_Functions() + #System_EOL
@@ -288,9 +294,9 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step3()
   ; 3. FASM compiles the ASM files created by tailbite To OBJ
   ;     Compiling ASM sources
-  ;RunProgram(#Path_FASM+#System_ExtExec, Chr(34)+gProject\FileAsm+Chr(34)+" "+Chr(34)+gProject\FileO+Chr(34), "", #PB_Program_Wait) 
+  ;RunProgram(gConf_Path_FASM, Chr(34)+gProject\FileAsm+Chr(34)+" "+Chr(34)+gProject\FileO+Chr(34), "", #PB_Program_Wait) 
   ForEach LL_DLLFunctions()
-    RunProgram(#Path_FASM+#System_ExtExec, Chr(34)+#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+Chr(34)+" "+Chr(34)+#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"OBJ"+#System_Separator+LL_DLLFunctions()\FuncName+".o"+Chr(34), "", #PB_Program_Wait)
+    RunProgram(gConf_Path_FASM, Chr(34)+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+Chr(34)+" "+Chr(34)+gProject\DirObj+#System_Separator+LL_DLLFunctions()\FuncName+#System_ExtObj+Chr(34), "", #PB_Program_Wait)
   Next
 EndProcedure
 ProcedureDLL Moebius_Compile_Step4()
@@ -333,36 +339,34 @@ ProcedureDLL Moebius_Compile_Step4()
   EndIf
   ; Creating archive
   CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-    RunProgram(#PureBasic_Path+"compilers\polib.exe", "/out:"+Chr(34)+gProject\FileA+Chr(34)+" "+Chr(34)+gProject\FileO +Chr(34), "", #PB_Program_Wait)
+    RunProgram(gConf_Path_OBJ2LIB, "/out:"+Chr(34)+gProject\FileLib+Chr(34)+" "+Chr(34)+gProject\DirObj +Chr(34), "", #PB_Program_Wait)
   CompilerElse
     StringTmp = "rvs "
-    StringTmp + Chr(34)+gProject\FileA+Chr(34)+" "
-    StringTmp + #Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"OBJ"+#System_Separator+"*.o"
+    StringTmp + Chr(34)+gProject\FileLib+Chr(34)+" "
+    StringTmp + gProject\DirObj + "*"+#System_ExtObj
     ;ForEach LL_DLLFunctions()
-    ;  StringTmp + Chr(34)+#Work_Dir+"Lib_Source"+#System_Separator+gProject\Name+#System_Separator+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".o"+Chr(34)+" "
+    ;  StringTmp + Chr(34)+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+#System_ExtObj+Chr(34)+" "
     ;Next
     Debug StringTmp
     RunProgram("ar ", StringTmp, "", #PB_Program_Wait)
-    RunProgram("ar ", "rvs "+Chr(34)+gProject\FileA+Chr(34)+" "+#Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator+"OBJ"+#System_Separator+"*.o", "", #PB_Program_Wait)
+    ;RunProgram("ar ", "rvs "+Chr(34)+gProject\FileA+Chr(34)+" "+gProject\DirObj+"*"+#System_ExtObj, "", #PB_Program_Wait)
   CompilerEndIf
 EndProcedure
-
 ProcedureDLL Moebius_Compile_Step5()
   ; 5. LibraryMaker creates userlibrary from the LIB file
-  ;RunProgram(#Path_PBLIBMAKER+#System_ExtExec, Chr(34)+gProject\FileDesc+Chr(34)+" /To "+Chr(34)+#PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator+Chr(34), #Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator, #PB_Program_Wait)
+  ;RunProgram(gConf_Path_PBLIBMAKER, Chr(34)+gProject\FileDesc+Chr(34)+" /To "+Chr(34)+gConf_PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator+Chr(34), gConf_ProjectDir, #PB_Program_Wait)
 EndProcedure
-
 ProcedureDLL Moebius_Compile_Step6()
   ; 6. Cleans the place
-;   Protected hFile = ReadFile(#PB_Any,#Work_Dir+#System_Separator+"purebasic.out")
+;   Protected hFile = ReadFile(#PB_Any,gConf_SourceDir+#System_Separator+"purebasic.out")
 ;   If hFile
 ;     CloseFile(hFile)
-;     DeleteFile(#Work_Dir+#System_Separator+"purebasic.out")
+;     DeleteFile(gConf_SourceDir+#System_Separator+"purebasic.out")
 ;   EndIf
 EndProcedure
-; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 345
-; FirstLine = 129
-; Folding = q4u8Gp7z+X0+
+
+; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
+; CursorPosition = 55
+; Folding = AAAg
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
