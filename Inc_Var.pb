@@ -6,6 +6,7 @@ Structure S_Project
   FileDesc.s
   DirObj.s
   FileLib.s
+  FileCHM.s
 EndStructure
 Structure S_DLLFunctions
   FuncName.s
@@ -35,7 +36,8 @@ Global NewList LL_DLLFunctions.S_DLLFunctions()
 Global NewList LL_PBFunctions.S_PBFunctionInfo()
 Global NewList LL_Functions.s()
 Global NewList LL_LibUsed.s()
-; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 6
+Global NewList LL_DLLUsed.s()
+; IDE Options = PureBasic 4.20 (Windows - x86)
+; CursorPosition = 8
 ; Folding = -
 ; EnableXP

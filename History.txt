@@ -2,6 +2,7 @@ Release
 0.1
 	Compiling a simple userlib : Sample_00
 0.2
+	TO IMPROVE : Replace CompilerIf by CompilerSelect
 	Unicode & ThreadSafe
 0.3
 	Logging Function
@@ -11,6 +12,8 @@ Release
 	Parameter with type : linked list
 	Parameter with type : tables
 0.5
+	Debug Routine
+0.6
 	Management of Profile
 		- ProgramParameter
 			/CHM:<Name of helpfile>	The name of the helpfile without extension .chm (supresses the inputrequester)
