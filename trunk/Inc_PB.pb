@@ -151,9 +151,8 @@ Procedure.s PB_ListFunctions(Function.s)
   Next
 EndProcedure
 
-; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 141
-; FirstLine = 8
-; Folding = 9
+; IDE Options = PureBasic 4.20 (Windows - x86)
+; CursorPosition = 58
+; Folding = +-t--
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
