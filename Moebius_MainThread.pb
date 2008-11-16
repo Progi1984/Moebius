@@ -166,10 +166,19 @@ ProcedureDLL Moebius_Compile_Step2()
                 Case "q"  : LL_DLLFunctions()\FuncRetType = "Quad"
                 Case "s"  : LL_DLLFunctions()\FuncRetType = "String"
                 Case "w"  : LL_DLLFunctions()\FuncRetType = "Word"
-                Default  : LL_DLLFunctions()\FuncRetType = "Long"
+                CompilerIf #PB_Compiler_Version < 430 ; 420 and inferior
+                  Default  : LL_DLLFunctions()\FuncRetType = "Long"
+                CompilerElse ; 430
+                  Case "l"  : LL_DLLFunctions()\FuncRetType = "Long"
+                  Default  : LL_DLLFunctions()\FuncRetType = "Integer"
+                CompilerEndIf
               EndSelect
             Else
-              LL_DLLFunctions()\FuncRetType = "Long"
+              CompilerIf #PB_Compiler_Version < 430 ; 420 and inferior
+                LL_DLLFunctions()\FuncRetType = "Long"
+              CompilerElse ; 430
+                LL_DLLFunctions()\FuncRetType = "Integer"
+              CompilerEndIf
             EndIf
             ; Type of Parameters
             For IncA = 1 To CountString(LL_DLLFunctions()\Params, ",")+1
@@ -181,7 +190,12 @@ ProcedureDLL Moebius_Compile_Step2()
                 Case "q"  : LL_DLLFunctions()\ParamsRetType + ", Quad"
                 Case "s"  : LL_DLLFunctions()\ParamsRetType + ", String"
                 Case "w"  : LL_DLLFunctions()\ParamsRetType + ", Word"
-                Default  : LL_DLLFunctions()\ParamsRetType + ", Long"
+                CompilerIf #PB_Compiler_Version < 430 ; 420 and inferior
+                  Default  : LL_DLLFunctions()\ParamsRetType + ", Long"
+                CompilerElse ; 430
+                  Case "l"  : LL_DLLFunctions()\FuncRetType = ", Long"
+                  Default  : LL_DLLFunctions()\FuncRetType = ", Integer"
+                CompilerEndIf
               EndSelect
             Next
           EndIf
@@ -522,7 +536,7 @@ ProcedureDLL Moebius_Compile_Step6()
 EndProcedure
 
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 522
-; Folding = CwHAMAQ3paAAkCKu6
+; CursorPosition = 536
+; Folding = Cwnf+DAyOVLggUQxN-
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
