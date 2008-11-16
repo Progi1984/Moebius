@@ -27,7 +27,83 @@ ProcedureDLL Moebius_Compile_Step0()
 EndProcedure
 ProcedureDLL Moebius_Compile_Step1()
   ; 1. PBCOMPILER creates the EXE (using POLINK) that we don't need, but also the ASM file (/COMMENTED)
-  RunProgram(gConf_Path_PBCOMPILER, gConf_SourceDir+"Sample_00.pb "+#Switch_Commented, gConf_ProjectDir, #PB_Program_Wait)
+  ;RunProgram(gConf_Path_PBCOMPILER, gConf_SourceDir+"Sample_00.pb "+#Switch_Commented, gConf_ProjectDir, #PB_Program_Wait)
+  
+  ; Retourne #true si le fichier asm a correctement été créé sinon retourne une valeur négative
+  ; qui dépend du lieu de l'erreur, permet de trouver rapidement ou se situe l'erreur
+  Protected extension.s = LCase(GetExtensionPart(gProject\FileName))
+  ; mémorise le nom du fichier asm avec le chemein complet
+  Protected FichierAsm.s = ""
+  ; mémorise le nom du fichier exe, mais en fait la variable est vide
+  Protected FichierExe.s = ""
+  ; mémorise le chemin et le nom du fichier asm initial créé par PB
+  Protected FichierInitialAsm.s = ""
+  ; mémorise la chaine retournée par le compilateur lors de la création du fichier asm
+  Protected Sortie.s = ""
+  ; mémorise le résultat de la fonction Runprogram
+  Protected Compilateur
+  
+  ; on teste si le fichier se fini par "pb ou pbi"
+  ; si oui on continue sinon on retourrne #False
+  
+  Select extension
+    Case "pb"
+      FichierAsm + Mid(GetFilePart(gProject\FileName), 1, Len(GetFilePart(gProject\FileName))-2) + "asm"
+      ; on fixe le nom du fiche executable
+      FichierExe + Mid(GetFilePart(gProject\FileName), 1, Len(GetFilePart(gProject\FileName))-2) + "exe"
+    Case "pbi"
+      FichierAsm + Mid(GetFilePart(gProject\FileName), 1, Len(GetFilePart(gProject\FileName))-3) + "asm"
+      ; on fixe le nom du fiche executable
+      FichierExe + Mid(GetFilePart(gProject\FileName), 1, Len(GetFilePart(gProject\FileName))-3) + "exe"
+    Default
+      ; ce n'est pas un fichier PB, on quitte
+      ProcedureReturn -1
+  EndSelect
+  
+  
+  ; le fichier asm Prebasic.asm est créé dans le dossier de l'éxécutable qui le crée
+  FichierInitialAsm = gConf_ProjectDir + "PureBasic.asm"
+  
+  ; on efface le fichier asm qui existerait éventuellement sous le même nom et sous le nom PureBasic.asm
+  ; on efface éventuellement le fichier asm plus ancien
+  SetFileAttributes(FichierAsm, #PB_FileSystem_Normal)
+  DeleteFile(FichierAsm)
+  
+  ; on efface éventuellement le fichier Pb asm
+  SetFileAttributes(FichierAsm, #PB_FileSystem_Normal)
+  DeleteFile(FichierInitialAsm)
+  
+  Compilateur = RunProgram(gConf_Path_PBCOMPILER, Chr(34) + gProject\FileName + Chr(34) + " /INLINEASM /COMMENTED /EXE " + Chr(34) + FichierExe + Chr(34) , "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+  If Compilateur
+    While ProgramRunning(Compilateur)
+      Sortie + ReadProgramString(Compilateur) + Chr(13)
+    Wend
+  EndIf
+  
+  If ProgramExitCode(Compilateur) = 0
+    ; on teste si le résultat est Ok
+    ; la dernière ligne retournée vaut
+    ; "- Feel the ..PuRe.. Power -"
+    ;          If FindString(Sortie$, "- Feel the ..PuRe.. Power -", Len(Sortie$)-28)
+    If FindString(Sortie, "- Feel the ..PuRe.. Power -", 0)
+      ; on efface le fichier executable créé
+      DeleteFile(FichierExe)
+      ; on renomme le fichier asm PureBasic.asm avec le nouveau nom
+      If RenameFile(FichierInitialAsm, FichierAsm)
+        ProcedureReturn #True
+      Else
+        ProcedureReturn #False
+      EndIf
+    Else
+      ; on efface le fichier executable créé
+      DeleteFile(FichierExe)
+      ProcedureReturn #False - 1
+    EndIf
+  Else
+    ; on efface le fichier executable créé
+    DeleteFile(FichierExe)
+    ProcedureReturn #False - 2
+  EndIf
 EndProcedure
 ProcedureDLL Moebius_Compile_Step2()
   ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
@@ -232,50 +308,52 @@ ProcedureDLL Moebius_Compile_Step2()
   Protected lFile.l
     ForEach LL_DLLFunctions()
       lFile = CreateFile(#PB_Any, gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
-      CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-        WriteStringN(lFile, "format MS COFF")
-      CompilerElse
-        WriteStringN(lFile, "format ELF")
-      CompilerEndIf
-      WriteStringN(lFile, "")
-      ;{ déclarations
-      If LL_DLLFunctions()\IsDLLFunction = #True
-        WriteStringN(lFile, "public PB_"+LL_DLLFunctions()\FuncName)
-      Else
-        WriteStringN(lFile, "public "+ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
-      EndIf;}
-      WriteStringN(lFile, "")
-      ;{ extrn
-      For IncA = 0 To CountString(LL_DLLFunctions()\Code, #System_EOL)
-        CodeField = Trim(StringField(LL_DLLFunctions()\Code, IncA, #System_EOL))
-        If LCase(StringField(CodeField, 1, " ")) = "call"
-          WriteStringN(lFile, "extrn "+StringField(CodeField, CountString(CodeField, " ")+1, " "))
-        EndIf
-      Next;}
-      WriteStringN(lFile, "")      
-      ;{ code
-      If LL_DLLFunctions()\IsDLLFunction = #True
+      If lFile
         CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-          CodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
-          CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"
+          WriteStringN(lFile, "format MS COFF")
         CompilerElse
-          CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName,"PB_"+LL_DLLFunctions()\FuncName)
+          WriteStringN(lFile, "format ELF")
         CompilerEndIf
-        WriteStringN(lFile, CodeField)
-      Else
-        CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName, ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
-        If Right(Trim(StringField(CodeField, 1, #System_EOL)), 1) = ":" ; declaration de la function
+        WriteStringN(lFile, "")
+        ;{ déclarations
+        If LL_DLLFunctions()\IsDLLFunction = #True
+          WriteStringN(lFile, "public PB_"+LL_DLLFunctions()\FuncName)
+        Else
+          WriteStringN(lFile, "public "+ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
+        EndIf;}
+        WriteStringN(lFile, "")
+        ;{ extrn
+        For IncA = 0 To CountString(LL_DLLFunctions()\Code, #System_EOL)
+          CodeField = Trim(StringField(LL_DLLFunctions()\Code, IncA, #System_EOL))
+          If LCase(StringField(CodeField, 1, " ")) = "call"
+            WriteStringN(lFile, "extrn "+StringField(CodeField, CountString(CodeField, " ")+1, " "))
+          EndIf
+        Next;}
+        WriteStringN(lFile, "")      
+        ;{ code
+        If LL_DLLFunctions()\IsDLLFunction = #True
           CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-            TrCodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
-            TrCodeField + ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
+            CodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
+            CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"
           CompilerElse
-            TrCodeField = ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
+            CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName,"PB_"+LL_DLLFunctions()\FuncName)
           CompilerEndIf
-          TrCodeField + Right(CodeField, Len(CodeField) - Len(StringField(CodeField, 1, #System_EOL)))
-        EndIf
-        WriteStringN(lFile, TrCodeField)
-      EndIf;}
-      CloseFile(lFile)
+          WriteStringN(lFile, CodeField)
+        Else
+          CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName, ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
+          If Right(Trim(StringField(CodeField, 1, #System_EOL)), 1) = ":" ; declaration de la function
+            CompilerIf #PB_Compiler_OS = #PB_OS_Windows
+              TrCodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
+              TrCodeField + ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
+            CompilerElse
+              TrCodeField = ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
+            CompilerEndIf
+            TrCodeField + Right(CodeField, Len(CodeField) - Len(StringField(CodeField, 1, #System_EOL)))
+          EndIf
+          WriteStringN(lFile, TrCodeField)
+        EndIf;}
+        CloseFile(lFile)
+      EndIf
     Next
     ; _Init Function
     AddElement(LL_DLLFunctions())
@@ -346,7 +424,11 @@ ProcedureDLL Moebius_Compile_Step4()
     ForEach LL_DLLUsed()
       WriteStringN(hDescFile, LL_DLLUsed())
     Next
-    WriteStringN(hDescFile,"OBJ")
+    CompilerIf #PB_Compiler_OS = #PB_OS_Windows
+      WriteStringN(hDescFile,"LIB")
+    CompilerElse
+      WriteStringN(hDescFile,"OBJ")
+    CompilerEndIf
     StringTmp=""
     ForEach LL_LibUsed()
       If LL_LibUsed() = "glibc"
@@ -429,9 +511,12 @@ ProcedureDLL Moebius_Compile_Step6()
 ;     DeleteFile(gConf_SourceDir+#System_Separator+"purebasic.out")
 ;   EndIf
 EndProcedure
-; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 421
-; FirstLine = 10
-; Folding = BAAAAAAAAAAAA-
+
+
+
+
+; IDE Options = PureBasic 4.20 (Windows - x86)
+; CursorPosition = 516
+; Folding = 5DAAAAAAAAAIAA5
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
