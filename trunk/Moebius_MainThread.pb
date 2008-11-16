@@ -21,13 +21,33 @@ EndProcedure
 
 ProcedureDLL Moebius_Compile_Step0()
   ; 0. Prepares the location for Moebius
-  DeleteDirectory(gConf_ProjectDir, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive)
-  CreateDirectory(gConf_ProjectDir)
-  CreateDirectory(gConf_ProjectDir+"ASM"+#System_Separator)
-  CreateDirectory(gConf_ProjectDir+"DESC"+#System_Separator)
-  CreateDirectory(gConf_ProjectDir+"LIB"+#System_Separator)
-  CreateDirectory(gConf_ProjectDir+"OBJ"+#System_Separator)
+  If DeleteDirectory(gConf_ProjectDir, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive)
+    If CreateDirectory(gConf_ProjectDir)
+      If CreateDirectory(gConf_ProjectDir+"ASM"+#System_Separator)
+        If CreateDirectory(gConf_ProjectDir+"DESC"+#System_Separator)
+          If CreateDirectory(gConf_ProjectDir+"LIB"+#System_Separator)
+            If CreateDirectory(gConf_ProjectDir+"OBJ"+#System_Separator)
+              ProcedureReturn #True
+            Else
+              ProcedureReturn #False
+            EndIf
+          Else
+            ProcedureReturn #False
+          EndIf
+        Else
+          ProcedureReturn #False
+        EndIf
+      Else
+        ProcedureReturn #False
+      EndIf
+    Else
+      ProcedureReturn #False
+    EndIf
+  Else
+    ProcedureReturn #False
+  EndIf
 EndProcedure
+
 ProcedureDLL Moebius_Compile_Step1()
   ; 1. PBCOMPILER creates the EXE (using POLINK) that we don't need, but also the ASM file (/COMMENTED)
   ;RunProgram(gConf_Path_PBCOMPILER, gConf_SourceDir+"Sample_00.pb "+#Switch_Commented, gConf_ProjectDir, #PB_Program_Wait)
@@ -69,18 +89,22 @@ ProcedureDLL Moebius_Compile_Step1()
     ; Test if the result is true 
     ; The last returned ligne is "- Feel the ..PuRe.. Power -"
     If FindString(Sortie, "- Feel the ..PuRe.. Power -", 0)
-      ; we delete the last executable created
-      DeleteFile(FichierExe)
-      ProcedureReturn #True
+      ; we delete the last excutable created
+      If DeleteFile(FichierExe)
+        ProcedureReturn #True
+      Else
+        ProcedureReturn #False
+      EndIf
     Else ; we delete the last executable created
       DeleteFile(FichierExe)
-      ProcedureReturn #False
+      ProcedureReturn #False - 1
     EndIf
   Else ; we delete the last executable created
     DeleteFile(FichierExe)
-    ProcedureReturn #False - 1
+    ProcedureReturn #False - 2
   EndIf
 EndProcedure
+
 ProcedureDLL Moebius_Compile_Step2()
   ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
   Protected CodeContent.s, CodeCleaned.s, CodeCleaned2.s, CodeField.s, TrCodeField.s, FunctionList.s
@@ -105,61 +129,62 @@ ProcedureDLL Moebius_Compile_Step2()
         CodeCleaned2 = Trim(StringField(CodeCleaned2, 1, "."))
         CodeCleaned2 = Trim(CodeCleaned2)
         If LCase(CodeCleaned2) = "proceduredll" Or LCase(CodeCleaned2) = "procedurecdll" Or LCase(CodeCleaned2) = "procedurec" Or LCase(CodeCleaned2) = "procedure"
-          AddElement(LL_DLLFunctions())
-          If LCase(CodeCleaned2) = "proceduredll" Or LCase(CodeCleaned2) = "procedurecdll"
-            LL_DLLFunctions()\IsDLLFunction = #True
-          Else
-            LL_DLLFunctions()\IsDLLFunction = #False
+          If AddElement(LL_DLLFunctions())
+            If LCase(CodeCleaned2) = "proceduredll" Or LCase(CodeCleaned2) = "procedurecdll"
+              LL_DLLFunctions()\IsDLLFunction = #True
+            Else
+              LL_DLLFunctions()\IsDLLFunction = #False
+            EndIf
+            TrCodeField = ReplaceString(TrCodeField, "proceduredll", "")
+            TrCodeField = ReplaceString(TrCodeField, "ProcedureDLL", "")
+            TrCodeField = ReplaceString(TrCodeField, "procedurecdll", "")
+            TrCodeField = ReplaceString(TrCodeField, "ProcedureCDLL", "")
+            TrCodeField = ReplaceString(TrCodeField, "procedure", "")
+            TrCodeField = ReplaceString(TrCodeField, "Procedure", "")
+            TrCodeField = ReplaceString(TrCodeField, "procedurec", "")
+            TrCodeField = ReplaceString(TrCodeField, "ProcedureC", "")
+            TrCodeField = Trim(TrCodeField)
+            TrCodeField = ReplaceString(TrCodeField, "  ", " ")
+            TrCodeField = ReplaceString(TrCodeField, " .", ".")
+            TrCodeField = ReplaceString(TrCodeField, " ,", ",")
+            TrCodeField = ReplaceString(TrCodeField, ", ", ",")
+            TrCodeField = ReplaceString(TrCodeField, " (", "(")
+            LL_DLLFunctions()\FuncName = StringField(TrCodeField, 1, " ")
+            LL_DLLFunctions()\Params = Right(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName)-(FindString(LL_DLLFunctions()\FuncName, "(", 1)))
+            LL_DLLFunctions()\Params = Left(LL_DLLFunctions()\Params, (FindString(LL_DLLFunctions()\Params, ")", 1)-1))
+            LL_DLLFunctions()\FuncName = Trim(Left(LL_DLLFunctions()\FuncName, FindString(LL_DLLFunctions()\FuncName, "(", 1)-1))
+            If FindString(TrCodeField, ";",1) > 0
+              LL_DLLFunctions()\FuncDesc = Right(TrCodeField, Len(TrCodeField) - FindString(TrCodeField, ";",1))
+            EndIf
+            ; Type of the Return Value
+            If Mid(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName)-1, 1) = "."
+              Select Mid(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName), 1)
+                Case "b"  : LL_DLLFunctions()\FuncRetType = "Byte"
+                Case "c"  : LL_DLLFunctions()\FuncRetType = "Character"
+                Case "d"  : LL_DLLFunctions()\FuncRetType = "Double"
+                Case "f"  : LL_DLLFunctions()\FuncRetType = "Float"
+                Case "q"  : LL_DLLFunctions()\FuncRetType = "Quad"
+                Case "s"  : LL_DLLFunctions()\FuncRetType = "String"
+                Case "w"  : LL_DLLFunctions()\FuncRetType = "Word"
+                Default  : LL_DLLFunctions()\FuncRetType = "Long"
+              EndSelect
+            Else
+              LL_DLLFunctions()\FuncRetType = "Long"
+            EndIf
+            ; Type of Parameters
+            For IncA = 1 To CountString(LL_DLLFunctions()\Params, ",")+1
+              Select Right(Trim(StringField(LL_DLLFunctions()\Params, IncA, ",")), 1)
+                Case "b"  : LL_DLLFunctions()\ParamsRetType + ", Byte"
+                Case "c"  : LL_DLLFunctions()\ParamsRetType + ", Character"
+                Case "d"  : LL_DLLFunctions()\ParamsRetType + ", Double"
+                Case "f"  : LL_DLLFunctions()\ParamsRetType + ", Float"
+                Case "q"  : LL_DLLFunctions()\ParamsRetType + ", Quad"
+                Case "s"  : LL_DLLFunctions()\ParamsRetType + ", String"
+                Case "w"  : LL_DLLFunctions()\ParamsRetType + ", Word"
+                Default  : LL_DLLFunctions()\ParamsRetType + ", Long"
+              EndSelect
+            Next
           EndIf
-          TrCodeField = ReplaceString(TrCodeField, "proceduredll", "")
-          TrCodeField = ReplaceString(TrCodeField, "ProcedureDLL", "")
-          TrCodeField = ReplaceString(TrCodeField, "procedurecdll", "")
-          TrCodeField = ReplaceString(TrCodeField, "ProcedureCDLL", "")
-          TrCodeField = ReplaceString(TrCodeField, "procedure", "")
-          TrCodeField = ReplaceString(TrCodeField, "Procedure", "")
-          TrCodeField = ReplaceString(TrCodeField, "procedurec", "")
-          TrCodeField = ReplaceString(TrCodeField, "ProcedureC", "")
-          TrCodeField = Trim(TrCodeField)
-          TrCodeField = ReplaceString(TrCodeField, "  ", " ")
-          TrCodeField = ReplaceString(TrCodeField, " .", ".")
-          TrCodeField = ReplaceString(TrCodeField, " ,", ",")
-          TrCodeField = ReplaceString(TrCodeField, ", ", ",")
-          TrCodeField = ReplaceString(TrCodeField, " (", "(")
-          LL_DLLFunctions()\FuncName = StringField(TrCodeField, 1, " ")
-          LL_DLLFunctions()\Params = Right(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName)-(FindString(LL_DLLFunctions()\FuncName, "(", 1)))
-          LL_DLLFunctions()\Params = Left(LL_DLLFunctions()\Params, (FindString(LL_DLLFunctions()\Params, ")", 1)-1))
-          LL_DLLFunctions()\FuncName = Trim(Left(LL_DLLFunctions()\FuncName, FindString(LL_DLLFunctions()\FuncName, "(", 1)-1))
-          If FindString(TrCodeField, ";",1) > 0
-            LL_DLLFunctions()\FuncDesc = Right(TrCodeField, Len(TrCodeField) - FindString(TrCodeField, ";",1))
-          EndIf
-          ; Type of the Return Value
-          If Mid(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName)-1, 1) = "."
-            Select Mid(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName), 1)
-              Case "b"  : LL_DLLFunctions()\FuncRetType = "Byte"
-              Case "c"  : LL_DLLFunctions()\FuncRetType = "Character"
-              Case "d"  : LL_DLLFunctions()\FuncRetType = "Double"
-              Case "f"  : LL_DLLFunctions()\FuncRetType = "Float"
-              Case "q"  : LL_DLLFunctions()\FuncRetType = "Quad"
-              Case "s"  : LL_DLLFunctions()\FuncRetType = "String"
-              Case "w"  : LL_DLLFunctions()\FuncRetType = "Word"
-              Default  : LL_DLLFunctions()\FuncRetType = "Long"
-            EndSelect
-          Else
-            LL_DLLFunctions()\FuncRetType = "Long"
-          EndIf
-          ; Type of Parameters
-          For IncA = 1 To CountString(LL_DLLFunctions()\Params, ",")+1
-            Select Right(Trim(StringField(LL_DLLFunctions()\Params, IncA, ",")), 1)
-              Case "b"  : LL_DLLFunctions()\ParamsRetType + ", Byte"
-              Case "c"  : LL_DLLFunctions()\ParamsRetType + ", Character"
-              Case "d"  : LL_DLLFunctions()\ParamsRetType + ", Double"
-              Case "f"  : LL_DLLFunctions()\ParamsRetType + ", Float"
-              Case "q"  : LL_DLLFunctions()\ParamsRetType + ", Quad"
-              Case "s"  : LL_DLLFunctions()\ParamsRetType + ", String"
-              Case "w"  : LL_DLLFunctions()\ParamsRetType + ", Word"
-              Default  : LL_DLLFunctions()\ParamsRetType + ", Long"
-            EndSelect
-          Next
         Else
           If TrCodeField = ":System"
             bInSystemLib = #True
@@ -188,9 +213,10 @@ ProcedureDLL Moebius_Compile_Step2()
     If Left(TrCodeField, 4) = "_PB_" And TrCodeField <> "_PB_EOP:" And TrCodeField <> "_PB_EOP_NoValue:" And TrCodeField <> "_PB_BSSSection:"    
     ; In cases of functions not defined in ProcedureDLL
         CodeCleaned + "PB_" + Right(CodeField, Len(CodeField)-4) + #System_EOL
-        AddElement(LL_Functions())
-        LL_Functions() = Right(CodeField, Len(CodeField)-4)
-        LL_Functions() = Left(TrCodeField, Len(TrCodeField)-1)    
+        If AddElement(LL_Functions())
+          LL_Functions() = Right(CodeField, Len(CodeField)-4)
+          LL_Functions() = Left(TrCodeField, Len(TrCodeField)-1)
+        EndIf
     Else    
         Select StringField(TrCodeField, 1, " ")
           Case "extrn"
@@ -203,8 +229,9 @@ ProcedureDLL Moebius_Compile_Step2()
             EndIf
             LibName = Trim(PB_ListFunctions(Function))
             If LibName <> ""
-              AddElement(LL_LibUsed())
-              LL_LibUsed() = LCase(LibName)
+              If AddElement(LL_LibUsed())
+                LL_LibUsed() = LCase(LibName)
+              EndIf
             EndIf
             If NotCapture = 0
               CodeCleaned + TrCodeField + #System_EOL
@@ -281,7 +308,7 @@ ProcedureDLL Moebius_Compile_Step2()
   Next
   ;}
   ;{ Create ASM Files
-  Protected lFile.l
+    Protected lFile.l
     ForEach LL_DLLFunctions()
       lFile = CreateFile(#PB_Any, gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
       If lFile
@@ -332,26 +359,29 @@ ProcedureDLL Moebius_Compile_Step2()
       EndIf
     Next
     ; _Init Function
-    AddElement(LL_DLLFunctions())
-    LL_DLLFunctions()\FuncName = ReplaceString(gProject\Name, " ", "_")+"_Init" 
-    LL_DLLFunctions()\FuncRetType = "InitFunction"
-    LL_DLLFunctions()\FuncDesc = ""
-    LL_DLLFunctions()\Params = ""
-    LL_DLLFunctions()\ParamsRetType = ""
-    CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-      LL_DLLFunctions()\Code = "format MS COFF" + #System_EOL
-    CompilerElse
-      LL_DLLFunctions()\Code = "format ELF" + #System_EOL
-    CompilerEndIf
-    LL_DLLFunctions()\Code + "extrn _SYS_InitString@0" + #System_EOL
-    LL_DLLFunctions()\Code + "Public PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init"  + #System_EOL
-    LL_DLLFunctions()\Code + "PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init:" + #System_EOL
-    LL_DLLFunctions()\Code + "call _SYS_InitString@0" + #System_EOL
-    LL_DLLFunctions()\Code + "RET " + #System_EOL
-    LL_DLLFunctions()\IsDLLFunction.b = #False
+    If AddElement(LL_DLLFunctions())
+      LL_DLLFunctions()\FuncName = ReplaceString(gProject\Name, " ", "_")+"_Init" 
+      LL_DLLFunctions()\FuncRetType = "InitFunction"
+      LL_DLLFunctions()\FuncDesc = ""
+      LL_DLLFunctions()\Params = ""
+      LL_DLLFunctions()\ParamsRetType = ""
+      CompilerIf #PB_Compiler_OS = #PB_OS_Windows
+        LL_DLLFunctions()\Code = "format MS COFF" + #System_EOL
+      CompilerElse
+        LL_DLLFunctions()\Code = "format ELF" + #System_EOL
+      CompilerEndIf
+      LL_DLLFunctions()\Code + "extrn _SYS_InitString@0" + #System_EOL
+      LL_DLLFunctions()\Code + "Public PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init"  + #System_EOL
+      LL_DLLFunctions()\Code + "PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init:" + #System_EOL
+      LL_DLLFunctions()\Code + "call _SYS_InitString@0" + #System_EOL
+      LL_DLLFunctions()\Code + "RET " + #System_EOL
+      LL_DLLFunctions()\IsDLLFunction.b = #False
+    EndIf
     lFile = CreateFile(#PB_Any, gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
+    If lFile
       WriteStringN(lFile, LL_DLLFunctions()\Code)
-    CloseFile(lFile)
+      CloseFile(lFile)
+    EndIf
 
 ;     CodeCleaned.s = RemoveString(CodeCleaned, #CR$)
 ;     ForEach LL_Functions()
@@ -380,6 +410,7 @@ ProcedureDLL Moebius_Compile_Step2()
   EndIf
   ;}
 EndProcedure
+
 ProcedureDLL Moebius_Compile_Step3()
   ; 3. FASM compiles the ASM files created by tailbite To OBJ
   ;     Compiling ASM sources
@@ -388,6 +419,7 @@ ProcedureDLL Moebius_Compile_Step3()
     RunProgram(gConf_Path_FASM, Chr(34)+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+Chr(34)+" "+Chr(34)+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+Chr(34), "", #PB_Program_Wait)
   Next
 EndProcedure
+
 ProcedureDLL Moebius_Compile_Step4()
   ; 4. POLIB creates the LIB library from the *.OBJ files
   ; Creating descriptor file
@@ -460,7 +492,6 @@ ProcedureDLL Moebius_Compile_Step4()
     ;ForEach LL_DLLFunctions()
     ;  StringTmp + Chr(34)+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+#System_ExtObj+Chr(34)+" "
     ;Next
-    Debug StringTmp
     system_(@StringTmp)
     ;RunProgram("ar ", StringTmp, "", #PB_Program_Wait)
     ;RunProgram("/usr/bin/ar ", "rvs "+Chr(34)+gProject\FileA+Chr(34)+" "+#Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator+"OBJ"+#System_Separator+"*.o", "", #PB_Program_Wait)
@@ -475,10 +506,12 @@ ProcedureDLL Moebius_Compile_Step4()
     ;RunProgram("ar ", "rvs "+Chr(34)+gProject\FileA+Chr(34)+" "+gProject\DirObj+"*"+#System_ExtObj, "", #PB_Program_Wait)
   CompilerEndIf
 EndProcedure
+
 ProcedureDLL Moebius_Compile_Step5()
   ; 5. LibraryMaker creates userlibrary from the LIB file
   RunProgram(gConf_Path_PBLIBMAKER, Chr(34)+gProject\FileDesc+Chr(34)+" /To "+Chr(34)+gConf_PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator+Chr(34), gConf_ProjectDir, #PB_Program_Wait|#PB_Program_Hide)
 EndProcedure
+
 ProcedureDLL Moebius_Compile_Step6()
   ; 6. Cleans the place
 ;   Protected hFile = ReadFile(#PB_Any,gConf_SourceDir+#System_Separator+"purebasic.out")
@@ -488,10 +521,8 @@ ProcedureDLL Moebius_Compile_Step6()
 ;   EndIf
 EndProcedure
 
-
-
-; IDE Options = PureBasic 4.20 (Windows - x86)
-; CursorPosition = 491
-; Folding = yDAAAAAACAAIAA5
+; IDE Options = PureBasic 4.20 (Linux - x86)
+; CursorPosition = 522
+; Folding = CwHAMAQ3paAAkCKu6
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb

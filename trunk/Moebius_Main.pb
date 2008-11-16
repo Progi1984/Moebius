@@ -23,8 +23,10 @@ CompilerElse
 CompilerEndIf
 ;CreateThread(@Moebius_MainThread(),0)
 Moebius_MainThread(0)
-; IDE Options = PureBasic 4.20 (Windows - x86)
-; CursorPosition = 21
+
+; IDE Options = PureBasic 4.20 (Linux - x86)
+; CursorPosition = 25
+; FirstLine = 1
 ; Folding = -
 ; EnableThread
 ; Executable = Moebius.exe

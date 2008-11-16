@@ -37,7 +37,8 @@ Global NewList LL_PBFunctions.S_PBFunctionInfo()
 Global NewList LL_Functions.s()
 Global NewList LL_LibUsed.s()
 Global NewList LL_DLLUsed.s()
-; IDE Options = PureBasic 4.20 (Windows - x86)
-; CursorPosition = 8
-; Folding = -
+
+; IDE Options = PureBasic 4.20 (Linux - x86)
+; CursorPosition = 39
+; Folding = w
 ; EnableXP
