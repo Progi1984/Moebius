@@ -7,13 +7,16 @@ DeclareDLL Moebius_Compile_Step5()
 DeclareDLL Moebius_Compile_Step6()
 
 ProcedureDLL Moebius_MainThread(Param.l)
+  Protected Step1.l
   Moebius_Compile_Step0()
-  Moebius_Compile_Step1()
-  Moebius_Compile_Step2()
-  Moebius_Compile_Step3()
-  Moebius_Compile_Step4()
-  Moebius_Compile_Step5()
-  ;Moebius_Compile_Step6()
+  Step1 = Moebius_Compile_Step1()
+  If Step1 = #True
+    Moebius_Compile_Step2()
+    Moebius_Compile_Step3()
+    Moebius_Compile_Step4()
+    Moebius_Compile_Step5()
+    ;Moebius_Compile_Step6()
+  EndIf
 EndProcedure
 
 ProcedureDLL Moebius_Compile_Step0()
@@ -31,13 +34,9 @@ ProcedureDLL Moebius_Compile_Step1()
   
   ; Retourne #true si le fichier asm a correctement été créé sinon retourne une valeur négative
   ; qui dépend du lieu de l'erreur, permet de trouver rapidement ou se situe l'erreur
-  Protected extension.s = LCase(GetExtensionPart(gProject\FileName))
-  ; mémorise le nom du fichier asm avec le chemein complet
-  Protected FichierAsm.s = ""
+
   ; mémorise le nom du fichier exe, mais en fait la variable est vide
   Protected FichierExe.s = ""
-  ; mémorise le chemin et le nom du fichier asm initial créé par PB
-  Protected FichierInitialAsm.s = ""
   ; mémorise la chaine retournée par le compilateur lors de la création du fichier asm
   Protected Sortie.s = ""
   ; mémorise le résultat de la fonction Runprogram
@@ -46,34 +45,20 @@ ProcedureDLL Moebius_Compile_Step1()
   ; on teste si le fichier se fini par "pb ou pbi"
   ; si oui on continue sinon on retourrne #False
   
-  Select extension
-    Case "pb"
-      FichierAsm + Mid(GetFilePart(gProject\FileName), 1, Len(GetFilePart(gProject\FileName))-2) + "asm"
-      ; on fixe le nom du fiche executable
-      FichierExe + Mid(GetFilePart(gProject\FileName), 1, Len(GetFilePart(gProject\FileName))-2) + "exe"
-    Case "pbi"
-      FichierAsm + Mid(GetFilePart(gProject\FileName), 1, Len(GetFilePart(gProject\FileName))-3) + "asm"
-      ; on fixe le nom du fiche executable
-      FichierExe + Mid(GetFilePart(gProject\FileName), 1, Len(GetFilePart(gProject\FileName))-3) + "exe"
-    Default
-      ; ce n'est pas un fichier PB, on quitte
-      ProcedureReturn -1
+  Select LCase(GetExtensionPart(gProject\FileName))
+    Case "pb" ; we define the name of executable file
+      FichierExe = gConf_ProjectDir + Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))) + "exe"
+    Case "pbi" ; we define the name of executable file
+      FichierExe = gConf_ProjectDir + Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))) + "exe"
+    Default ; it's not a purebasic file
+      ProcedureReturn #False
   EndSelect
+
+  ; we delete the last asm created
+  SetFileAttributes(gConf_ProjectDir + "PureBasic.asm", #PB_FileSystem_Normal)
+  DeleteFile(gConf_ProjectDir + "PureBasic.asm")
   
-  
-  ; le fichier asm Prebasic.asm est créé dans le dossier de l'éxécutable qui le crée
-  FichierInitialAsm = gConf_ProjectDir + "PureBasic.asm"
-  
-  ; on efface le fichier asm qui existerait éventuellement sous le même nom et sous le nom PureBasic.asm
-  ; on efface éventuellement le fichier asm plus ancien
-  SetFileAttributes(FichierAsm, #PB_FileSystem_Normal)
-  DeleteFile(FichierAsm)
-  
-  ; on efface éventuellement le fichier Pb asm
-  SetFileAttributes(FichierAsm, #PB_FileSystem_Normal)
-  DeleteFile(FichierInitialAsm)
-  
-  Compilateur = RunProgram(gConf_Path_PBCOMPILER, Chr(34) + gProject\FileName + Chr(34) + " /INLINEASM /COMMENTED /EXE " + Chr(34) + FichierExe + Chr(34) , "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+  Compilateur = RunProgram(gConf_Path_PBCOMPILER, Chr(34) + gProject\FileName + Chr(34) + " /INLINEASM /COMMENTED /EXE " + Chr(34) + FichierExe + Chr(34) , gConf_ProjectDir, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
   If Compilateur
     While ProgramRunning(Compilateur)
       Sortie + ReadProgramString(Compilateur) + Chr(13)
@@ -81,28 +66,19 @@ ProcedureDLL Moebius_Compile_Step1()
   EndIf
   
   If ProgramExitCode(Compilateur) = 0
-    ; on teste si le résultat est Ok
-    ; la dernière ligne retournée vaut
-    ; "- Feel the ..PuRe.. Power -"
-    ;          If FindString(Sortie$, "- Feel the ..PuRe.. Power -", Len(Sortie$)-28)
+    ; Test if the result is true 
+    ; The last returned ligne is "- Feel the ..PuRe.. Power -"
     If FindString(Sortie, "- Feel the ..PuRe.. Power -", 0)
-      ; on efface le fichier executable créé
+      ; we delete the last executable created
       DeleteFile(FichierExe)
-      ; on renomme le fichier asm PureBasic.asm avec le nouveau nom
-      If RenameFile(FichierInitialAsm, FichierAsm)
-        ProcedureReturn #True
-      Else
-        ProcedureReturn #False
-      EndIf
-    Else
-      ; on efface le fichier executable créé
+      ProcedureReturn #True
+    Else ; we delete the last executable created
       DeleteFile(FichierExe)
-      ProcedureReturn #False - 1
+      ProcedureReturn #False
     EndIf
-  Else
-    ; on efface le fichier executable créé
+  Else ; we delete the last executable created
     DeleteFile(FichierExe)
-    ProcedureReturn #False - 2
+    ProcedureReturn #False - 1
   EndIf
 EndProcedure
 ProcedureDLL Moebius_Compile_Step2()
@@ -514,9 +490,8 @@ EndProcedure
 
 
 
-
 ; IDE Options = PureBasic 4.20 (Windows - x86)
-; CursorPosition = 516
-; Folding = 5DAAAAAAAAAIAA5
+; CursorPosition = 491
+; Folding = yDAAAAAACAAIAA5
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
