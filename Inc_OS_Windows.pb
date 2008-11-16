@@ -1,8 +1,8 @@
-Global gConf_PureBasic_Path.s = "C:\Program Files\PureBasic\"
-Global gConf_Path_PBCOMPILER.s = "C:\Program Files\PureBasic\compilers\pbcompiler.exe"
-Global gConf_Path_FASM.s = "C:\Program Files\PureBasic\compilers\fasm.exe"
-Global gConf_Path_OBJ2LIB.s = "C:\Program Files\PureBasic\compilers\polib.exe"
-Global gConf_Path_PBLIBMAKER.s = "C:\Program Files\PureBasic\Library SDK\LibraryMaker.exe"
+Global gConf_PureBasic_Path.s = #PB_Compiler_Home
+Global gConf_Path_PBCOMPILER.s = #PB_Compiler_Home+"compilers\pbcompiler.exe"
+Global gConf_Path_FASM.s = #PB_Compiler_Home+"compilers\fasm.exe"
+Global gConf_Path_OBJ2LIB.s = #PB_Compiler_Home+"compilers\polib.exe"
+Global gConf_Path_PBLIBMAKER.s = #PB_Compiler_Home+"Library SDK\LibraryMaker.exe"
 
 gProject\Name = "Samples00Windows"
 ;gProject\FileName = "C:\ZPersoSpace\Proj_Moebius\Lib_Source\Sample_00.pb"
@@ -22,6 +22,6 @@ Global gConf_SourceDir.s = "K:\Proj_Moebius\Lib_Source\"
 
 
 ; IDE Options = PureBasic 4.20 (Windows - x86)
-; CursorPosition = 13
+; CursorPosition = 4
 ; Folding = -
 ; EnableXP
