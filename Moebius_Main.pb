@@ -11,7 +11,7 @@ XIncludeFile "Moebius_MainThread.pb"
 
 gProject\LibName = Left(GetFilePart(gProject\FileName),Len(GetFilePart(gProject\FileName))-Len(GetExtensionPart(gProject\FileName))-1)
 gProject\FileAsm   = gConf_ProjectDir + "ASM" + #System_Separator +"Moebius_" + gProject\LibName + ".asm"
-gProject\FileDesc  = gConf_ProjectDir + "DESC" + #System_Separator + gProject\LibName+".desc"      
+gProject\FileDesc  = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName+".desc"      
 CompilerIf #PB_Compiler_OS = #PB_OS_Windows
   gProject\DirObj      = gConf_ProjectDir + "OBJ"+ #System_Separator
   gProject\FileLib      = gConf_ProjectDir + "LIB"+ #System_Separator + gProject\LibName+".lib"
@@ -25,8 +25,7 @@ CompilerEndIf
 Moebius_MainThread(0)
 
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 25
-; FirstLine = 1
+; CursorPosition = 13
 ; Folding = -
 ; EnableThread
 ; Executable = Moebius.exe

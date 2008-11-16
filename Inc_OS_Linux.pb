@@ -13,13 +13,14 @@ Global gConf_SourceDir.s = "/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_
 #Switch_Commented = "-c"
 #Switch_Unicode = "-u"
 #Switch_ThreadSafe = "-t"
+#Switch_InlineASM = "-i"
+#Switch_Executable = "-e"
 
 #System_ExtExec = ""
 #System_ExtObj = ".o"
 #System_Separator = "/"
 #System_EOL = Chr(10)
-
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 7
+; CursorPosition = 15
 ; Folding = -
 ; EnableXP

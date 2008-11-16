@@ -7,16 +7,13 @@ DeclareDLL Moebius_Compile_Step5()
 DeclareDLL Moebius_Compile_Step6()
 
 ProcedureDLL Moebius_MainThread(Param.l)
-  Protected Step1.l
   Moebius_Compile_Step0()
-  Step1 = Moebius_Compile_Step1()
-  If Step1 = #True
-    Moebius_Compile_Step2()
-    Moebius_Compile_Step3()
-    Moebius_Compile_Step4()
-    Moebius_Compile_Step5()
-    ;Moebius_Compile_Step6()
-  EndIf
+  Moebius_Compile_Step1()
+  Moebius_Compile_Step2()
+  Moebius_Compile_Step3()
+  Moebius_Compile_Step4()
+  Moebius_Compile_Step5()
+  Moebius_Compile_Step6()
 EndProcedure
 
 ProcedureDLL Moebius_Compile_Step0()
@@ -50,8 +47,7 @@ EndProcedure
 
 ProcedureDLL Moebius_Compile_Step1()
   ; 1. PBCOMPILER creates the EXE (using POLINK) that we don't need, but also the ASM file (/COMMENTED)
-  ;RunProgram(gConf_Path_PBCOMPILER, gConf_SourceDir+"Sample_00.pb "+#Switch_Commented, gConf_ProjectDir, #PB_Program_Wait)
-  
+ 
   ; Retourne #true si le fichier asm a correctement été créé sinon retourne une valeur négative
   ; qui dépend du lieu de l'erreur, permet de trouver rapidement ou se situe l'erreur
 
@@ -67,41 +63,33 @@ ProcedureDLL Moebius_Compile_Step1()
   
   Select LCase(GetExtensionPart(gProject\FileName))
     Case "pb" ; we define the name of executable file
-      FichierExe = gConf_ProjectDir + Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))) + "exe"
+      FichierExe = gConf_ProjectDir + Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName)) -1) + #System_ExtExec
     Case "pbi" ; we define the name of executable file
-      FichierExe = gConf_ProjectDir + Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))) + "exe"
+      FichierExe = gConf_ProjectDir + Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName)) -1) + #System_ExtExec
     Default ; it's not a purebasic file
       ProcedureReturn #False
   EndSelect
-
+  
   ; we delete the last asm created
   SetFileAttributes(gConf_ProjectDir + "PureBasic.asm", #PB_FileSystem_Normal)
   DeleteFile(gConf_ProjectDir + "PureBasic.asm")
   
-  Compilateur = RunProgram(gConf_Path_PBCOMPILER, Chr(34) + gProject\FileName + Chr(34) + " /INLINEASM /COMMENTED /EXE " + Chr(34) + FichierExe + Chr(34) , gConf_ProjectDir, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+  Compilateur = RunProgram(gConf_Path_PBCOMPILER, Chr(34)+gProject\FileName+Chr(34)+" "+#Switch_InlineASM+" "+#Switch_Commented+" "+#Switch_Executable+" "+Chr(34)+FichierExe+Chr(34), gConf_ProjectDir, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
   If Compilateur
     While ProgramRunning(Compilateur)
       Sortie + ReadProgramString(Compilateur) + Chr(13)
     Wend
   EndIf
-  
-  If ProgramExitCode(Compilateur) = 0
-    ; Test if the result is true 
-    ; The last returned ligne is "- Feel the ..PuRe.. Power -"
-    If FindString(Sortie, "- Feel the ..PuRe.. Power -", 0)
-      ; we delete the last excutable created
-      If DeleteFile(FichierExe)
-        ProcedureReturn #True
-      Else
-        ProcedureReturn #False
-      EndIf
-    Else ; we delete the last executable created
-      DeleteFile(FichierExe)
-      ProcedureReturn #False - 1
-    EndIf
+
+  ; Test if the result is true 
+  ; The last returned ligne is "- Feel the ..PuRe.. Power -"
+  If FindString(Sortie, "- Feel the ..PuRe.. Power -", 0) > 0
+    ; we delete the last excutable created
+    DeleteFile(FichierExe)
+    ProcedureReturn #True
   Else ; we delete the last executable created
     DeleteFile(FichierExe)
-    ProcedureReturn #False - 2
+    ProcedureReturn #False - 1
   EndIf
 EndProcedure
 
@@ -135,14 +123,10 @@ ProcedureDLL Moebius_Compile_Step2()
             Else
               LL_DLLFunctions()\IsDLLFunction = #False
             EndIf
-            TrCodeField = ReplaceString(TrCodeField, "proceduredll", "")
-            TrCodeField = ReplaceString(TrCodeField, "ProcedureDLL", "")
-            TrCodeField = ReplaceString(TrCodeField, "procedurecdll", "")
-            TrCodeField = ReplaceString(TrCodeField, "ProcedureCDLL", "")
-            TrCodeField = ReplaceString(TrCodeField, "procedure", "")
-            TrCodeField = ReplaceString(TrCodeField, "Procedure", "")
-            TrCodeField = ReplaceString(TrCodeField, "procedurec", "")
-            TrCodeField = ReplaceString(TrCodeField, "ProcedureC", "")
+            TrCodeField = ReplaceString(TrCodeField, "proceduredll", "", #PB_String_NoCase)
+            TrCodeField = ReplaceString(TrCodeField, "procedurecdll", "", #PB_String_NoCase)
+            TrCodeField = ReplaceString(TrCodeField, "procedure", "", #PB_String_NoCase)
+            TrCodeField = ReplaceString(TrCodeField, "procedurec", "", #PB_String_NoCase)
             TrCodeField = Trim(TrCodeField)
             TrCodeField = ReplaceString(TrCodeField, "  ", " ")
             TrCodeField = ReplaceString(TrCodeField, " .", ".")
@@ -446,11 +430,7 @@ ProcedureDLL Moebius_Compile_Step4()
     ForEach LL_DLLUsed()
       WriteStringN(hDescFile, LL_DLLUsed())
     Next
-    CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-      WriteStringN(hDescFile,"LIB")
-    CompilerElse
-      WriteStringN(hDescFile,"OBJ")
-    CompilerEndIf
+    WriteStringN(hDescFile,"LIB")
     StringTmp=""
     ForEach LL_LibUsed()
       If LL_LibUsed() = "glibc"
@@ -536,7 +516,8 @@ ProcedureDLL Moebius_Compile_Step6()
 EndProcedure
 
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 536
-; Folding = Cwnf+DAyOVLggUQxN-
+; CursorPosition = 433
+; FirstLine = 12
+; Folding = 98AyfAQ3paBEkOF49
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
