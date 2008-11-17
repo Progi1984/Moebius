@@ -7,12 +7,19 @@ DeclareDLL Moebius_Compile_Step5()
 DeclareDLL Moebius_Compile_Step6()
 
 ProcedureDLL Moebius_MainThread(Param.l)
+  Debug "Moebius_Compile_Step0()"
   Moebius_Compile_Step0()
+  Debug "Moebius_Compile_Step1()"
   Moebius_Compile_Step1()
+  Debug "Moebius_Compile_Step2()"
   Moebius_Compile_Step2()
+  Debug "Moebius_Compile_Step3()"
   Moebius_Compile_Step3()
+  Debug "Moebius_Compile_Step4()"
   Moebius_Compile_Step4()
+  Debug "Moebius_Compile_Step5()"
   Moebius_Compile_Step5()
+  Debug "Moebius_Compile_Step6()"
   Moebius_Compile_Step6()
 EndProcedure
 
@@ -75,22 +82,33 @@ ProcedureDLL Moebius_Compile_Step1()
   DeleteFile(gConf_ProjectDir + "PureBasic.asm")
   
   Compilateur = RunProgram(gConf_Path_PBCOMPILER, Chr(34)+gProject\FileName+Chr(34)+" "+#Switch_InlineASM+" "+#Switch_Commented+" "+#Switch_Executable+" "+Chr(34)+FichierExe+Chr(34), gConf_ProjectDir, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+
   If Compilateur
     While ProgramRunning(Compilateur)
       Sortie + ReadProgramString(Compilateur) + Chr(13)
     Wend
   EndIf
-
-  ; Test if the result is true 
-  ; The last returned ligne is "- Feel the ..PuRe.. Power -"
-  If FindString(Sortie, "- Feel the ..PuRe.. Power -", 0) > 0
-    ; we delete the last excutable created
+  Debug Compilateur
+  
+  If ProgramExitCode(Compilateur) = 0
+    ; Test if the result is true 
+    ; The last returned ligne is "- Feel the ..PuRe.. Power -"
+    If FindString(Sortie, "- Feel the ..PuRe.. Power -", 0)
+      ; we delete the last executable created
+      DeleteFile(FichierExe)
+      ProcedureReturn #True
+    Else
+      Debug "Erreur de compilation > Le compilateur a retourné l'erreur suivante :" + Chr(10) + Sortie
+      ; we delete the last executable created
+      DeleteFile(FichierExe)
+      ProcedureReturn -2
+    EndIf
+  Else
+    Debug "Erreur de compilation > Le compilateur a retourné l'erreur suivante :" + Chr(10) + Sortie
+    ; we delete the last executable created
     DeleteFile(FichierExe)
-    ProcedureReturn #True
-  Else ; we delete the last executable created
-    DeleteFile(FichierExe)
-    ProcedureReturn #False - 1
-  EndIf
+    ProcedureReturn -3
+  EndIf 
 EndProcedure
 
 ProcedureDLL Moebius_Compile_Step2()
@@ -334,8 +352,10 @@ ProcedureDLL Moebius_Compile_Step2()
         ;{ code
         If LL_DLLFunctions()\IsDLLFunction = #True
           CompilerIf #PB_Compiler_OS = #PB_OS_Windows
+            CodeField = LL_DLLFunctions()\Code
             CodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
-            CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"
+            CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
+            CodeField + Right(LL_DLLFunctions()\Code, Len(LL_DLLFunctions()\Code) - Len(StringField(LL_DLLFunctions()\Code, 1, #System_EOL)))
           CompilerElse
             CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName,"PB_"+LL_DLLFunctions()\FuncName)
           CompilerEndIf
@@ -353,6 +373,7 @@ ProcedureDLL Moebius_Compile_Step2()
           EndIf
           WriteStringN(lFile, TrCodeField)
         EndIf;}
+        Debug "-------------"
         CloseFile(lFile)
       EndIf
     Next
@@ -503,7 +524,14 @@ EndProcedure
 
 ProcedureDLL Moebius_Compile_Step5()
   ; 5. LibraryMaker creates userlibrary from the LIB file
-  RunProgram(gConf_Path_PBLIBMAKER, Chr(34)+gProject\FileDesc+Chr(34)+" /To "+Chr(34)+gConf_PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator+Chr(34), gConf_ProjectDir, #PB_Program_Wait|#PB_Program_Hide)
+  Protected DirUserLibrary.s = #PB_Compiler_Home + "pureLibraries"+#System_Separator+"UserLibraries"+#System_Separator
+  
+  RunProgram(gConf_Path_PBLIBMAKER, Chr(34)+gProject\FileDesc+Chr(34)+" /To "+Chr(34)+DirUserLibrary+Chr(34), gConf_ProjectDir, #PB_Program_Wait|#PB_Program_Hide)
+  If FileSize(DirUserLibrary+gProject\LibName)>0
+    ProcedureReturn #True
+  Else
+    ProcedureReturn #False
+  EndIf 
 EndProcedure
 
 ProcedureDLL Moebius_Compile_Step6()
@@ -515,9 +543,8 @@ ProcedureDLL Moebius_Compile_Step6()
 ;   EndIf
 EndProcedure
 
-; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 433
-; FirstLine = 12
-; Folding = 98AyfAQ3paBEkOF49
+; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
+; CursorPosition = 20
+; Folding = AAAg
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
