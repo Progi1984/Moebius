@@ -3,6 +3,7 @@ Release
 	Compiling a simple userlib : Sample_00
 0.2
 	TO IMPROVE : Replace CompilerIf by CompilerSelect
+	TO ADD : Gestion des chemins par fichier style prefs_<system>.ini
 	Unicode & ThreadSafe
 0.3
 	Logging Function
