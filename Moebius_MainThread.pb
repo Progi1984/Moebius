@@ -233,11 +233,11 @@ ProcedureDLL Moebius_Compile_Step2()
     TrCodeField = Trim(TrCodeField)
     If Left(TrCodeField, 4) = "_PB_" And TrCodeField <> "_PB_EOP:" And TrCodeField <> "_PB_EOP_NoValue:" And TrCodeField <> "_PB_BSSSection:"    
     ; In cases of functions not defined in ProcedureDLL
-        CodeCleaned + "PB_" + Right(CodeField, Len(CodeField)-4) + #System_EOL
-        If AddElement(LL_Functions())
-          LL_Functions() = Right(CodeField, Len(CodeField)-4)
-          LL_Functions() = Left(TrCodeField, Len(TrCodeField)-1)
-        EndIf
+      CodeCleaned + "PB_" + Right(CodeField, Len(CodeField)-4) + #System_EOL
+      If AddElement(LL_Functions())
+        LL_Functions() = Right(CodeField, Len(CodeField)-4)
+        LL_Functions() = Left(TrCodeField, Len(TrCodeField)-1)
+      EndIf
     Else    
         Select StringField(TrCodeField, 1, " ")
           Case "extrn"
@@ -299,7 +299,10 @@ ProcedureDLL Moebius_Compile_Step2()
             If NotCapture = 1
               NotCapture = 0
             Else
-              CodeCleaned + TrCodeField + #System_EOL
+              CodeCleaned + TrCodeField + #System_EOL  
+              If bInFunction = #True
+                LL_DLLFunctions()\Code + TrCodeField + #System_EOL
+              EndIf
             EndIf
           ;}
           Case "section"
@@ -550,8 +553,8 @@ ProcedureDLL Moebius_Compile_Step6()
 EndProcedure
 
 ; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 508
-; FirstLine = 69
-; Folding = BAUk
+; CursorPosition = 305
+; FirstLine = 129
+; Folding = 6Q8k
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
