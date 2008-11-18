@@ -3,10 +3,13 @@ Release
 	Compiling a simple userlib : Sample_00
 0.2
 	TO IMPROVE : Replace CompilerIf by CompilerSelect
-	TO ADD : Gestion des chemins par fichier style prefs_<system>.ini
-	Unicode & ThreadSafe
+	TO IMPROVE : Creation of Directory of Project in system "temp" directory
+	TO ADD : Windows : Detection of PureBasic Directory (Gnozal)
+	TO ADD : ReStart PBCompiler after creating the userlib
+	TO ADD : Logging Function
+	TO ADD : Unicode & ThreadSafe
+	TO ADD : 
 0.3
-	Logging Function
 	CPU modifiers
 0.4
 	Parameter with default value
@@ -16,7 +19,7 @@ Release
 	Debug Routine
 0.6
 	Management of Profile
-		- ProgramParameter
+		- ProgramParameter (in Tailbite)
 			/CHM:<Name of helpfile>	The name of the helpfile without extension .chm (supresses the inputrequester)
 			/DONT				Don't build library, only source files: only the ASM files and .Desc file will be created.
 			/KEEP				Keep source files after making the library: the intermediate ASM files used to build the library will be copied to the 'Asm source files' folder below. By default, they are deleted.
