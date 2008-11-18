@@ -38,12 +38,8 @@ Global NewList LL_Functions.s()
 Global NewList LL_LibUsed.s()
 Global NewList LL_DLLUsed.s()
 
-CompilerIf #PB_Compiler_OS = #PB_OS_Linux
-  #PB_FileSystem_Normal = 0
-CompilerEndIf
-
+#DQuote = Chr(34)
 ; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 43
-; FirstLine = 1
+; CursorPosition = 40
 ; Folding = -
 ; EnableXP
