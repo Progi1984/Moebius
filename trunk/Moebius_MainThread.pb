@@ -8,23 +8,29 @@ DeclareDLL Moebius_Compile_Step6()
 
 ProcedureDLL Moebius_MainThread(Param.l)
   Debug "Moebius_Compile_Step0()"
-  Moebius_Compile_Step0()
-  Debug "Moebius_Compile_Step1()"
-  Moebius_Compile_Step1()
-  Debug "Moebius_Compile_Step2()"
-  Moebius_Compile_Step2()
-  Debug "Moebius_Compile_Step3()"
-  Moebius_Compile_Step3()
-  Debug "Moebius_Compile_Step4()"
-  Moebius_Compile_Step4()
-  Debug "Moebius_Compile_Step5()"
-  Moebius_Compile_Step5()
-  Debug "Moebius_Compile_Step6()"
-  Moebius_Compile_Step6()
+  If Moebius_Compile_Step0() = #True
+    Debug "Moebius_Compile_Step1()"
+    Moebius_Compile_Step1()
+    Debug "Moebius_Compile_Step2()"
+    Moebius_Compile_Step2()
+    Debug "Moebius_Compile_Step3()"
+    Moebius_Compile_Step3()
+    Debug "Moebius_Compile_Step4()"
+    Moebius_Compile_Step4()
+    Debug "Moebius_Compile_Step5()"
+    Moebius_Compile_Step5()
+    Debug "Moebius_Compile_Step6()"
+    Moebius_Compile_Step6()
+  EndIf
 EndProcedure
 
 ProcedureDLL Moebius_Compile_Step0()
-  ; 0. Prepares the location for Moebius
+  ; 0. Cleaning & Preparing
+  ;Cleans the old userlib
+  If FileSize(#PB_Compiler_Home + "pureLibraries"+#System_Separator+"UserLibraries"+#System_Separator+gProject\LibName) > 0
+    DeleteFile(#PB_Compiler_Home + "pureLibraries"+#System_Separator+"UserLibraries"+#System_Separator+gProject\LibName)
+  EndIf
+  ;Prepares the location For Moebius
   If DeleteDirectory(gConf_ProjectDir, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive)
     If CreateDirectory(gConf_ProjectDir)
       If CreateDirectory(gConf_ProjectDir+"ASM"+#System_Separator)
@@ -33,19 +39,19 @@ ProcedureDLL Moebius_Compile_Step0()
             If CreateDirectory(gConf_ProjectDir+"OBJ"+#System_Separator)
               ProcedureReturn #True
             Else
-              ProcedureReturn #False
+              ProcedureReturn #False -5
             EndIf
           Else
-            ProcedureReturn #False
+            ProcedureReturn #False -4
           EndIf
         Else
-          ProcedureReturn #False
+          ProcedureReturn #False -3
         EndIf
       Else
-        ProcedureReturn #False
+        ProcedureReturn #False -2
       EndIf
     Else
-      ProcedureReturn #False
+      ProcedureReturn #False -1
     EndIf
   Else
     ProcedureReturn #False
@@ -81,14 +87,13 @@ ProcedureDLL Moebius_Compile_Step1()
   SetFileAttributes(gConf_ProjectDir + "PureBasic.asm", #PB_FileSystem_Normal)
   DeleteFile(gConf_ProjectDir + "PureBasic.asm")
   
-  Compilateur = RunProgram(gConf_Path_PBCOMPILER, Chr(34)+gProject\FileName+Chr(34)+" "+#Switch_InlineASM+" "+#Switch_Commented+" "+#Switch_Executable+" "+Chr(34)+FichierExe+Chr(34), gConf_ProjectDir, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+  Compilateur = RunProgram(gConf_Path_PBCOMPILER, #DQuote+gProject\FileName+#DQuote+" "+#Switch_InlineASM+" "+#Switch_Commented+" "+#Switch_Executable+" "+#DQuote+FichierExe+#DQuote, gConf_ProjectDir, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
 
   If Compilateur
     While ProgramRunning(Compilateur)
       Sortie + ReadProgramString(Compilateur) + Chr(13)
     Wend
   EndIf
-  Debug Compilateur
   
   If ProgramExitCode(Compilateur) = 0
     ; Test if the result is true 
@@ -179,7 +184,7 @@ ProcedureDLL Moebius_Compile_Step2()
               CompilerIf #PB_Compiler_Version < 430 ; 420 and inferior
                 LL_DLLFunctions()\FuncRetType = "Long"
               CompilerElse ; 430
-                LL_DLLFunctions()\FuncRetType = "Integer"
+                LL_DLLFunctions()\FuncRetType = "Long"
               CompilerEndIf
             EndIf
             ; Type of Parameters
@@ -195,8 +200,8 @@ ProcedureDLL Moebius_Compile_Step2()
                 CompilerIf #PB_Compiler_Version < 430 ; 420 and inferior
                   Default  : LL_DLLFunctions()\ParamsRetType + ", Long"
                 CompilerElse ; 430
-                  Case "l"  : LL_DLLFunctions()\FuncRetType = ", Long"
-                  Default  : LL_DLLFunctions()\FuncRetType = ", Integer"
+                  Case "l"  : LL_DLLFunctions()\ParamsRetType = ", Long"
+                  Default  : LL_DLLFunctions()\ParamsRetType = ", Long"
                 CompilerEndIf
               EndSelect
             Next
@@ -344,6 +349,8 @@ ProcedureDLL Moebius_Compile_Step2()
         ;{ extrn
         For IncA = 0 To CountString(LL_DLLFunctions()\Code, #System_EOL)
           CodeField = Trim(StringField(LL_DLLFunctions()\Code, IncA, #System_EOL))
+          CodeField = ReplaceString(CodeField, Chr(13), "")
+          CodeField = ReplaceString(CodeField, Chr(10), "")
           If LCase(StringField(CodeField, 1, " ")) = "call"
             WriteStringN(lFile, "extrn "+StringField(CodeField, CountString(CodeField, " ")+1, " "))
           EndIf
@@ -373,7 +380,6 @@ ProcedureDLL Moebius_Compile_Step2()
           EndIf
           WriteStringN(lFile, TrCodeField)
         EndIf;}
-        Debug "-------------"
         CloseFile(lFile)
       EndIf
     Next
@@ -433,9 +439,9 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step3()
   ; 3. FASM compiles the ASM files created by tailbite To OBJ
   ;     Compiling ASM sources
-  ;RunProgram(gConf_Path_FASM, Chr(34)+gProject\FileAsm+Chr(34)+" "+Chr(34)+gProject\FileO+Chr(34), "", #PB_Program_Wait) 
+  ;RunProgram(gConf_Path_FASM, #DQuote+gProject\FileAsm+#DQuote+" "+#DQuote+gProject\FileO+#DQuote, "", #PB_Program_Wait) 
   ForEach LL_DLLFunctions()
-    RunProgram(gConf_Path_FASM, Chr(34)+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+Chr(34)+" "+Chr(34)+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+Chr(34), "", #PB_Program_Wait)
+    RunProgram(gConf_Path_FASM, #DQuote+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, "", #PB_Program_Wait)
   Next
 EndProcedure
 
@@ -495,30 +501,30 @@ ProcedureDLL Moebius_Compile_Step4()
     Protected hObjFile.l = CreateFile(#PB_Any, gProject\DirObj+"ObjList.txt")
     If hObjFile
       ForEach LL_DLLFunctions()
-        WriteStringN(hObjFile, Chr(34)+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+Chr(34))
+        WriteStringN(hObjFile, #DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote)
       Next
       CloseFile(hObjFile)
     EndIf
-    RunProgram(gConf_Path_OBJ2LIB, "/out:"+Chr(34)+gProject\FileLib+Chr(34)+" @"+Chr(34)+gProject\DirObj+"ObjList.txt"+Chr(34), "", #PB_Program_Wait)
+    RunProgram(gConf_Path_OBJ2LIB, "/out:"+#DQuote+gProject\FileLib+#DQuote+" @"+#DQuote+gProject\DirObj+"ObjList.txt"+#DQuote, "", #PB_Program_Wait)
   CompilerElse
     StringTmp = "ar rvs "
-    StringTmp + Chr(34)+gProject\FileLib+Chr(34)+" "
+    StringTmp + #DQuote+gProject\FileLib+#DQuote+" "
     StringTmp + gProject\DirObj + "*"+#System_ExtObj
     ;ForEach LL_DLLFunctions()
-    ;  StringTmp + Chr(34)+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+#System_ExtObj+Chr(34)+" "
+    ;  StringTmp + #DQuote+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote+" "
     ;Next
     system_(@StringTmp)
     ;RunProgram("ar ", StringTmp, "", #PB_Program_Wait)
-    ;RunProgram("/usr/bin/ar ", "rvs "+Chr(34)+gProject\FileA+Chr(34)+" "+#Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator+"OBJ"+#System_Separator+"*.o", "", #PB_Program_Wait)
-    ;RunProgram("/usr/bin/ar rvs "+Chr(34)+"/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/LIB/Sample_00.a"+Chr(34)+" /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/OBJ/*.o", "", "", #PB_Program_Wait)
+    ;RunProgram("/usr/bin/ar ", "rvs "+#DQuote+gProject\FileA+#DQuote+" "+#Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator+"OBJ"+#System_Separator+"*.o", "", #PB_Program_Wait)
+    ;RunProgram("/usr/bin/ar rvs "+#DQuote+"/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/LIB/Sample_00.a"+#DQuote+" /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/OBJ/*.o", "", "", #PB_Program_Wait)
     ;RunProgram("ar ", StringTmp, "", #PB_Program_Wait)
     
     ; Denis
-    ;RunProgram("/usr/bin/ar rvs", Chr(34)+" /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/LIB/Sample_00.a"+Chr(34)+" /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/OBJ/*.o"+Chr(34), "", #PB_Program_Wait)
-    ;RunProgram("/usr/bin/ar rvs", Chr(34)+" /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/LIB/Sample_00.a /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/OBJ/*.o"+Chr(34), "", #PB_Program_Wait)
-    ;RunProgram("/usr/bin/ar", Chr(34)+ " rvs "+Chr(34)+"/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/LIB/Sample_00.a"+Chr(34)+" /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/OBJ/*.o" +Chr(34), "", #PB_Program_Wait)
-    ;RunProgram("/usr/bin/ar", Chr(34)+ " rvs /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/LIB/Sample_00.a /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/OBJ/*.o" +Chr(34), "", #PB_Program_Wait)
-    ;RunProgram("ar ", "rvs "+Chr(34)+gProject\FileA+Chr(34)+" "+gProject\DirObj+"*"+#System_ExtObj, "", #PB_Program_Wait)
+    ;RunProgram("/usr/bin/ar rvs", #DQuote+" /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/LIB/Sample_00.a"+#DQuote+" /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/OBJ/*.o"+#DQuote, "", #PB_Program_Wait)
+    ;RunProgram("/usr/bin/ar rvs", #DQuote+" /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/LIB/Sample_00.a /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/OBJ/*.o"+#DQuote, "", #PB_Program_Wait)
+    ;RunProgram("/usr/bin/ar", #DQuote+ " rvs "+#DQuote+"/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/LIB/Sample_00.a"+#DQuote+" /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/OBJ/*.o" +#DQuote, "", #PB_Program_Wait)
+    ;RunProgram("/usr/bin/ar", #DQuote+ " rvs /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/LIB/Sample_00.a /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/OBJ/*.o" +#DQuote, "", #PB_Program_Wait)
+    ;RunProgram("ar ", "rvs "+#DQuote+gProject\FileA+#DQuote+" "+gProject\DirObj+"*"+#System_ExtObj, "", #PB_Program_Wait)
   CompilerEndIf
 EndProcedure
 
@@ -526,7 +532,7 @@ ProcedureDLL Moebius_Compile_Step5()
   ; 5. LibraryMaker creates userlibrary from the LIB file
   Protected DirUserLibrary.s = #PB_Compiler_Home + "pureLibraries"+#System_Separator+"UserLibraries"+#System_Separator
   
-  RunProgram(gConf_Path_PBLIBMAKER, Chr(34)+gProject\FileDesc+Chr(34)+" /To "+Chr(34)+DirUserLibrary+Chr(34), gConf_ProjectDir, #PB_Program_Wait|#PB_Program_Hide)
+  RunProgram(gConf_Path_PBLIBMAKER, #DQuote+gProject\FileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, gConf_ProjectDir, #PB_Program_Wait|#PB_Program_Hide)
   If FileSize(DirUserLibrary+gProject\LibName)>0
     ProcedureReturn #True
   Else
@@ -544,7 +550,8 @@ ProcedureDLL Moebius_Compile_Step6()
 EndProcedure
 
 ; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 20
-; Folding = AAAg
+; CursorPosition = 508
+; FirstLine = 69
+; Folding = BAUk
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
