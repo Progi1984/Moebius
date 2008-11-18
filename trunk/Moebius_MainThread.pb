@@ -7,57 +7,77 @@ DeclareDLL Moebius_Compile_Step5()
 DeclareDLL Moebius_Compile_Step6()
 
 ProcedureDLL Moebius_MainThread(Param.l)
+  Protected RetValue.l
   Debug "Moebius_Compile_Step0()"
-  If Moebius_Compile_Step0() = #True
+  RetValue = Moebius_Compile_Step0() 
+  If RetValue = #True
     Debug "Moebius_Compile_Step1()"
-    Moebius_Compile_Step1()
-    Debug "Moebius_Compile_Step2()"
-    Moebius_Compile_Step2()
-    Debug "Moebius_Compile_Step3()"
-    Moebius_Compile_Step3()
-    Debug "Moebius_Compile_Step4()"
-    Moebius_Compile_Step4()
-    Debug "Moebius_Compile_Step5()"
-    Moebius_Compile_Step5()
-    Debug "Moebius_Compile_Step6()"
-    Moebius_Compile_Step6()
+    RetValue = Moebius_Compile_Step1()
+    If RetValue = #True
+      Debug "Moebius_Compile_Step2()"
+      Moebius_Compile_Step2()
+      Debug "Moebius_Compile_Step3()"
+      Moebius_Compile_Step3()
+      Debug "Moebius_Compile_Step4()"
+      Moebius_Compile_Step4()
+      Debug "Moebius_Compile_Step5()"
+      Moebius_Compile_Step5()
+      Debug "Moebius_Compile_Step6()"
+      Moebius_Compile_Step6()
+    EndIf
   EndIf
 EndProcedure
 
+;@returnvalue : 1  > Success
+;@returnvalue : 0  > Error : Can't delete files of old projects
+;@returnvalue : -1 > Error : Can't create the directory of project
+;@returnvalue : -2 > Error : Can't create the directory "Project\ASM"
+;@returnvalue : -3 > Error : Can't create the directory "Project\DESC"
+;@returnvalue : -4 > Error : Can't create the directory "Project\LIB"
+;@returnvalue : -5 > Error : Can't create the directory "Project\OBJ"
+;@returnvalue : -6 > Error : Can't delete the old userlibrary
 ProcedureDLL Moebius_Compile_Step0()
   ; 0. Cleaning & Preparing
   ;Cleans the old userlib
   If FileSize(#PB_Compiler_Home + "pureLibraries"+#System_Separator+"UserLibraries"+#System_Separator+gProject\LibName) > 0
-    DeleteFile(#PB_Compiler_Home + "pureLibraries"+#System_Separator+"UserLibraries"+#System_Separator+gProject\LibName)
+    If DeleteFile(#PB_Compiler_Home + "pureLibraries"+#System_Separator+"UserLibraries"+#System_Separator+gProject\LibName) = 0
+      ProcedureReturn #False -6
+    EndIf
   EndIf
   ;Prepares the location For Moebius
-  If DeleteDirectory(gConf_ProjectDir, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive)
-    If CreateDirectory(gConf_ProjectDir)
-      If CreateDirectory(gConf_ProjectDir+"ASM"+#System_Separator)
-        If CreateDirectory(gConf_ProjectDir+"DESC"+#System_Separator)
-          If CreateDirectory(gConf_ProjectDir+"LIB"+#System_Separator)
-            If CreateDirectory(gConf_ProjectDir+"OBJ"+#System_Separator)
-              ProcedureReturn #True
-            Else
-              ProcedureReturn #False -5
-            EndIf
+  If FileSize(gConf_ProjectDir) = -2
+    If DeleteDirectory(gConf_ProjectDir, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
+      ProcedureReturn #False
+    EndIf
+  EndIf
+  If CreateDirectory(gConf_ProjectDir)
+    If CreateDirectory(gConf_ProjectDir+"ASM"+#System_Separator)
+      If CreateDirectory(gConf_ProjectDir+"DESC"+#System_Separator)
+        If CreateDirectory(gConf_ProjectDir+"LIB"+#System_Separator)
+          If CreateDirectory(gConf_ProjectDir+"OBJ"+#System_Separator)
+            ProcedureReturn #True
           Else
-            ProcedureReturn #False -4
+            ProcedureReturn #False -5
           EndIf
         Else
-          ProcedureReturn #False -3
+          ProcedureReturn #False -4
         EndIf
       Else
-        ProcedureReturn #False -2
+        ProcedureReturn #False -3
       EndIf
     Else
-      ProcedureReturn #False -1
+      ProcedureReturn #False -2
     EndIf
   Else
-    ProcedureReturn #False
+    ProcedureReturn #False -1
   EndIf
 EndProcedure
 
+;@returnvalue : 1  > Success
+;@returnvalue : 0  > Error : Not a purebasic file
+;@returnvalue : -1 > Error : Program not launched
+;@returnvalue : -2 > Error : Compiler Error
+;@returnvalue : -3 > Error : Compiler Exit Code Error
 ProcedureDLL Moebius_Compile_Step1()
   ; 1. PBCOMPILER creates the EXE (using POLINK) that we don't need, but also the ASM file (/COMMENTED)
  
@@ -93,6 +113,8 @@ ProcedureDLL Moebius_Compile_Step1()
     While ProgramRunning(Compilateur)
       Sortie + ReadProgramString(Compilateur) + Chr(13)
     Wend
+  Else
+    ProcedureReturn -1
   EndIf
   
   If ProgramExitCode(Compilateur) = 0
@@ -553,8 +575,8 @@ ProcedureDLL Moebius_Compile_Step6()
 EndProcedure
 
 ; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 305
-; FirstLine = 129
-; Folding = 6Q8k
+; CursorPosition = 25
+; FirstLine = 7
+; Folding = BAAg
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
