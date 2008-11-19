@@ -16,6 +16,7 @@ Structure S_DLLFunctions
   ParamsRetType.s
   Code.s
   IsDLLFunction.b
+  Win_ASMNameFunc.s
 EndStructure
 Structure S_PBFunctionInfo
   FuncName.s
@@ -40,6 +41,6 @@ Global NewList LL_DLLUsed.s()
 
 #DQuote = Chr(34)
 ; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 40
+; CursorPosition = 18
 ; Folding = -
 ; EnableXP
