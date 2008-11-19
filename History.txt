@@ -8,7 +8,7 @@ Release
 	TO ADD : ReStart PBCompiler after creating the userlib
 	TO ADD : Logging Function
 	TO ADD : Unicode & ThreadSafe
-	TO ADD : 
+	TO ADD : Logging Functions
 0.3
 	CPU modifiers
 0.4

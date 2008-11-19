@@ -358,7 +358,7 @@ ProcedureDLL Moebius_Compile_Step2()
     ForEach LL_DLLFunctions()
       lFile = CreateFile(#PB_Any, gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
       If lFile
-        WriteStringN(lFile, "format "+#System_LibFormat
+        WriteStringN(lFile, "format "+#System_LibFormat)
         WriteStringN(lFile, "")
         ;{ déclarations
         If LL_DLLFunctions()\IsDLLFunction = #True
@@ -382,6 +382,7 @@ ProcedureDLL Moebius_Compile_Step2()
           CompilerIf #PB_Compiler_OS = #PB_OS_Windows
             CodeField = LL_DLLFunctions()\Code
             CodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
+            LL_DLLFunctions()\Win_ASMNameFunc = Left(Trim(StringField(CodeField, 1, #System_EOL)), Len(Trim(StringField(CodeField, 1, #System_EOL)))-1)
             CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
             CodeField + Right(LL_DLLFunctions()\Code, Len(LL_DLLFunctions()\Code) - Len(StringField(LL_DLLFunctions()\Code, 1, #System_EOL)))
           CompilerElse
@@ -567,7 +568,8 @@ ProcedureDLL Moebius_Compile_Step6()
 EndProcedure
 
 ; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 515
-; Folding = AAAg
+; CursorPosition = 385
+; FirstLine = 33
+; Folding = IAkg
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
