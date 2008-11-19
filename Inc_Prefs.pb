@@ -1,13 +1,6 @@
 ProcedureDLL Moebius_ReadPrefs()
-  Protected IniFile.s
-  CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-    IniFile = "Prefs\Moebius_Windows.ini"
-  CompilerElse
-    IniFile = "Prefs/Moebius_Linux.ini"
-  CompilerEndIf
-  
   ; ReadPreferences > Path
-  If OpenPreferences(IniFile) <> 0
+  If OpenPreferences("Prefs"+#System_Separator+"Moebius_"+#System_OS+".ini") <> 0
     PreferenceGroup("PATH")
     Global gConf_PureBasic_Path.s = ReadPreferenceString("PureBasic", "")
     Global gConf_Path_PBCOMPILER.s = ReadPreferenceString("PBCompiler", "")
@@ -17,18 +10,9 @@ ProcedureDLL Moebius_ReadPrefs()
     ClosePreferences()
   EndIf
 
-  CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-    IniFile = "Prefs\Project_Sample00.ini"
-  CompilerElse
-    IniFile = "Prefs/Project_Sample00.ini"
-  CompilerEndIf
   ; ReadPreferences > Project
-  If OpenPreferences(IniFile) <> 0
-    CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-      PreferenceGroup("WINDOWS")
-    CompilerElse
-      PreferenceGroup("LINUX")
-    CompilerEndIf
+  If OpenPreferences("Prefs"+#System_Separator+"Project_Sample00.ini") <> 0
+    PreferenceGroup(UCase(#System_OS))
     gProject\Name = ReadPreferenceString("Name", "")
     gProject\FileName = ReadPreferenceString("FileName", "")
     
@@ -39,6 +23,6 @@ ProcedureDLL Moebius_ReadPrefs()
   EndIf
  EndProcedure
 ; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 37
+; CursorPosition = 2
 ; Folding = -
 ; EnableXP
