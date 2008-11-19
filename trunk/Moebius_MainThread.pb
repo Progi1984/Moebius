@@ -358,11 +358,7 @@ ProcedureDLL Moebius_Compile_Step2()
     ForEach LL_DLLFunctions()
       lFile = CreateFile(#PB_Any, gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
       If lFile
-        CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-          WriteStringN(lFile, "format MS COFF")
-        CompilerElse
-          WriteStringN(lFile, "format ELF")
-        CompilerEndIf
+        WriteStringN(lFile, "format "+#System_LibFormat
         WriteStringN(lFile, "")
         ;{ déclarations
         If LL_DLLFunctions()\IsDLLFunction = #True
@@ -415,11 +411,7 @@ ProcedureDLL Moebius_Compile_Step2()
       LL_DLLFunctions()\FuncDesc = ""
       LL_DLLFunctions()\Params = ""
       LL_DLLFunctions()\ParamsRetType = ""
-      CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-        LL_DLLFunctions()\Code = "format MS COFF" + #System_EOL
-      CompilerElse
-        LL_DLLFunctions()\Code = "format ELF" + #System_EOL
-      CompilerEndIf
+      LL_DLLFunctions()\Code = "format "+#System_LibFormat + #System_EOL
       LL_DLLFunctions()\Code + "extrn _SYS_InitString@0" + #System_EOL
       LL_DLLFunctions()\Code + "Public PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init"  + #System_EOL
       LL_DLLFunctions()\Code + "PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init:" + #System_EOL
@@ -575,8 +567,7 @@ ProcedureDLL Moebius_Compile_Step6()
 EndProcedure
 
 ; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 25
-; FirstLine = 7
-; Folding = BAAg
+; CursorPosition = 515
+; Folding = AAAg
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
