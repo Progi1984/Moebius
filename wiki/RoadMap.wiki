@@ -43,6 +43,6 @@
 = Milestone 0.9 =
  * TO ADD : Multilanguage
  * TO ADD : Code Documentation
- * TO ADD : Help
+ * TO ADD : Help Fr & En
 = Milestone 1.0 =
  * TO ADD : Equivalent to Tailbite : Windows, Linux, MacOS
