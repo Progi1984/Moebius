@@ -9,7 +9,7 @@ DeclareDLL Moebius_Compile_Step6()
 ProcedureDLL Moebius_MainThread(Param.l)
   Protected RetValue.l
   Debug "Moebius_Compile_Step0()"
-  RetValue = Moebius_Compile_Step0() 
+  RetValue = Moebius_Compile_Step0()
   If RetValue = #True
     Debug "Moebius_Compile_Step1()"
     RetValue = Moebius_Compile_Step1()
@@ -24,7 +24,11 @@ ProcedureDLL Moebius_MainThread(Param.l)
       Moebius_Compile_Step5()
       Debug "Moebius_Compile_Step6()"
       Moebius_Compile_Step6()
+    Else
+      Debug "Step1 > Error > "+Str(RetValue)
     EndIf
+  Else
+    Debug "Step0 > Error > "+Str(RetValue)
   EndIf
 EndProcedure
 
@@ -108,7 +112,6 @@ ProcedureDLL Moebius_Compile_Step1()
   DeleteFile(gConf_ProjectDir + "PureBasic.asm")
   
   Compilateur = RunProgram(gConf_Path_PBCOMPILER, #DQuote+gProject\FileName+#DQuote+" "+#Switch_InlineASM+" "+#Switch_Commented+" "+#Switch_Executable+" "+#DQuote+FichierExe+#DQuote, gConf_ProjectDir, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
-
   If Compilateur
     While ProgramRunning(Compilateur)
       Sortie + ReadProgramString(Compilateur) + Chr(13)
@@ -125,13 +128,13 @@ ProcedureDLL Moebius_Compile_Step1()
       DeleteFile(FichierExe)
       ProcedureReturn #True
     Else
-      Debug "Erreur de compilation > Le compilateur a retourné l'erreur suivante :" + Chr(10) + Sortie
+      Debug "Erreur de compilation > Le compilateur a retourné l'erreur suivante : -2" + Chr(10) + Sortie
       ; we delete the last executable created
       DeleteFile(FichierExe)
       ProcedureReturn -2
     EndIf
   Else
-    Debug "Erreur de compilation > Le compilateur a retourné l'erreur suivante :" + Chr(10) + Sortie
+    Debug "Erreur de compilation > Le compilateur a retourné l'erreur suivante : -3" + Chr(10) + Sortie
     ; we delete the last executable created
     DeleteFile(FichierExe)
     ProcedureReturn -3
@@ -361,7 +364,7 @@ ProcedureDLL Moebius_Compile_Step2()
   ;{ Create ASM Files
     Protected lFile.l
     ; private functions
-    For IncA = 0 To countlist(LL_DLLFunctions())-1
+    For IncA = 0 To CountList(LL_DLLFunctions())-1
       SelectElement(LL_DLLFunctions(), IncA)
       CodeField   = LL_DLLFunctions()\FuncName        ;     Function Name
       TrCodeField = LL_DLLFunctions()\Win_ASMNameFunc ; ASM Function Name
@@ -429,10 +432,21 @@ ProcedureDLL Moebius_Compile_Step2()
       LL_DLLFunctions()\Params = ""
       LL_DLLFunctions()\ParamsRetType = ""
       LL_DLLFunctions()\Code = "format "+#System_LibFormat + #System_EOL
-      LL_DLLFunctions()\Code + "extrn _SYS_InitString@0" + #System_EOL
+      LL_DLLFunctions()\Code + "" + #System_EOL
+      CompilerIf #PB_Compiler_OS = #PB_OS_Windows
+        LL_DLLFunctions()\Code + "extrn _SYS_InitString@0" + #System_EOL
+      CompilerElse
+        LL_DLLFunctions()\Code + "extrn SYS_InitString" + #System_EOL
+      CompilerEndIf
+      LL_DLLFunctions()\Code + "" + #System_EOL
       LL_DLLFunctions()\Code + "Public PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init"  + #System_EOL
+      LL_DLLFunctions()\Code + "" + #System_EOL
       LL_DLLFunctions()\Code + "PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init:" + #System_EOL
-      LL_DLLFunctions()\Code + "call _SYS_InitString@0" + #System_EOL
+      CompilerIf #PB_Compiler_OS = #PB_OS_Windows
+        LL_DLLFunctions()\Code + "CALL _SYS_InitString@0" + #System_EOL
+      CompilerElse
+        LL_DLLFunctions()\Code + "CALL SYS_InitString" + #System_EOL
+      CompilerEndIf
       LL_DLLFunctions()\Code + "RET " + #System_EOL
       LL_DLLFunctions()\IsDLLFunction.b = #False
     EndIf
@@ -564,9 +578,9 @@ EndProcedure
 
 ProcedureDLL Moebius_Compile_Step5()
   ; 5. LibraryMaker creates userlibrary from the LIB file
-  Protected DirUserLibrary.s = #PB_Compiler_Home + "pureLibraries"+#System_Separator+"UserLibraries"+#System_Separator
-  
+  Protected DirUserLibrary.s = #PB_Compiler_Home + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator
   RunProgram(gConf_Path_PBLIBMAKER, #DQuote+gProject\FileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, gConf_ProjectDir, #PB_Program_Wait|#PB_Program_Hide)
+  
   If FileSize(DirUserLibrary+gProject\LibName)>0
     ProcedureReturn #True
   Else
@@ -582,9 +596,9 @@ ProcedureDLL Moebius_Compile_Step6()
 ;     DeleteFile(gConf_SourceDir+#System_Separator+"purebasic.out")
 ;   EndIf
 EndProcedure
-
-; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 584
-; Folding = AEAg
+; IDE Options = PureBasic 4.20 (Windows - x86)
+; CursorPosition = 10
+; FirstLine = 7
+; Folding = -H7h---------fu+---
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
