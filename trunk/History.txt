@@ -10,15 +10,19 @@ Release
 	TO ADD : Unicode & ThreadSafe
 	TO ADD : Logging Functions
 0.3
-	CPU modifiers
-0.4
-	Parameter with default value
-	Parameter with type : linked list
-	Parameter with type : tables
+	TO ADD : CPU modifiers
+0.4	
+	TO ADD : Global variables
+	TO ADD : Imported Libraries
+	TO ADD : Used Userlibs
 0.5
-	Debug Routine
+	TO ADD : Parameter with default value
+	TO ADD : Parameter with type : linked list
+	TO ADD : Parameter with type : tables
 0.6
-	Management of Profile
+	TO ADD : Debug Routine
+0.7
+	TO ADD : Management of Profile
 		- ProgramParameter (in Tailbite)
 			/CHM:<Name of helpfile>	The name of the helpfile without extension .chm (supresses the inputrequester)
 			/DONT				Don't build library, only source files: only the ASM files and .Desc file will be created.
@@ -32,10 +36,12 @@ Release
 			/THRD				The library will be THREADSAFE compiled
 			/WRIT				Generate build batch file: TailBite will generate a batch file in the library source folder to allow fast rebuilding which, anyway, you can do more easyly with TailBite itself (processing the .Desc file).
 		- INI File
+0.8	
+	TO ADD : GUI For Moebius
 0.9
-	Help
+	TO ADD : Help
 1.0
-	Equivalent to Tailbite : Windows, Linux, MacOS
+	TO ADD : Equivalent to Tailbite : Windows, Linux, MacOS
 
 Thanks to :
-	Denis	for having help us to resolve some ASM problems
+	Denis	for helping us to resolve a lot of ASM problems
