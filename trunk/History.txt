@@ -1,6 +1,6 @@
 Release
 0.1
-	Compiling a simple userlib : Sample_00
+	ADDED : Compiling a simple userlib : Sample_00
 0.2
 	TO IMPROVE : Replace CompilerIf by CompilerSelect
 	TO IMPROVE : Creation of Directory of Project in system "temp" directory
