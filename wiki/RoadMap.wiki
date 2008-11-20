@@ -1,4 +1,5 @@
 #summary Roadmap
+#labels Featured
 
 = Milestone 0.1 =
  * ADDED : Compiling a simple userlib : Sample_00
@@ -40,7 +41,8 @@
 = Milestone 0.8 =
  * TO ADD : GUI For Moebius
 = Milestone 0.9 =
+ * TO ADD : Multilanguage
+ * TO ADD : Code Documentation
  * TO ADD : Help
 = Milestone 1.0 =
  * TO ADD : Equivalent to Tailbite : Windows, Linux, MacOS
-
