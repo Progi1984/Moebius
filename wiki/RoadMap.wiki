@@ -3,14 +3,17 @@
 
 = Milestone 0.1 =
  * ADDED : Compiling a simple userlib : Sample_00
+----
 = Milestone 0.2 =
  * TO IMPROVE : Replace CompilerIf by CompilerSelect
+ * TO IMPROVE : Add #Program_Hide for RunProgram
  * TO IMPROVE : Creation of Directory of Project in system "temp" directory
  * TO ADD : Windows : Detection of PureBasic Directory (Gnozal)
  * TO ADD : ReStart PBCompiler after creating the userlib
  * TO ADD : Logging Function
  * TO ADD : Unicode & ThreadSafe
  * TO ADD : Logging Functions
+  * Log Return of RunProgram
 = Milestone 0.3 =
  * TO ADD : CPU modifiers
 = Milestone 0.4 =
