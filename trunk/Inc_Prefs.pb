@@ -16,13 +16,13 @@ ProcedureDLL Moebius_ReadPrefs()
     gProject\Name = ReadPreferenceString("Name", "")
     gProject\FileName = ReadPreferenceString("FileName", "")
     
-    Global gConf_SourceDir.s = ReadPreferenceString("SourceDir", "")
+    Global gConf_SourceDir.s = GetTemporaryDirectory() + "Moebius" + #System_Separator
     Global gConf_ProjectDir.s = gConf_SourceDir + gProject\Name + #System_Separator
     
     ClosePreferences()
   EndIf
  EndProcedure
-; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 2
+; IDE Options = PureBasic 4.20 (Linux - x86)
+; CursorPosition = 18
 ; Folding = -
 ; EnableXP
