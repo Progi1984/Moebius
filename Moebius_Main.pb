@@ -6,7 +6,7 @@ CompilerSelect #PB_Compiler_OS
 CompilerEndSelect
 XIncludeFile "Inc_Prefs.pb"
 XIncludeFile "Inc_PB.pb"
-Compi "Moebius_MainThread.pb"
+XIncludeFile "Moebius_MainThread.pb"
 
 Moebius_ReadPrefs()
 
@@ -20,6 +20,6 @@ gProject\FileCHM  = gProject\LibName + #System_ExtHelp
 ;CreateThread(@Moebius_MainThread(),0)
 Moebius_MainThread(0)
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 4
+; CursorPosition = 8
 ; Folding = -
 ; Executable = Moebius.exe
