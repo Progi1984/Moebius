@@ -495,9 +495,8 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step3()
   ; 3. FASM compiles the ASM files created by tailbite To OBJ
   ;     Compiling ASM sources
-  ;RunProgram(gConf_Path_FASM, #DQuote+gProject\FileAsm+#DQuote+" "+#DQuote+gProject\FileO+#DQuote, "", #PB_Program_Wait) 
   ForEach LL_DLLFunctions()
-    RunProgram(gConf_Path_FASM, #DQuote+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, "", #PB_Program_Wait)
+    RunProgram(gConf_Path_FASM, #DQuote+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, "", #PB_Program_Wait|#PB_Program_Hide)
   Next
 EndProcedure
 
@@ -562,7 +561,7 @@ ProcedureDLL Moebius_Compile_Step4()
         Next
         CloseFile(hObjFile)
       EndIf
-      RunProgram(gConf_Path_OBJ2LIB, "/out:"+#DQuote+gProject\FileLib+#DQuote+" @"+#DQuote+gProject\DirObj+"ObjList.txt"+#DQuote, "", #PB_Program_Wait)
+      RunProgram(gConf_Path_OBJ2LIB, "/out:"+#DQuote+gProject\FileLib+#DQuote+" @"+#DQuote+gProject\DirObj+"ObjList.txt"+#DQuote, "", #PB_Program_Wait|#PB_Program_Hide)
     ;}
     CompilerCase #PB_OS_Linux;{
       StringTmp = "ar rvs "
@@ -593,8 +592,8 @@ ProcedureDLL Moebius_Compile_Step6()
 ;   EndIf
 EndProcedure
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 577
-; FirstLine = 527
-; Folding = -------------d9---3-
+; CursorPosition = 563
+; FirstLine = 541
+; Folding = -------------d9---4-
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
