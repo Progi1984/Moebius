@@ -14,10 +14,10 @@
 #System_Separator = "/"
 #System_EOL = Chr(10)
 #System_LibFormat = "ELF"
-#System_OS = "linux"
+#System_OS = "Linux"
 
 #PB_FileSystem_Normal = 0
-; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 11
+; IDE Options = PureBasic 4.20 (Linux - x86)
+; CursorPosition = 16
 ; Folding = -
 ; EnableXP

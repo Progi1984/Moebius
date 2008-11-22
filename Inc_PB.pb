@@ -146,12 +146,12 @@ Procedure.s PB_ListFunctions(Function.s)
     EndIf
     
     ; List all functions contained in {System}Libraries
-    lTest = ExamineDirectory(0, gConf_PureBasic_Path+"purelibraries"+#System_Separator+#System_OS+#System_Separator, "")
+    lTest = ExamineDirectory(0, gConf_PureBasic_Path+"purelibraries"+#System_Separator+LCase(#System_OS)+#System_Separator, "")
     If lTest
       NextDir = NextDirectoryEntry(0)
       Repeat
         NameOfLib = DirectoryEntryName(0)
-        LibFileName = gConf_PureBasic_Path+"purelibraries"+#System_Separator+#System_OS+#System_Separator+"+NameOfLib"
+        LibFileName = gConf_PureBasic_Path+"purelibraries"+#System_Separator+LCase(#System_OS)+#System_Separator+"+NameOfLib"
         PB_GetInfoLib(LibFileName)
         NextDir = NextDirectoryEntry(0)
       Until NextDir = #False
@@ -176,8 +176,8 @@ Procedure.s PB_ListFunctions(Function.s)
   Next
 EndProcedure
 
-; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 153
-; Folding = 9
+; IDE Options = PureBasic 4.20 (Linux - x86)
+; CursorPosition = 177
+; Folding = +-vf--
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
