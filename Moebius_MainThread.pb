@@ -596,6 +596,6 @@ EndProcedure
 ; IDE Options = PureBasic 4.20 (Linux - x86)
 ; CursorPosition = 594
 ; FirstLine = 13
-; Folding = 3-0+---------d9o--n+
+; Folding = AAAAAAAAAAAAAAAAAAA+
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
