@@ -8,7 +8,7 @@
  * IMPROVED : Replace CompilerIf by CompilerSelect
  * IMPROVED : Add #Program_Hide for RunProgram
  * IMPROVED : Creation of Directory of Project in system "temp" directory
- * TO IMPROVE : CreateDirectory Recursive
+ * IMPROVED : CreateDirectory Recursive
  * TO ADD : Windows : Detection of PureBasic Directory (Gnozal)
  * TO ADD : ReStart PBCompiler after creating the userlib
  * TO ADD : Logging Function
