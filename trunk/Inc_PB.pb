@@ -128,7 +128,7 @@ Procedure PB_GetInfoLib(FileName.s)
   EndIf
 EndProcedure
 
-; @desc : List all functions contained in purelibraries & {System}Libraries
+;@desc : List all functions contained in purelibraries & {System}Libraries
 Procedure.s PB_ListFunctions(Function.s)
   Protected NextDir.l, NameOfLib.s, LibFileName.s
   Protected lTest.l
@@ -175,9 +175,54 @@ Procedure.s PB_ListFunctions(Function.s)
     EndIf
   Next
 EndProcedure
+;@desc : Retrieves Purebasic folder [empty string if not installed]
+;@return : Purebasic Path
+Procedure.s PB_GetPBFolder()
+  CompilerSelect #PB_Compiler_OS
+    CompilerCase #PB_OS_Windows
+    ;{
+      Protected hKey1.l, Type.l, Res.l, Folder.s, lpbData.l, cbData.l, WindowsVersion.l
+      cbData = (#MAX_PATH * 2) + 2
+      lpbData = AllocateMemory(cbData)
+      Folder=""
+      hKey1=0
+      Type=0
+      Res=-1
+      Select OSVersion()
+        Case #PB_OS_Windows_95, #PB_OS_Windows_98, #PB_OS_Windows_ME;{
+          Debug "Detected OS : Windows 95/98/ME"
+          Res=RegOpenKeyEx_(#HKEY_LOCAL_MACHINE, "Software\Classes\PureBasic.exe\shell\open\command", 0, #KEY_ALL_ACCESS, @hKey1)
+        ;}
+        Case #PB_OS_Windows_NT3_51, #PB_OS_Windows_NT_4, #PB_OS_Windows_2000, #PB_OS_Windows_XP, #PB_OS_Windows_Server_2003;{
+          Debug "Detected OS : Windows NT/2000/XP"
+          Res=RegOpenKeyEx_(#HKEY_CLASSES_ROOT, "Applications\PureBasic.exe\shell\open\command", 0, #KEY_ALL_ACCESS, @hKey1)
+        ;}
+        Default;{ Win Vista / Server 2008
+          Debug "Detected OS : Windows Vista/Server 2008"
+          Res=RegOpenKeyEx_(#HKEY_CURRENT_USER, "Software\Classes\PureBasic.exe\shell\open\command", 0, #KEY_ALL_ACCESS , @hKey1)
+        ;}
+      EndSelect
+      If Res = #ERROR_SUCCESS And hKey1
+        If RegQueryValueEx_(hKey1, "", 0, @Type, lpbData, @cbData)=#ERROR_SUCCESS
+          Folder = PeekS(lpbData)
+          Folder = GetPathPart(StringField(Folder,2,Chr(34)))
+        EndIf
+        RegCloseKey_(hKey1)
+      EndIf
+      If lpbData
+        FreeMemory(lpbData)
+        lpbData=0
+      EndIf
+      ProcedureReturn Folder
+    ;}
+    CompilerCase #PB_OS_Linux
+    ;{
+    ;}
+  CompilerEndSelect
+EndProcedure
 
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 177
-; Folding = +-vf--
+; CursorPosition = 179
+; Folding = +-vf-H9-
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
