@@ -43,8 +43,8 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step0()
   ; 0. Cleaning & Preparing
   ;Cleans the old userlib
-  If FileSize(#PB_Compiler_Home + "pureLibraries"+#System_Separator+"UserLibraries"+#System_Separator+gProject\LibName) > 0
-    If DeleteFile(#PB_Compiler_Home + "pureLibraries"+#System_Separator+"UserLibraries"+#System_Separator+gProject\LibName) = 0
+  If FileSize(gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\LibName) > 0
+    If DeleteFile(gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\LibName) = 0
       ProcedureReturn #False -6
     EndIf
   EndIf
@@ -399,24 +399,34 @@ ProcedureDLL Moebius_Compile_Step2()
         WriteStringN(lFile, "")      
         ;{ code
         If LL_DLLFunctions()\IsDLLFunction = #True
-          CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-            CodeField = LL_DLLFunctions()\Code
-            CodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
-            CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
-            CodeField + Right(LL_DLLFunctions()\Code, Len(LL_DLLFunctions()\Code) - Len(StringField(LL_DLLFunctions()\Code, 1, #System_EOL)))
-          CompilerElse
-            CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName,"PB_"+LL_DLLFunctions()\FuncName)
-          CompilerEndIf
+          CompilerSelect #PB_Compiler_OS
+            CompilerCase #PB_OS_Windows
+            ;{
+              CodeField = LL_DLLFunctions()\Code
+              CodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
+              CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
+              CodeField + Right(LL_DLLFunctions()\Code, Len(LL_DLLFunctions()\Code) - Len(StringField(LL_DLLFunctions()\Code, 1, #System_EOL)))
+            ;}
+            CompilerCase #PB_OS_Linux
+            ;{
+              CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName,"PB_"+LL_DLLFunctions()\FuncName)
+            ;}
+          CompilerEndSelect
           WriteStringN(lFile, CodeField)
         Else
           CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName, ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
           If Right(Trim(StringField(CodeField, 1, #System_EOL)), 1) = ":" ; declaration de la function
-            CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-              TrCodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
-              TrCodeField + ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
-            CompilerElse
-              TrCodeField = ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
-            CompilerEndIf
+            CompilerSelect #PB_Compiler_OS
+              CompilerCase #PB_OS_Windows
+              ;{
+                TrCodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
+                TrCodeField + ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
+              ;}
+              CompilerCase #PB_OS_Linux
+              ;{
+                TrCodeField = ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
+              ;}
+            CompilerEndSelect
             TrCodeField + Right(CodeField, Len(CodeField) - Len(StringField(CodeField, 1, #System_EOL)))
           EndIf
           WriteStringN(lFile, TrCodeField)
@@ -433,20 +443,18 @@ ProcedureDLL Moebius_Compile_Step2()
       LL_DLLFunctions()\ParamsRetType = ""
       LL_DLLFunctions()\Code = "format "+#System_LibFormat + #System_EOL
       LL_DLLFunctions()\Code + "" + #System_EOL
-      CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-        LL_DLLFunctions()\Code + "extrn _SYS_InitString@0" + #System_EOL
-      CompilerElse
-        LL_DLLFunctions()\Code + "extrn SYS_InitString" + #System_EOL
-      CompilerEndIf
+      CompilerSelect #PB_Compiler_OS 
+        CompilerCase #PB_OS_Windows : LL_DLLFunctions()\Code + "extrn _SYS_InitString@0" + #System_EOL
+        CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "extrn SYS_InitString" + #System_EOL
+      CompilerEndSelect
       LL_DLLFunctions()\Code + "" + #System_EOL
       LL_DLLFunctions()\Code + "Public PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init"  + #System_EOL
       LL_DLLFunctions()\Code + "" + #System_EOL
       LL_DLLFunctions()\Code + "PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init:" + #System_EOL
-      CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-        LL_DLLFunctions()\Code + "CALL _SYS_InitString@0" + #System_EOL
-      CompilerElse
-        LL_DLLFunctions()\Code + "CALL SYS_InitString" + #System_EOL
-      CompilerEndIf
+      CompilerSelect #PB_Compiler_OS 
+        CompilerCase #PB_OS_Windows : LL_DLLFunctions()\Code + "CALL _SYS_InitString@0" + #System_EOL
+        CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "CALL SYS_InitString" + #System_EOL
+      CompilerEndSelect
       LL_DLLFunctions()\Code + "RET " + #System_EOL
       LL_DLLFunctions()\IsDLLFunction.b = #False
     EndIf
@@ -544,43 +552,31 @@ ProcedureDLL Moebius_Compile_Step4()
     CloseFile(hDescFile)
   EndIf
   ; Creating archive
-  CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-    ; Generates a file which contains all objects files
-    Protected hObjFile.l = CreateFile(#PB_Any, gProject\DirObj+"ObjList.txt")
-    If hObjFile
-      ForEach LL_DLLFunctions()
-        WriteStringN(hObjFile, #DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote)
-      Next
-      CloseFile(hObjFile)
-    EndIf
-    RunProgram(gConf_Path_OBJ2LIB, "/out:"+#DQuote+gProject\FileLib+#DQuote+" @"+#DQuote+gProject\DirObj+"ObjList.txt"+#DQuote, "", #PB_Program_Wait)
-  CompilerElse
-    StringTmp = "ar rvs "
-    StringTmp + #DQuote+gProject\FileLib+#DQuote+" "
-    StringTmp + gProject\DirObj + "*"+#System_ExtObj
-    ;ForEach LL_DLLFunctions()
-    ;  StringTmp + #DQuote+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote+" "
-    ;Next
-    system_(@StringTmp)
-    ;RunProgram("ar ", StringTmp, "", #PB_Program_Wait)
-    ;RunProgram("/usr/bin/ar ", "rvs "+#DQuote+gProject\FileA+#DQuote+" "+#Work_Dir+"Lib_Source"+#System_Separator+gProject\LibName+#System_Separator+"OBJ"+#System_Separator+"*.o", "", #PB_Program_Wait)
-    ;RunProgram("/usr/bin/ar rvs "+#DQuote+"/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/LIB/Sample_00.a"+#DQuote+" /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/OBJ/*.o", "", "", #PB_Program_Wait)
-    ;RunProgram("ar ", StringTmp, "", #PB_Program_Wait)
-    
-    ; Denis
-    ;RunProgram("/usr/bin/ar rvs", #DQuote+" /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/LIB/Sample_00.a"+#DQuote+" /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/OBJ/*.o"+#DQuote, "", #PB_Program_Wait)
-    ;RunProgram("/usr/bin/ar rvs", #DQuote+" /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/LIB/Sample_00.a /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/OBJ/*.o"+#DQuote, "", #PB_Program_Wait)
-    ;RunProgram("/usr/bin/ar", #DQuote+ " rvs "+#DQuote+"/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/LIB/Sample_00.a"+#DQuote+" /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/OBJ/*.o" +#DQuote, "", #PB_Program_Wait)
-    ;RunProgram("/usr/bin/ar", #DQuote+ " rvs /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/LIB/Sample_00.a /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Samples00/OBJ/*.o" +#DQuote, "", #PB_Program_Wait)
-    ;RunProgram("ar ", "rvs "+#DQuote+gProject\FileA+#DQuote+" "+gProject\DirObj+"*"+#System_ExtObj, "", #PB_Program_Wait)
-  CompilerEndIf
+  ; Generates a file which contains all objects files
+  CompilerSelect #PB_Compiler_OS
+    CompilerCase #PB_OS_Windows;{
+      Protected hObjFile.l = CreateFile(#PB_Any, gProject\DirObj+"ObjList.txt")
+      If hObjFile
+        ForEach LL_DLLFunctions()
+          WriteStringN(hObjFile, #DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote)
+        Next
+        CloseFile(hObjFile)
+      EndIf
+      RunProgram(gConf_Path_OBJ2LIB, "/out:"+#DQuote+gProject\FileLib+#DQuote+" @"+#DQuote+gProject\DirObj+"ObjList.txt"+#DQuote, "", #PB_Program_Wait)
+    ;}
+    CompilerCase #PB_OS_Linux;{
+      StringTmp = "ar rvs "
+      StringTmp + #DQuote+gProject\FileLib+#DQuote+" "
+      StringTmp + gProject\DirObj + "*"+#System_ExtObj
+      system_(@StringTmp)
+    ;}
+  CompilerEndSelect
 EndProcedure
 
 ProcedureDLL Moebius_Compile_Step5()
   ; 5. LibraryMaker creates userlibrary from the LIB file
-  Protected DirUserLibrary.s = #PB_Compiler_Home + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator
+  Protected DirUserLibrary.s = gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator
   RunProgram(gConf_Path_PBLIBMAKER, #DQuote+gProject\FileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, gConf_ProjectDir, #PB_Program_Wait|#PB_Program_Hide)
-  
   If FileSize(DirUserLibrary+gProject\LibName)>0
     ProcedureReturn #True
   Else
@@ -596,9 +592,9 @@ ProcedureDLL Moebius_Compile_Step6()
 ;     DeleteFile(gConf_SourceDir+#System_Separator+"purebasic.out")
 ;   EndIf
 EndProcedure
-; IDE Options = PureBasic 4.20 (Windows - x86)
-; CursorPosition = 10
-; FirstLine = 7
-; Folding = -H7h---------fu+---
+; IDE Options = PureBasic 4.20 (Linux - x86)
+; CursorPosition = 577
+; FirstLine = 527
+; Folding = -------------d9---3-
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
