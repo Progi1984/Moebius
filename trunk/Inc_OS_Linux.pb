@@ -3,6 +3,7 @@
 #Switch_ThreadSafe = "-t"
 #Switch_InlineASM = "-i"
 #Switch_Executable = "-e"
+#Switch_StandBy = "-sb"
 
 #Switch_NoUnicodeWarning = ""
 
@@ -18,6 +19,6 @@
 
 #PB_FileSystem_Normal = 0
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 16
+; CursorPosition = 5
 ; Folding = -
 ; EnableXP

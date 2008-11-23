@@ -32,6 +32,7 @@ Structure S_Seeker
   EndStructureUnion
 EndStructure
 Global gProject.S_Project
+Global hCompiler.l
 
 Global NewList LL_DLLFunctions.S_DLLFunctions()
 Global NewList LL_PBFunctions.S_PBFunctionInfo()
@@ -40,8 +41,7 @@ Global NewList LL_LibUsed.s()
 Global NewList LL_DLLUsed.s()
 
 #DQuote = Chr(34)
-
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 42
+; CursorPosition = 35
 ; Folding = w
 ; EnableXP
