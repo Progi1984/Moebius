@@ -221,8 +221,30 @@ Procedure.s PB_GetPBFolder()
   CompilerEndSelect
 EndProcedure
 
+ProcedureDLL PB_Connect()
+  Protected ReponseComp.s
+  hCompiler = RunProgram(gConf_Path_PBCOMPILER, #Switch_StandBy, "", #PB_Program_Open|#PB_Program_Read|#PB_Program_Write|#PB_Program_Hide)
+  If hCompiler = 0
+    ProcedureReturn #False
+  Else
+    While ProgramRunning(hCompiler)
+      If AvailableProgramOutput(hCompiler)
+        ReponseComp = ReadProgramString(hCompiler)
+        If ReponseComp = "READY"
+          ProcedureReturn #True
+        EndIf
+      EndIf
+    Wend
+  EndIf
+EndProcedure
+ProcedureDLL PB_DisConnect()
+  WriteProgramStringN(hCompiler, "END")
+  CloseProgram(hCompiler)
+  ProcedureReturn #True
+EndProcedure
+
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 179
-; Folding = +-vf-H9-
+; CursorPosition = 222
+; Folding = +-vf-H9u
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb

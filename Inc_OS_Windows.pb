@@ -3,6 +3,7 @@
 #Switch_ThreadSafe = "/THREAD"
 #Switch_InlineASM = "/INLINEASM"
 #Switch_Executable = "/EXE"
+#Switch_StandBy = "/STANDBY"
 
 #Switch_NoUnicodeWarning = "/NOUNICODEWARNING"
 
@@ -16,6 +17,6 @@
 #System_LibFormat = "MS COFF"
 #System_OS = "Wsindows"
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 16
+; CursorPosition = 5
 ; Folding = -
 ; EnableXP

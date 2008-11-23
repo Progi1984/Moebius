@@ -577,7 +577,19 @@ ProcedureDLL Moebius_Compile_Step5()
   Protected DirUserLibrary.s = gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator
   RunProgram(gConf_Path_PBLIBMAKER, #DQuote+gProject\FileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, gConf_ProjectDir, #PB_Program_Wait|#PB_Program_Hide)
   If FileSize(DirUserLibrary+gProject\LibName)>0
-    ProcedureReturn #True
+    If PB_Connect() = #True
+      If PB_DisConnect() = #True
+        If PB_Connect() = #True
+          ProcedureReturn #True
+        Else
+          ProcedureReturn #False
+        EndIf
+      Else
+        ProcedureReturn #False
+      EndIf
+    Else
+      ProcedureReturn #False
+    EndIf
   Else
     ProcedureReturn #False
   EndIf 
@@ -592,10 +604,9 @@ ProcedureDLL Moebius_Compile_Step6()
 ;   EndIf
 EndProcedure
 
-
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 594
-; FirstLine = 13
-; Folding = AAAAAAAAAAAAAAAAAAA+
+; CursorPosition = 592
+; FirstLine = 12
+; Folding = AAAAAAAAAAAAAAAAAAAw
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
