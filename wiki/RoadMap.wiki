@@ -9,9 +9,8 @@
  * IMPROVED : Add #Program_Hide for RunProgram
  * IMPROVED : Creation of Directory of Project in system "temp" directory
  * IMPROVED : CreateDirectory Recursive
- * TO ADD : Detection of PureBasic Directory (Gnozal)
+ * ADDED : Detection of Purebasic Directory
  * ADDED : ReStart PBCompiler after creating the userlib
- * TO ADD : Logging Function
  * TO ADD : Unicode & ThreadSafe
  * TO ADD : Logging Functions
   * Log Return of RunProgram
