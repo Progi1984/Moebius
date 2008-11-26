@@ -16,6 +16,7 @@
   * Log Return of RunProgram
 = Milestone 0.3 =
  * TO ADD : CPU modifiers
+ * TO IMPROVE : Include with all declare functions
 = Milestone 0.4 =
  * TO ADD : Global variables
  * TO ADD : Imported Libraries
