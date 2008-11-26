@@ -2,9 +2,9 @@ ProcedureDLL Moebius_ReadPrefs()
   ; ReadPreferences > Path
   If OpenPreferences("Prefs"+#System_Separator+"Moebius_"+#System_OS+".ini") <> 0
     PreferenceGroup("PATH")
-    Global gConf_PureBasic_Path.s = ReadPreferenceString("PureBasic", "")
-    Global gConf_Path_PBCOMPILER.s = ReadPreferenceString("PBCompiler", "")
-    Global gConf_Path_FASM.s = ReadPreferenceString("PBFasm","")
+    Global gConf_PureBasic_Path.s = ReadPreferenceString("PureBasic", PB_GetPBFolder())
+    Global gConf_Path_PBCOMPILER.s = ReadPreferenceString("PBCompiler", gConf_PureBasic_Path+#System_Separator+"compilers"+#System_Separator+"pbcompiler"+#System_ExtExec)
+    Global gConf_Path_FASM.s = ReadPreferenceString("PBFasm",gConf_PureBasic_Path+#System_Separator+"compilers"+#System_Separator+"fasm"+#System_ExtExec)
     Global gConf_Path_OBJ2LIB.s = ReadPreferenceString("PBObj2Lib","")
     Global gConf_Path_PBLIBMAKER.s = ReadPreferenceString("PBLibMaker","")
     ClosePreferences()
@@ -24,6 +24,6 @@ ProcedureDLL Moebius_ReadPrefs()
  EndProcedure
  
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 24
-; Folding = +
+; CursorPosition = 6
+; Folding = -
 ; EnableXP
