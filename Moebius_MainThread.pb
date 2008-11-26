@@ -580,7 +580,11 @@ ProcedureDLL Moebius_Compile_Step5()
     If PB_Connect() = #True
       If PB_DisConnect() = #True
         If PB_Connect() = #True
-          ProcedureReturn #True
+          If PB_DisConnect() = #True
+            ProcedureReturn #True
+          Else
+            ProcedureReturn #False
+          EndIf
         Else
           ProcedureReturn #False
         EndIf
@@ -605,8 +609,8 @@ ProcedureDLL Moebius_Compile_Step6()
 EndProcedure
 
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 592
-; FirstLine = 12
-; Folding = AAAAAAAAAAAAAAAAAAAw
+; CursorPosition = 582
+; FirstLine = 21
+; Folding = AAAAAAAAAAAAAAAAAAwv
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
