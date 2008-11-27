@@ -29,7 +29,23 @@ ProcedureDLL.l CreateDirectoryEx(FolderPath.s)
  EndIf
 EndProcedure 
 
-; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 30
-; Folding = +
+ProcedureDLL Log_Init()
+  Global hFileLog = OpenFile(#PB_Any, gConf_ProjectDir+"Log_"+FormatDate("%yyyy_%mm_%dd_%hh_%ii_%ss", Date())+".log")
+EndProcedure
+ProcedureDLL Log_Add(Content.s)
+  Shared NumTab.l
+  WriteStringN(hFileLog, Space(NumTab) + Content)
+EndProcedure
+ProcedureDLL Log_SetTab(Inc.l)
+  Shared NumTab.l
+  NumTab + Inc
+  ProcedureReturn #True
+EndProcedure
+ProcedureDLL Log_End()
+  CloseFile(hFileLog)
+EndProcedure
+
+; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
+; CursorPosition = 31
+; Folding = g
 ; EnableXP

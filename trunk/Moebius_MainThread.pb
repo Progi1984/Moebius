@@ -59,6 +59,7 @@ ProcedureDLL Moebius_Compile_Step0()
       If CreateDirectoryEx(gConf_ProjectDir+"DESC"+#System_Separator)
         If CreateDirectoryEx(gConf_ProjectDir+"LIB"+#System_Separator)
           If CreateDirectoryEx(gConf_ProjectDir+"OBJ"+#System_Separator)
+            Log_Init()
             ProcedureReturn #True
           Else
             ProcedureReturn #False -5
@@ -620,10 +621,10 @@ ProcedureDLL Moebius_Compile_Step6()
 ;     CloseFile(hFile)
 ;     DeleteFile(gConf_SourceDir+#System_Separator+"purebasic.out")
 ;   EndIf
+  Log_End()
 EndProcedure
-; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 10
-; FirstLine = 9
-; Folding = AAAAAAAAAAAAAAAAAAAA9
+; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
+; CursorPosition = 623
+; Folding = AAAAg
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
