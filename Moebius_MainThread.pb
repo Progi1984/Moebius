@@ -8,27 +8,27 @@ DeclareDLL Moebius_Compile_Step6()
 
 ProcedureDLL Moebius_MainThread(Param.l)
   Protected RetValue.l
-  Debug "Moebius_Compile_Step0()"
   RetValue = Moebius_Compile_Step0()
+  Log_Add("Moebius_Compile_Step0()")
   If RetValue = #True
-    Debug "Moebius_Compile_Step1()"
+    Log_Add("Moebius_Compile_Step1()")
     RetValue = Moebius_Compile_Step1()
     If RetValue = #True
-      Debug "Moebius_Compile_Step2()"
+      Log_Add("Moebius_Compile_Step2()")
       Moebius_Compile_Step2()
-      Debug "Moebius_Compile_Step3()"
+      Log_Add("Moebius_Compile_Step3()")
       Moebius_Compile_Step3()
-      Debug "Moebius_Compile_Step4()"
+      Log_Add("Moebius_Compile_Step4()")
       Moebius_Compile_Step4()
-      Debug "Moebius_Compile_Step5()"
+      Log_Add("Moebius_Compile_Step5()")
       Moebius_Compile_Step5()
-      Debug "Moebius_Compile_Step6()"
+      Log_Add("Moebius_Compile_Step6()")
       Moebius_Compile_Step6()
     Else
-      Debug "Step1 > Error > "+Str(RetValue)
+      Log_Add("Step1 > Error > "+Str(RetValue))
     EndIf
   Else
-    Debug "Step0 > Error > "+Str(RetValue)
+    Log_Add("Step0 > Error > "+Str(RetValue))
   EndIf
 EndProcedure
 
@@ -43,6 +43,7 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step0()
   ; 0. Cleaning & Preparing
   ;Cleans the old userlib
+  Debug FileSize(gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\LibName)
   If FileSize(gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\LibName) > 0
     If DeleteFile(gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\LibName) = 0
       ProcedureReturn #False -6
@@ -113,14 +114,16 @@ ProcedureDLL Moebius_Compile_Step1()
   DeleteFile(gConf_ProjectDir + "PureBasic.asm")
   Param = #Switch_InlineASM+" "
   Param + #Switch_Commented+" "
-  Param +#Switch_Executable+" "+#DQuote+FichierExe+#DQuote
   If gProject\isUnicode
     Param + #Switch_Unicode+" "
   EndIf
   If gProject\isThreadSafe
     Param + #Switch_ThreadSafe+" "
   EndIf
+  Param +#Switch_Executable+" "+#DQuote+FichierExe+#DQuote
   Compilateur = RunProgram(gConf_Path_PBCOMPILER, #DQuote+gProject\FileName+#DQuote+" "+Param, gConf_ProjectDir, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+  Log_Add( gConf_Path_PBCOMPILER)
+  Log_Add(#DQuote+gProject\FileName+#DQuote+" "+Param)
   If Compilateur
     While ProgramRunning(Compilateur)
       Sortie + ReadProgramString(Compilateur) + Chr(13)
@@ -133,17 +136,18 @@ ProcedureDLL Moebius_Compile_Step1()
     ; Test if the result is true 
     ; The last returned ligne is "- Feel the ..PuRe.. Power -"
     If FindString(Sortie, "- Feel the ..PuRe.. Power -", 0)
+      Log_Add(Sortie)
       ; we delete the last executable created
       DeleteFile(FichierExe)
       ProcedureReturn #True
     Else
-      Debug "Erreur de compilation > Le compilateur a retourné l'erreur suivante : -2" + Chr(10) + Sortie
+      Log_Add("Erreur de compilation > Le compilateur a retourné l'erreur suivante : -2" + Chr(10) + Sortie)
       ; we delete the last executable created
       DeleteFile(FichierExe)
       ProcedureReturn -2
     EndIf
   Else
-    Debug "Erreur de compilation > Le compilateur a retourné l'erreur suivante : -3" + Chr(10) + Sortie
+    Log_Add("Erreur de compilation > Le compilateur a retourné l'erreur suivante : -3" + Chr(10) + Sortie)
     ; we delete the last executable created
     DeleteFile(FichierExe)
     ProcedureReturn -3
@@ -161,6 +165,7 @@ ProcedureDLL Moebius_Compile_Step2()
     ReadData(0,@CodeContent, Lof(0))
     CloseFile(0)
   EndIf
+  Log_Add("Extracts information for the future creation of the DESC File", 2)
   ;{ Extracts information for the future creation of the DESC File
   For Inc = 0 To CountString(CodeContent, #System_EOL)
     CodeField = StringField(CodeContent, Inc+1, #System_EOL)
@@ -197,12 +202,16 @@ ProcedureDLL Moebius_Compile_Step2()
               LL_DLLFunctions()\FuncName = StringField(TrCodeField, 1, " ")
               sReturnValField = LL_DLLFunctions()\FuncName
             EndIf
+            Log_Add("LL_DLLFunctions()\FuncName > "+LL_DLLFunctions()\FuncName, 4)
             LL_DLLFunctions()\Params = Right(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName)-(FindString(LL_DLLFunctions()\FuncName, "(", 1)))
             LL_DLLFunctions()\Params = Left(LL_DLLFunctions()\Params, (FindString(LL_DLLFunctions()\Params, ")", 1)-1))
             LL_DLLFunctions()\FuncName = Trim(Left(LL_DLLFunctions()\FuncName, FindString(LL_DLLFunctions()\FuncName, "(", 1)-1))
             If FindString(TrCodeField, ";",1) > 0
               LL_DLLFunctions()\FuncDesc = Right(TrCodeField, Len(TrCodeField) - FindString(TrCodeField, ";",1))
             EndIf
+            Log_Add("LL_DLLFunctions()\Params > "+LL_DLLFunctions()\Params, 4)
+            Log_Add("LL_DLLFunctions()\FuncName > "+LL_DLLFunctions()\FuncName, 4)
+            Log_Add("LL_DLLFunctions()\FuncDesc > "+LL_DLLFunctions()\FuncDesc, 4)
             ; Type of the Return Value
             If Mid(sReturnValField, Len(sReturnValField)-1, 1) = "."
               Select Mid(sReturnValField, Len(sReturnValField), 1)
@@ -227,6 +236,7 @@ ProcedureDLL Moebius_Compile_Step2()
                 LL_DLLFunctions()\FuncRetType = "Long"
               CompilerEndIf
             EndIf
+            Log_Add("LL_DLLFunctions()\FuncRetType > "+LL_DLLFunctions()\FuncRetType, 4)
             ; Type of Parameters
             For IncA = 1 To CountString(LL_DLLFunctions()\Params, ",")+1
               Select Right(Trim(StringField(LL_DLLFunctions()\Params, IncA, ",")), 1)
@@ -245,6 +255,7 @@ ProcedureDLL Moebius_Compile_Step2()
                 CompilerEndIf
               EndSelect
             Next
+            Log_Add("LL_DLLFunctions()\ParamsRetType > "+LL_DLLFunctions()\ParamsRetType, 4)
           EndIf
         Else
           If TrCodeField = ":System"
@@ -256,6 +267,7 @@ ProcedureDLL Moebius_Compile_Step2()
               If bInSystemLib = #True
                 AddElement(LL_DLLUsed())
                 LL_DLLUsed() = TrCodeField
+                Log_Add("LL_DLLUsed() > "+LL_DLLUsed(), 4)
               EndIf
             EndIf
           EndIf
@@ -265,6 +277,7 @@ ProcedureDLL Moebius_Compile_Step2()
   Next
   CodeCleaned2 = ""
   ;}
+  Log_Add("Remove some ASM code", 2)
   ;{ Remove some ASM code
   For Inc = 0 To CountString(CodeContent, #System_EOL)
     CodeField = StringField(CodeContent, Inc+1, #System_EOL)
@@ -376,6 +389,7 @@ ProcedureDLL Moebius_Compile_Step2()
     EndIf
   Next
   ;}
+  Log_Add("Create ASM Files", 2)
   ;{ Create ASM Files
     Protected lFile.l
     ; private functions
@@ -499,6 +513,7 @@ ProcedureDLL Moebius_Compile_Step2()
 ;       CodeCleaned2 + TrCodeField + #System_EOL
 ;     Next
   ;}
+  Log_Add("Rewrite the new ASM Code", 2)
   ;{ Rewrite the new ASM Code
   If CreateFile(0, gProject\FileAsm)
     WriteString(0,CodeCleaned)
@@ -518,16 +533,21 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step4()
   ; 4. POLIB creates the LIB library from the *.OBJ files
   ; Creating descriptor file
+  Log_Add("Creating descriptor file", 2)
   Protected StringTmp.s
   Protected hDescFile.l = CreateFile(#PB_Any, gProject\FileDesc)
   If hDescFile
-    WriteStringN(hDescFile,"ASM")
+    WriteStringN(hDescFile,"ASM") 
+    Log_Add("ASM", 4)
     ; Lib Systems
     WriteStringN(hDescFile,Str(CountList(LL_DLLUsed())))
+    Log_Add(Str(CountList(LL_DLLUsed())), 4)
     ForEach LL_DLLUsed()
       WriteStringN(hDescFile, LL_DLLUsed())
+      Log_Add(LL_DLLUsed(), 4)
     Next
     WriteStringN(hDescFile,"LIB")
+    Log_Add("LIB", 4)
     StringTmp=""
     ForEach LL_LibUsed()
       If LL_LibUsed() = "glibc"
@@ -543,11 +563,14 @@ ProcedureDLL Moebius_Compile_Step4()
       StringTmp=StringTmp+"~"+LL_LibUsed()+"~"
     Next
     WriteStringN(hDescFile,Str(CountList(LL_LibUsed())))
+    Log_Add(Str(CountList(LL_LibUsed())), 4)
     StringTmp=""
     ForEach LL_LibUsed()
       WriteStringN(hDescFile,LL_LibUsed())
+      Log_Add(LL_LibUsed(), 4)
     Next
     WriteStringN(hDescFile, gProject\FileCHM)
+    Log_Add(gProject\FileCHM, 4)
     ForEach LL_DLLFunctions()
       If LL_DLLFunctions()\FuncRetType <> "InitFunction"
         If LL_DLLFunctions()\IsDLLFunction = #True
@@ -556,16 +579,21 @@ ProcedureDLL Moebius_Compile_Step4()
             LL_DLLFunctions()\FuncDesc + " - "+LL_DLLFunctions()\FuncDesc
           EndIf
           WriteStringN(hDescFile, StringTmp)
+          Log_Add(StringTmp, 4)
           WriteStringN(hDescFile, LL_DLLFunctions()\FuncRetType+" | StdCall") 
+          Log_Add(LL_DLLFunctions()\FuncRetType+" | StdCall", 4)
         EndIf
       Else ; FuncType = InitFunction
         WriteStringN(hDescFile, LL_DLLFunctions()\FuncName)
+        Log_Add(LL_DLLFunctions()\FuncName, 4)
         WriteStringN(hDescFile, LL_DLLFunctions()\FuncRetType+" | StdCall") 
+        Log_Add(LL_DLLFunctions()\FuncRetType+" | StdCall", 4)
       EndIf
     Next
     CloseFile(hDescFile)
   EndIf
   ; Creating archive
+  Log_Add("Creating archive", 2)
   ; Generates a file which contains all objects files
   CompilerSelect #PB_Compiler_OS
     CompilerCase #PB_OS_Windows;{
@@ -623,8 +651,7 @@ ProcedureDLL Moebius_Compile_Step6()
 ;   EndIf
   Log_End()
 EndProcedure
-; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 623
-; Folding = AAAAg
+
+; IDE Options = PureBasic 4.20 (Linux - x86)
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb

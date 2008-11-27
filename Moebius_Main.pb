@@ -8,8 +8,8 @@ CompilerSelect #PB_Compiler_OS
   CompilerCase #PB_OS_Windows : XIncludeFile "Inc_OS_Windows.pb"
   CompilerCase #PB_OS_Linux : XIncludeFile "Inc_OS_Linux.pb"
 CompilerEndSelect
-XIncludeFile "Inc_Misc.pb"
 XIncludeFile "Inc_Prefs.pb"
+XIncludeFile "Inc_Misc.pb"
 XIncludeFile "Inc_PB.pb"
 XIncludeFile "Moebius_MainThread.pb"
 
@@ -25,7 +25,5 @@ gProject\FileCHM  = gProject\LibName + #System_ExtHelp
 ;CreateThread(@Moebius_MainThread(),0)
 Moebius_MainThread(0)
 
-; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; CursorPosition = 16
-; Folding = -
+; IDE Options = PureBasic 4.20 (Linux - x86)
 ; Executable = Moebius.exe

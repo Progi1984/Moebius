@@ -43,8 +43,5 @@ Global NewList LL_LibUsed.s()
 Global NewList LL_DLLUsed.s()
 
 #DQuote = Chr(34)
-
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 45
-; Folding = w
 ; EnableXP
