@@ -94,7 +94,7 @@ ProcedureDLL Moebius_Compile_Step1()
   Protected Sortie.s = ""
   ; mémorise le résultat de la fonction Runprogram
   Protected Compilateur
-  
+  Protected Param.s
   ; on teste si le fichier se fini par "pb ou pbi"
   ; si oui on continue sinon on retourrne #False
   
@@ -110,8 +110,16 @@ ProcedureDLL Moebius_Compile_Step1()
   ; we delete the last asm created
   SetFileAttributes(gConf_ProjectDir + "PureBasic.asm", #PB_FileSystem_Normal)
   DeleteFile(gConf_ProjectDir + "PureBasic.asm")
-  
-  Compilateur = RunProgram(gConf_Path_PBCOMPILER, #DQuote+gProject\FileName+#DQuote+" "+#Switch_InlineASM+" "+#Switch_Commented+" "+#Switch_Executable+" "+#DQuote+FichierExe+#DQuote, gConf_ProjectDir, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+  Param = #Switch_InlineASM+" "
+  Param + #Switch_Commented+" "
+  Param +#Switch_Executable+" "+#DQuote+FichierExe+#DQuote
+  If gProject\isUnicode
+    Param + #Switch_Unicode+" "
+  EndIf
+  If gProject\isThreadSafe
+    Param + #Switch_ThreadSafe+" "
+  EndIf
+  Compilateur = RunProgram(gConf_Path_PBCOMPILER, #DQuote+gProject\FileName+#DQuote+" "+Param, gConf_ProjectDir, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
   If Compilateur
     While ProgramRunning(Compilateur)
       Sortie + ReadProgramString(Compilateur) + Chr(13)
@@ -143,7 +151,7 @@ EndProcedure
 
 ProcedureDLL Moebius_Compile_Step2()
   ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
-  Protected CodeContent.s, CodeCleaned.s, CodeCleaned2.s, CodeField.s, TrCodeField.s, FunctionList.s
+  Protected CodeContent.s, CodeCleaned.s, CodeCleaned2.s, CodeField.s, TrCodeField.s, FunctionList.s, sReturnValField.s
   Protected Inc.l, IncA.l, NotCapture.l, lFound.l
   Protected bInFunction.b, bInSystemLib.b
   Protected sNameOfFunction.s, sCallExtrn.s
@@ -181,7 +189,13 @@ ProcedureDLL Moebius_Compile_Step2()
             TrCodeField = ReplaceString(TrCodeField, " ,", ",")
             TrCodeField = ReplaceString(TrCodeField, ", ", ",")
             TrCodeField = ReplaceString(TrCodeField, " (", "(")
-            LL_DLLFunctions()\FuncName = StringField(TrCodeField, 1, " ")
+            If Left(StringField(TrCodeField, 1, " "), 1) = "."
+              LL_DLLFunctions()\FuncName = StringField(TrCodeField, 2, " ")
+              sReturnValField = StringField(TrCodeField, 1, " ")
+            Else
+              LL_DLLFunctions()\FuncName = StringField(TrCodeField, 1, " ")
+              sReturnValField = LL_DLLFunctions()\FuncName
+            EndIf
             LL_DLLFunctions()\Params = Right(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName)-(FindString(LL_DLLFunctions()\FuncName, "(", 1)))
             LL_DLLFunctions()\Params = Left(LL_DLLFunctions()\Params, (FindString(LL_DLLFunctions()\Params, ")", 1)-1))
             LL_DLLFunctions()\FuncName = Trim(Left(LL_DLLFunctions()\FuncName, FindString(LL_DLLFunctions()\FuncName, "(", 1)-1))
@@ -189,8 +203,8 @@ ProcedureDLL Moebius_Compile_Step2()
               LL_DLLFunctions()\FuncDesc = Right(TrCodeField, Len(TrCodeField) - FindString(TrCodeField, ";",1))
             EndIf
             ; Type of the Return Value
-            If Mid(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName)-1, 1) = "."
-              Select Mid(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName), 1)
+            If Mid(sReturnValField, Len(sReturnValField)-1, 1) = "."
+              Select Mid(sReturnValField, Len(sReturnValField), 1)
                 Case "b"  : LL_DLLFunctions()\FuncRetType = "Byte"
                 Case "c"  : LL_DLLFunctions()\FuncRetType = "Character"
                 Case "d"  : LL_DLLFunctions()\FuncRetType = "Double"
@@ -607,10 +621,9 @@ ProcedureDLL Moebius_Compile_Step6()
 ;     DeleteFile(gConf_SourceDir+#System_Separator+"purebasic.out")
 ;   EndIf
 EndProcedure
-
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 582
-; FirstLine = 21
-; Folding = AAAAAAAAAAAAAAAAAAwv
+; CursorPosition = 10
+; FirstLine = 9
+; Folding = AAAAAAAAAAAAAAAAAAAA9
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
