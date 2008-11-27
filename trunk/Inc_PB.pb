@@ -259,7 +259,5 @@ ProcedureDLL PB_DisConnect()
 EndProcedure
 
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 259
-; Folding = +-vf-0-7+
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb

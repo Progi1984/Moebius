@@ -26,8 +26,6 @@ ProcedureDLL Moebius_ReadPrefs()
     ClosePreferences()
   EndIf
  EndProcedure
-
+ 
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 28
-; Folding = +
 ; EnableXP
