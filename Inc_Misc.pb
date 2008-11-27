@@ -30,6 +30,6 @@ ProcedureDLL.l CreateDirectoryEx(FolderPath.s)
 EndProcedure 
 
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 12
+; CursorPosition = 30
 ; Folding = +
 ; EnableXP

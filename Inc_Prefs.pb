@@ -11,7 +11,7 @@ ProcedureDLL Moebius_ReadPrefs()
   EndIf
 
   ; ReadPreferences > Project
-  If OpenPreferences("Prefs"+#System_Separator+"Project_Sample00.ini") <> 0
+  If OpenPreferences("Prefs"+#System_Separator+"Project_Sample"+Sample+".ini") <> 0
     PreferenceGroup(UCase(#System_OS))
     gProject\Name = ReadPreferenceString("Name", "")
     gProject\FileName = ReadPreferenceString("FileName", "")
@@ -19,11 +19,15 @@ ProcedureDLL Moebius_ReadPrefs()
     Global gConf_SourceDir.s = GetTemporaryDirectory() + "Moebius" + #System_Separator
     Global gConf_ProjectDir.s = gConf_SourceDir + gProject\Name + #System_Separator
     
+    PreferenceGroup("PROJECT")
+    gProject\isUnicode = ReadPreferenceLong("Unicode", #False)
+    gProject\isThreadSafe = ReadPreferenceLong("ThreadSafe", #False)
+    
     ClosePreferences()
   EndIf
  EndProcedure
- 
+
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 6
-; Folding = -
+; CursorPosition = 28
+; Folding = +
 ; EnableXP

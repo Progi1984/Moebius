@@ -1,4 +1,8 @@
 EnableExplicit
+
+Declare.s PB_GetPBFolder()
+Global Sample.s = "03"
+
 XIncludeFile "Inc_Var.pb" 
 CompilerSelect #PB_Compiler_OS
   CompilerCase #PB_OS_Windows : XIncludeFile "Inc_OS_Windows.pb"
@@ -20,7 +24,9 @@ gProject\FileCHM  = gProject\LibName + #System_ExtHelp
 
 ;CreateThread(@Moebius_MainThread(),0)
 Moebius_MainThread(0)
+
 ; IDE Options = PureBasic 4.20 (Linux - x86)
-; CursorPosition = 7
+; CursorPosition = 26
+; FirstLine = 2
 ; Folding = -
 ; Executable = Moebius.exe
