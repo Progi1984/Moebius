@@ -30,7 +30,7 @@ ProcedureDLL.l CreateDirectoryEx(FolderPath.s)
 EndProcedure 
 
 ProcedureDLL Log_Init()
-  Global hFileLog = OpenFile(#PB_Any, gConf_ProjectDir+"Log_"+FormatDate("%yyyy_%mm_%dd_%hh_%ii_%ss", Date())+".log")
+  Global hFileLog = OpenFile(#PB_Any, gConf_ProjectDir+"LOGS"+#System_Separator+"Log_"+FormatDate("%yyyy_%mm_%dd_%hh_%ii_%ss", Date())+".log")
 EndProcedure
 ProcedureDLL Log_Add(Content.s, NumTab.l = 0)
   WriteStringN(hFileLog, Space(NumTab) + Content)
@@ -42,5 +42,5 @@ ProcedureDLL Log_End()
   CloseFile(hFileLog)
 EndProcedure
 
-; IDE Options = PureBasic 4.20 (Linux - x86)
+; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
 ; EnableXP

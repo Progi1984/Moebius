@@ -36,7 +36,7 @@ EndProcedure
 ;@returnvalue : 0  > Error : Can't delete files of old projects
 ;@returnvalue : -1 > Error : Can't create the directory of project
 ;@returnvalue : -2 > Error : Can't create the directory "Project\ASM"
-;@returnvalue : -3 > Error : Can't create the directory "Project\DESC"
+;@returnvalue : -3 > Error : Can't create the directory "Project\LOGS"
 ;@returnvalue : -4 > Error : Can't create the directory "Project\LIB"
 ;@returnvalue : -5 > Error : Can't create the directory "Project\OBJ"
 ;@returnvalue : -6 > Error : Can't delete the old userlibrary
@@ -57,7 +57,7 @@ ProcedureDLL Moebius_Compile_Step0()
   If CreateDirectoryEx(gConf_ProjectDir)
     Log_Init()
     If CreateDirectoryEx(gConf_ProjectDir+"ASM"+#System_Separator)
-      If CreateDirectoryEx(gConf_ProjectDir+"DESC"+#System_Separator)
+      If CreateDirectoryEx(gConf_ProjectDir+"LOGS"+#System_Separator)
         If CreateDirectoryEx(gConf_ProjectDir+"LIB"+#System_Separator)
           If CreateDirectoryEx(gConf_ProjectDir+"OBJ"+#System_Separator)
             ProcedureReturn #True
