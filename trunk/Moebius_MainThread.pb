@@ -43,7 +43,6 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step0()
   ; 0. Cleaning & Preparing
   ;Cleans the old userlib
-  Debug FileSize(gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\LibName)
   If FileSize(gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\LibName) > 0
     If DeleteFile(gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\LibName) = 0
       ProcedureReturn #False -6
@@ -56,11 +55,11 @@ ProcedureDLL Moebius_Compile_Step0()
     EndIf
   EndIf
   If CreateDirectoryEx(gConf_ProjectDir)
+    Log_Init()
     If CreateDirectoryEx(gConf_ProjectDir+"ASM"+#System_Separator)
       If CreateDirectoryEx(gConf_ProjectDir+"DESC"+#System_Separator)
         If CreateDirectoryEx(gConf_ProjectDir+"LIB"+#System_Separator)
           If CreateDirectoryEx(gConf_ProjectDir+"OBJ"+#System_Separator)
-            Log_Init()
             ProcedureReturn #True
           Else
             ProcedureReturn #False -5
@@ -131,8 +130,9 @@ ProcedureDLL Moebius_Compile_Step1()
   Else
     ProcedureReturn -1
   EndIf
-  
-  If ProgramExitCode(Compilateur) = 0
+
+  If ProgramExitCode(Compilateur) = 0 Or (#PB_Compiler_Version = 420 And #PB_Compiler_OS = #PB_OS_Linux)
+    ; #PB_Compiler_Version = 420 And #PB_Compiler_OS = #PB_OS_Linux => http://www.purebasic.fr/english/viewtopic.php?t=35379
     ; Test if the result is true 
     ; The last returned ligne is "- Feel the ..PuRe.. Power -"
     If FindString(Sortie, "- Feel the ..PuRe.. Power -", 0)
@@ -652,6 +652,6 @@ ProcedureDLL Moebius_Compile_Step6()
   Log_End()
 EndProcedure
 
-; IDE Options = PureBasic 4.20 (Linux - x86)
+; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
 ; EnableXP
 ; UseMainFile = Moebius_Main.pb
