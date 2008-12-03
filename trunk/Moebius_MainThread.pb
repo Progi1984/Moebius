@@ -55,9 +55,9 @@ ProcedureDLL Moebius_Compile_Step0()
     EndIf
   EndIf
   If CreateDirectoryEx(gConf_ProjectDir)
-    Log_Init()
     If CreateDirectoryEx(gConf_ProjectDir+"ASM"+#System_Separator)
       If CreateDirectoryEx(gConf_ProjectDir+"LOGS"+#System_Separator)
+        Log_Init()
         If CreateDirectoryEx(gConf_ProjectDir+"LIB"+#System_Separator)
           If CreateDirectoryEx(gConf_ProjectDir+"OBJ"+#System_Separator)
             ProcedureReturn #True
@@ -121,8 +121,7 @@ ProcedureDLL Moebius_Compile_Step1()
   EndIf
   Param +#Switch_Executable+" "+#DQuote+FichierExe+#DQuote
   Compilateur = RunProgram(gConf_Path_PBCOMPILER, #DQuote+gProject\FileName+#DQuote+" "+Param, gConf_ProjectDir, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
-  Log_Add( gConf_Path_PBCOMPILER)
-  Log_Add(#DQuote+gProject\FileName+#DQuote+" "+Param)
+  Log_Add(gConf_Path_PBCOMPILER + #DQuote+gProject\FileName+#DQuote+" "+Param)
   If Compilateur
     While ProgramRunning(Compilateur)
       Sortie + ReadProgramString(Compilateur) + Chr(13)
@@ -525,8 +524,17 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step3()
   ; 3. FASM compiles the ASM files created by tailbite To OBJ
   ;     Compiling ASM sources
+  Protected Pgm_Fasm.l
   ForEach LL_DLLFunctions()
-    RunProgram(gConf_Path_FASM, #DQuote+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, "", #PB_Program_Wait|#PB_Program_Hide)
+    Pgm_Fasm = RunProgram(gConf_Path_FASM, #DQuote+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+    Log_Add(gConf_Path_FASM+#DQuote+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, 2)    If Pgm_Fasm
+      While ProgramRunning(Pgm_Fasm)
+        Log_Add(ReadProgramString(Pgm_Fasm),2)
+      Wend
+    Else
+      Log_Add("Error in RunProgram", 2)
+    EndIf
+    CloseProgram(Pgm_Fasm)
   Next
 EndProcedure
 
@@ -598,13 +606,23 @@ ProcedureDLL Moebius_Compile_Step4()
   CompilerSelect #PB_Compiler_OS
     CompilerCase #PB_OS_Windows;{
       Protected hObjFile.l = CreateFile(#PB_Any, gProject\DirObj+"ObjList.txt")
+      Protected Pgm_Polib.l
       If hObjFile
         ForEach LL_DLLFunctions()
           WriteStringN(hObjFile, #DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote)
         Next
         CloseFile(hObjFile)
       EndIf
-      RunProgram(gConf_Path_OBJ2LIB, "/out:"+#DQuote+gProject\FileLib+#DQuote+" @"+#DQuote+gProject\DirObj+"ObjList.txt"+#DQuote, "", #PB_Program_Wait|#PB_Program_Hide)
+      Pgm_Polib = RunProgram(gConf_Path_OBJ2LIB, "/out:"+#DQuote+gProject\FileLib+#DQuote+" @"+#DQuote+gProject\DirObj+"ObjList.txt"+#DQuote, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+      Log_Add(gConf_Path_OBJ2LIB+"/out:"+#DQuote+gProject\FileLib+#DQuote+" @"+#DQuote+gProject\DirObj+"ObjList.txt"+#DQuote, 2)
+      If Pgm_Polib
+        While ProgramRunning(Pgm_Polib)
+          Log_Add(ReadProgramString(Pgm_Polib),2)
+        Wend
+      Else
+        Log_Add("Error in RunProgram", 2)
+      EndIf
+      CloseProgram(Pgm_Polib)
     ;}
     CompilerCase #PB_OS_Linux;{
       StringTmp = "ar rvs "
@@ -618,7 +636,18 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step5()
   ; 5. LibraryMaker creates userlibrary from the LIB file
   Protected DirUserLibrary.s = gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator
-  RunProgram(gConf_Path_PBLIBMAKER, #DQuote+gProject\FileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, gConf_ProjectDir, #PB_Program_Wait|#PB_Program_Hide)
+  Protected Pgm_Pblibmaker
+  Pgm_Pblibmaker= RunProgram(gConf_Path_PBLIBMAKER, #DQuote+gProject\FileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, gConf_ProjectDir, #PB_Program_Wait|#PB_Program_Hide)
+  Log_Add(gConf_Path_PBLIBMAKER+#DQuote+gProject\FileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, 2)
+  If Pgm_Pblibmaker
+    While ProgramRunning(Pgm_Pblibmaker)
+      Log_Add(ReadProgramString(Pgm_Pblibmaker),2)
+    Wend
+  Else
+    Log_Add("Error in RunProgram", 2)
+  EndIf
+  CloseProgram(Pgm_Pblibmaker)
+
   If FileSize(DirUserLibrary+gProject\LibName)>0
     If PB_Connect() = #True
       If PB_DisConnect() = #True
