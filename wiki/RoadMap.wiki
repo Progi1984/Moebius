@@ -11,8 +11,8 @@
  * IMPROVED : CreateDirectory Recursive
  * ADDED : Detection of Purebasic Directory
  * ADDED : ReStart PBCompiler after creating the userlib
- * TO ADD : Unicode & ThreadSafe
- * TO ADD : Logging Functions
+ * ADDED : Unicode & ThreadSafe
+ * ADDED : Logging Functions
   * Log Return of RunProgram
 = Milestone 0.3 =
  * TO ADD : CPU modifiers
