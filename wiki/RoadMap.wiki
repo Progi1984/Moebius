@@ -4,7 +4,7 @@
 
 = Milestone 0.1 =
  * ADDED : Compiling a simple userlib : Sample_00
-= Milestone 0.2 _Current_=
+= Milestone 0.2 =
  * IMPROVED : Replace CompilerIf by CompilerSelect
  * IMPROVED : Add #Program_Hide for RunProgram
  * IMPROVED : Creation of Directory of Project in system "temp" directory
@@ -14,7 +14,7 @@
  * ADDED : Unicode & ThreadSafe
  * ADDED : Logging Functions
   * Log Return of RunProgram
-= Milestone 0.3 =
+= Milestone 0.3 _Current_=
  * TO ADD : CPU modifiers
  * TO IMPROVE : Include with all declare functions
 = Milestone 0.4 =
