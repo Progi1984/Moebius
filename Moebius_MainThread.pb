@@ -155,7 +155,7 @@ EndProcedure
 
 ProcedureDLL Moebius_Compile_Step2()
   ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
-  Protected CodeContent.s, CodeCleaned.s, CodeCleaned2.s, CodeField.s, TrCodeField.s, FunctionList.s, 
+  Protected CodeContent.s, CodeCleaned.s, CodeCleaned2.s, CodeField.s, TrCodeField.s, FunctionList.s
   Protected Inc.l, IncA.l, NotCapture.l, lFound.l
   Protected bInFunction.b, bInSystemLib.b, bFunctionEverAdded.b
   Protected sNameOfFunction.s, sCallExtrn.s, sFuncName.s, sReturnValField.s, sFuncNameCleared.s
@@ -197,7 +197,10 @@ ProcedureDLL Moebius_Compile_Step2()
             sReturnValField = sFuncName
           EndIf;}
           ; we cleared the name of the function
-          sFuncNameCleared = ReplaceString(sFuncName, "_DEBUG", "", #PB_String_NoCase)
+          If FindString(sFuncName, "(", 0) > 0
+            sFuncNameCleared = Mid(sFuncName, 1, FindString(sFuncName, "(", 0)-1)
+          EndIf
+          sFuncNameCleared = ReplaceString(sFuncNameCleared, "_DEBUG", "", #PB_String_NoCase)
           sFuncNameCleared = ReplaceString(sFuncNameCleared, "_MMX", "", #PB_String_NoCase)
           sFuncNameCleared = ReplaceString(sFuncNameCleared, "_SSE", "", #PB_String_NoCase)
           sFuncNameCleared = ReplaceString(sFuncNameCleared, "_SSE2", "", #PB_String_NoCase)
@@ -214,91 +217,94 @@ ProcedureDLL Moebius_Compile_Step2()
           Next
           ; the function has been ever added but return flags are differents
           If bFunctionEverAdded = #True
-            If FindString(UCase(sFuncName), "_DEBUG", 0) > 0
+            If FindString(UCase(sFuncName), "_DEBUG", 0) > 0 And FindString(LCase(LL_DLLFunctions()\FlagsReturn), "debuggercheck", 0) = 0
               LL_DLLFunctions()\FlagsReturn + " | DebuggerCheck"
             EndIf
-            If FindString(UCase(sFuncName), "_MMX", 0) > 0
+            If FindString(UCase(sFuncName), "_MMX", 0) > 0 And FindString(LCase(LL_DLLFunctions()\FlagsReturn), "mmx", 0) = 0
               LL_DLLFunctions()\FlagsReturn + " | MMX"
             EndIf
-            If FindString(UCase(sFuncName), "_SSE", 0) > 0
+            If FindString(UCase(sFuncName), "_SSE", 0) > 0 And FindString(LCase(LL_DLLFunctions()\FlagsReturn), "sse", 0) = 0
               LL_DLLFunctions()\FlagsReturn + " | SSE"
             EndIf
-            If FindString(UCase(sFuncName), "_SSE2", 0) > 0
+            If FindString(UCase(sFuncName), "_SSE2", 0) > 0 And FindString(LCase(LL_DLLFunctions()\FlagsReturn), "sse2", 0) = 0
               LL_DLLFunctions()\FlagsReturn + " | SSE2"
             EndIf
-            If FindString(UCase(sFuncName), "_3DNOW", 0) > 0
+            If FindString(UCase(sFuncName), "_3DNOW", 0) > 0 And FindString(LCase(LL_DLLFunctions()\FlagsReturn), "3dnow", 0) = 0
               LL_DLLFunctions()\FlagsReturn + " | 3DNOW"
             EndIf
-            If FindString(UCase(sFuncName), "_THREAD", 0) > 0
+            If FindString(UCase(sFuncName), "_THREAD", 0) > 0 And FindString(LCase(LL_DLLFunctions()\FlagsReturn), "thread", 0) = 0
               LL_DLLFunctions()\FlagsReturn + " | Thread"
             EndIf
-            If FindString(UCase(sFuncName), "_UNICODE", 0) > 0
+            If FindString(UCase(sFuncName), "_UNICODE", 0) > 0 And FindString(LCase(LL_DLLFunctions()\FlagsReturn), "unicode", 0) = 0
               LL_DLLFunctions()\FlagsReturn + " | Unicode"
             EndIf
-          Else
-            If AddElement(LL_DLLFunctions())
-              LL_DLLFunctions()\FuncName = sFuncName
-              If LCase(CodeCleaned2) = "proceduredll" Or LCase(CodeCleaned2) = "procedurecdll"
-                LL_DLLFunctions()\IsDLLFunction = #True
-              Else
-                LL_DLLFunctions()\IsDLLFunction = #False
-              EndIf
-              Log_Add("LL_DLLFunctions()\FuncName > "+LL_DLLFunctions()\FuncName, 4)
-              LL_DLLFunctions()\Params = Right(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName)-(FindString(LL_DLLFunctions()\FuncName, "(", 1)))
-              LL_DLLFunctions()\Params = Left(LL_DLLFunctions()\Params, (FindString(LL_DLLFunctions()\Params, ")", 1)-1))
-              LL_DLLFunctions()\FuncName = Trim(Left(LL_DLLFunctions()\FuncName, FindString(LL_DLLFunctions()\FuncName, "(", 1)-1))
-              If FindString(TrCodeField, ";",1) > 0
-                LL_DLLFunctions()\FuncDesc = Right(TrCodeField, Len(TrCodeField) - FindString(TrCodeField, ";",1))
-              EndIf
-              Log_Add("LL_DLLFunctions()\Params > "+LL_DLLFunctions()\Params, 4)
-              Log_Add("LL_DLLFunctions()\FuncName > "+LL_DLLFunctions()\FuncName, 4)
-              Log_Add("LL_DLLFunctions()\FuncDesc > "+LL_DLLFunctions()\FuncDesc, 4)
-              ; Type of the Return Value
-              If Mid(sReturnValField, Len(sReturnValField)-1, 1) = "."
-                Select Mid(sReturnValField, Len(sReturnValField), 1)
-                  Case "b"  : LL_DLLFunctions()\FuncRetType = "Byte"
-                  Case "c"  : LL_DLLFunctions()\FuncRetType = "Character"
-                  Case "d"  : LL_DLLFunctions()\FuncRetType = "Double"
-                  Case "f"  : LL_DLLFunctions()\FuncRetType = "Float"
-                  Case "q"  : LL_DLLFunctions()\FuncRetType = "Quad"
-                  Case "s"  : LL_DLLFunctions()\FuncRetType = "String"
-                  Case "w"  : LL_DLLFunctions()\FuncRetType = "Word"
-                  CompilerIf #PB_Compiler_Version < 430 ; 420 and inferior
-                    Default  : LL_DLLFunctions()\FuncRetType = "Long"
-                  CompilerElse ; 430
-                    Case "l"  : LL_DLLFunctions()\FuncRetType = "Long"
-                    Default  : LL_DLLFunctions()\FuncRetType = "Integer"
-                  CompilerEndIf
-                EndSelect
-              Else
-                CompilerIf #PB_Compiler_Version < 430 ; 420 and inferior
-                  LL_DLLFunctions()\FuncRetType = "Long"
-                CompilerElse ; 430
-                  LL_DLLFunctions()\FuncRetType = "Long"
-                CompilerEndIf
-              EndIf
-              Log_Add("LL_DLLFunctions()\FuncRetType > "+LL_DLLFunctions()\FuncRetType, 4)
-              ; Type of Parameters
-              For IncA = 1 To CountString(LL_DLLFunctions()\Params, ",")+1
-                Select Right(Trim(StringField(LL_DLLFunctions()\Params, IncA, ",")), 1)
-                  Case "b"  : LL_DLLFunctions()\ParamsRetType + ", Byte"
-                  Case "c"  : LL_DLLFunctions()\ParamsRetType + ", Character"
-                  Case "d"  : LL_DLLFunctions()\ParamsRetType + ", Double"
-                  Case "f"  : LL_DLLFunctions()\ParamsRetType + ", Float"
-                  Case "q"  : LL_DLLFunctions()\ParamsRetType + ", Quad"
-                  Case "s"  : LL_DLLFunctions()\ParamsRetType + ", String"
-                  Case "w"  : LL_DLLFunctions()\ParamsRetType + ", Word"
-                  CompilerIf #PB_Compiler_Version < 430 ; 420 and inferior
-                    Default  : LL_DLLFunctions()\ParamsRetType + ", Long"
-                  CompilerElse ; 430
-                    Case "l"  : LL_DLLFunctions()\ParamsRetType = ", Long"
-                    Default  : LL_DLLFunctions()\ParamsRetType = ", Long"
-                  CompilerEndIf
-                EndSelect
-              Next
-              Log_Add("LL_DLLFunctions()\ParamsRetType > "+LL_DLLFunctions()\ParamsRetType, 4)
-            EndIf
           EndIf
+          LastElement(LL_DLLFunctions())
+          If AddElement(LL_DLLFunctions())
+            LL_DLLFunctions()\FuncName = sFuncName
+            If LCase(CodeCleaned2) = "proceduredll" Or LCase(CodeCleaned2) = "procedurecdll"
+              LL_DLLFunctions()\IsDLLFunction = #True
+            Else
+              LL_DLLFunctions()\IsDLLFunction = #False
+            EndIf
+            Log_Add("LL_DLLFunctions()\FuncName > "+LL_DLLFunctions()\FuncName, 4)
+            LL_DLLFunctions()\Params = Right(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName)-(FindString(LL_DLLFunctions()\FuncName, "(", 1)))
+            LL_DLLFunctions()\Params = Left(LL_DLLFunctions()\Params, (FindString(LL_DLLFunctions()\Params, ")", 1)-1))
+            LL_DLLFunctions()\FuncName = Trim(Left(LL_DLLFunctions()\FuncName, FindString(LL_DLLFunctions()\FuncName, "(", 1)-1))
+            If FindString(TrCodeField, ";",1) > 0
+              LL_DLLFunctions()\FuncDesc = Right(TrCodeField, Len(TrCodeField) - FindString(TrCodeField, ";",1))
+            EndIf
+            Log_Add("LL_DLLFunctions()\Params > "+LL_DLLFunctions()\Params, 4)
+            Log_Add("LL_DLLFunctions()\FuncName > "+LL_DLLFunctions()\FuncName, 4)
+            Log_Add("LL_DLLFunctions()\FuncDesc > "+LL_DLLFunctions()\FuncDesc, 4)
+            ; Type of the Return Value
+            If Mid(sReturnValField, Len(sReturnValField)-1, 1) = "."
+              Select Mid(sReturnValField, Len(sReturnValField), 1)
+                Case "b"  : LL_DLLFunctions()\FuncRetType = "Byte"
+                Case "c"  : LL_DLLFunctions()\FuncRetType = "Character"
+                Case "d"  : LL_DLLFunctions()\FuncRetType = "Double"
+                Case "f"  : LL_DLLFunctions()\FuncRetType = "Float"
+                Case "q"  : LL_DLLFunctions()\FuncRetType = "Quad"
+                Case "s"  : LL_DLLFunctions()\FuncRetType = "String"
+                Case "w"  : LL_DLLFunctions()\FuncRetType = "Word"
+                CompilerIf #PB_Compiler_Version < 430 ; 420 and inferior
+                  Default  : LL_DLLFunctions()\FuncRetType = "Long"
+                CompilerElse ; 430
+                  Case "l"  : LL_DLLFunctions()\FuncRetType = "Long"
+                  Default  : LL_DLLFunctions()\FuncRetType = "Integer"
+                CompilerEndIf
+              EndSelect
+            Else
+              CompilerIf #PB_Compiler_Version < 430 ; 420 and inferior
+                LL_DLLFunctions()\FuncRetType = "Long"
+              CompilerElse ; 430
+                LL_DLLFunctions()\FuncRetType = "Long"
+              CompilerEndIf
+            EndIf
+            Log_Add("LL_DLLFunctions()\FuncRetType > "+LL_DLLFunctions()\FuncRetType, 4)
+            ; Type of Parameters
+            For IncA = 1 To CountString(LL_DLLFunctions()\Params, ",")+1
+              Select Right(Trim(StringField(LL_DLLFunctions()\Params, IncA, ",")), 1)
+                Case "b"  : LL_DLLFunctions()\ParamsRetType + ", Byte"
+                Case "c"  : LL_DLLFunctions()\ParamsRetType + ", Character"
+                Case "d"  : LL_DLLFunctions()\ParamsRetType + ", Double"
+                Case "f"  : LL_DLLFunctions()\ParamsRetType + ", Float"
+                Case "q"  : LL_DLLFunctions()\ParamsRetType + ", Quad"
+                Case "s"  : LL_DLLFunctions()\ParamsRetType + ", String"
+                Case "w"  : LL_DLLFunctions()\ParamsRetType + ", Word"
+                CompilerIf #PB_Compiler_Version < 430 ; 420 and inferior
+                  Default  : LL_DLLFunctions()\ParamsRetType + ", Long"
+                CompilerElse ; 430
+                  Case "l"  : LL_DLLFunctions()\ParamsRetType = ", Long"
+                  Default  : LL_DLLFunctions()\ParamsRetType = ", Long"
+                CompilerEndIf
+              EndSelect
+            Next
+            Log_Add("LL_DLLFunctions()\ParamsRetType > "+LL_DLLFunctions()\ParamsRetType, 4)
+            LL_DLLFunctions()\InDescFile = 1-bFunctionEverAdded
+            Log_Add("LL_DLLFunctions()\InDescFile > "+Str(LL_DLLFunctions()\InDescFile), 4)
+          EndIf
+          
         Else
           If TrCodeField = ":System"
             bInSystemLib = #True
@@ -463,9 +469,28 @@ ProcedureDLL Moebius_Compile_Step2()
           CodeField = Trim(StringField(LL_DLLFunctions()\Code, IncA, #System_EOL))
           CodeField = ReplaceString(CodeField, Chr(13), "")
           CodeField = ReplaceString(CodeField, Chr(10), "")
-          If LCase(StringField(CodeField, 1, " ")) = "call"
-            WriteStringN(lFile, "extrn "+StringField(CodeField, CountString(CodeField, " ")+1, " "))
-          EndIf
+          Select LCase(StringField(CodeField, 1, " "))
+            Case "call";{
+              WriteStringN(lFile, "extrn "+StringField(CodeField, CountString(CodeField, " ")+1, " "))
+            ;}
+            Case "mov";{
+              TrCodeField = Trim(StringField(CodeField, 2, ","))
+              If TrCodeField <> "0"
+                If Left(TrCodeField, 1) = "["
+                  TrCodeField = ReplaceString(TrCodeField, "[", "")
+                  TrCodeField = ReplaceString(TrCodeField, "]", "")
+                  WriteStringN(lFile, "extrn "+TrCodeField)
+                Else
+                 WriteStringN(lFile, "extrn "+TrCodeField)
+                EndIf
+              EndIf
+            ;}
+            Default
+              ;-ToDo : Create a LinkedList for containing extrn
+              ;-ToDo : Search all []
+              ;Debug LCase(StringField(CodeField, 1, " "))
+              ;Debug CodeField
+          EndSelect 
         Next;}
         WriteStringN(lFile, "")      
         ;{ code
@@ -569,8 +594,9 @@ ProcedureDLL Moebius_Compile_Step3()
   ;     Compiling ASM sources
   Protected Pgm_Fasm.l
   ForEach LL_DLLFunctions()
-    Pgm_Fasm = RunProgram(gConf_Path_FASM, #DQuote+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
-    Log_Add(gConf_Path_FASM+#DQuote+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, 2)    If Pgm_Fasm
+    Pgm_Fasm = RunProgram(gConf_Path_FASM, " "+#DQuote+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+    Log_Add(gConf_Path_FASM+" "+#DQuote+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, 2)
+    If Pgm_Fasm
       While ProgramRunning(Pgm_Fasm)
         Log_Add(ReadProgramString(Pgm_Fasm),2)
       Wend
@@ -623,22 +649,24 @@ ProcedureDLL Moebius_Compile_Step4()
     WriteStringN(hDescFile, gProject\FileCHM)
     Log_Add(gProject\FileCHM, 4)
     ForEach LL_DLLFunctions()
-      If LL_DLLFunctions()\FuncRetType <> "InitFunction"
-        If LL_DLLFunctions()\IsDLLFunction = #True
-          StringTmp = LL_DLLFunctions()\FuncName+LL_DLLFunctions()\ParamsRetType+" ("+LL_DLLFunctions()\Params+")"
-          If LL_DLLFunctions()\FuncDesc <> ""
-            StringTmp + " - "+LL_DLLFunctions()\FuncDesc
+      If LL_DLLFunctions()\InDescFile = #True
+        If LL_DLLFunctions()\FuncRetType <> "InitFunction"
+          If LL_DLLFunctions()\IsDLLFunction = #True
+            StringTmp = LL_DLLFunctions()\FuncName+LL_DLLFunctions()\ParamsRetType+" ("+LL_DLLFunctions()\Params+")"
+            If LL_DLLFunctions()\FuncDesc <> ""
+              StringTmp + " - "+LL_DLLFunctions()\FuncDesc
+            EndIf
+            WriteStringN(hDescFile, StringTmp)
+            Log_Add(StringTmp, 4)
+            WriteStringN(hDescFile, LL_DLLFunctions()\FuncRetType+" | StdCall") 
+            Log_Add(LL_DLLFunctions()\FuncRetType+" | StdCall", 4)
           EndIf
-          WriteStringN(hDescFile, StringTmp)
-          Log_Add(StringTmp, 4)
+        Else ; FuncType = InitFunction
+          WriteStringN(hDescFile, LL_DLLFunctions()\FuncName)
+          Log_Add(LL_DLLFunctions()\FuncName, 4)
           WriteStringN(hDescFile, LL_DLLFunctions()\FuncRetType+" | StdCall") 
           Log_Add(LL_DLLFunctions()\FuncRetType+" | StdCall", 4)
         EndIf
-      Else ; FuncType = InitFunction
-        WriteStringN(hDescFile, LL_DLLFunctions()\FuncName)
-        Log_Add(LL_DLLFunctions()\FuncName, 4)
-        WriteStringN(hDescFile, LL_DLLFunctions()\FuncRetType+" | StdCall") 
-        Log_Add(LL_DLLFunctions()\FuncRetType+" | StdCall", 4)
       EndIf
     Next
     CloseFile(hDescFile)
@@ -680,8 +708,8 @@ ProcedureDLL Moebius_Compile_Step5()
   ; 5. LibraryMaker creates userlibrary from the LIB file
   Protected DirUserLibrary.s = gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator
   Protected Pgm_Pblibmaker
-  Pgm_Pblibmaker= RunProgram(gConf_Path_PBLIBMAKER, #DQuote+gProject\FileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, gConf_ProjectDir, #PB_Program_Wait|#PB_Program_Hide)
-  Log_Add(gConf_Path_PBLIBMAKER+#DQuote+gProject\FileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, 2)
+  Pgm_Pblibmaker= RunProgram(gConf_Path_PBLIBMAKER, " "+#DQuote+gProject\FileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, gConf_ProjectDir, #PB_Program_Wait|#PB_Program_Hide)
+  Log_Add(gConf_Path_PBLIBMAKER+" "+#DQuote+gProject\FileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, 2)
   If Pgm_Pblibmaker
     While ProgramRunning(Pgm_Pblibmaker)
       Log_Add(ReadProgramString(Pgm_Pblibmaker),2)
@@ -723,7 +751,3 @@ ProcedureDLL Moebius_Compile_Step6()
 ;   EndIf
   Log_End()
 EndProcedure
-
-; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; EnableXP
-; UseMainFile = Moebius_Main.pb

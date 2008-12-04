@@ -16,7 +16,8 @@ Structure S_DLLFunctions
   FuncDesc.s
   Params.s
   ParamsRetType.s
-  FlagsReturn.s
+  FlagsReturn.s ; FlagsReturn for specific options : MMX, SSE, SSE2, etc...
+  InDescFile.b
   Code.s
   IsDLLFunction.b
   Win_ASMNameFunc.s
@@ -44,5 +45,5 @@ Global NewList LL_LibUsed.s()
 Global NewList LL_DLLUsed.s()
 
 #DQuote = Chr(34)
-; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
+; IDE Options = PureBasic 4.20 (Linux - x86)
 ; EnableXP
