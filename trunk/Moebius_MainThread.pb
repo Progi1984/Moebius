@@ -223,7 +223,7 @@ ProcedureDLL Moebius_Compile_Step2()
             If FindString(UCase(sFuncName), "_MMX", 0) > 0 And FindString(LCase(LL_DLLFunctions()\FlagsReturn), "mmx", 0) = 0
               LL_DLLFunctions()\FlagsReturn + " | MMX"
             EndIf
-            If FindString(UCase(sFuncName), "_SSE", 0) > 0 And FindString(LCase(LL_DLLFunctions()\FlagsReturn), "sse", 0) = 0
+            If FindString(UCase(sFuncName), "_SSE", 0) > 0 And FindString(UCase(sFuncName), "_SSE", 0) = 0 And (FindString(LCase(LL_DLLFunctions()\FlagsReturn), "sse", 0) = 0 Or (FindString(LCase(LL_DLLFunctions()\FlagsReturn), "sse", 0) <> 0 And FindString(LCase(LL_DLLFunctions()\FlagsReturn), "sse2", 0) <> 0))
               LL_DLLFunctions()\FlagsReturn + " | SSE"
             EndIf
             If FindString(UCase(sFuncName), "_SSE2", 0) > 0 And FindString(LCase(LL_DLLFunctions()\FlagsReturn), "sse2", 0) = 0
@@ -471,7 +471,9 @@ ProcedureDLL Moebius_Compile_Step2()
           CodeField = ReplaceString(CodeField, Chr(10), "")
           Select LCase(StringField(CodeField, 1, " "))
             Case "call";{
-              WriteStringN(lFile, "extrn "+StringField(CodeField, CountString(CodeField, " ")+1, " "))
+              If AddElement(LL_ASM_extrn())
+                LL_ASM_extrn() = StringField(CodeField, CountString(CodeField, " ")+1, " ")
+              EndIf
             ;}
             Case "mov";{
               TrCodeField = Trim(StringField(CodeField, 2, ","))
@@ -479,19 +481,36 @@ ProcedureDLL Moebius_Compile_Step2()
                 If Left(TrCodeField, 1) = "["
                   TrCodeField = ReplaceString(TrCodeField, "[", "")
                   TrCodeField = ReplaceString(TrCodeField, "]", "")
-                  WriteStringN(lFile, "extrn "+TrCodeField)
+                  If AddElement(LL_ASM_extrn())
+                    LL_ASM_extrn() = TrCodeField
+                  EndIf
                 Else
-                 WriteStringN(lFile, "extrn "+TrCodeField)
+                  If AddElement(LL_ASM_extrn())
+                    LL_ASM_extrn() = TrCodeField
+                  EndIf
                 EndIf
               EndIf
             ;}
             Default
-              ;-ToDo : Create a LinkedList for containing extrn
-              ;-ToDo : Search all []
-              ;Debug LCase(StringField(CodeField, 1, " "))
-              ;Debug CodeField
+              If FindString(CodeField, "[", 0) > 0 And FindString(CodeField, "]", 0) > 0
+                TrCodeField = Mid(CodeField, FindString(CodeField, "[", 0), FindString(CodeField, "]", 0) - FindString(CodeField, "[", 0))
+                If TrCodeField <> ""
+                  If FindString(TrCodeField, "eax", 0) = 0 And FindString(TrCodeField, "edx", 0) = 0 And FindString(TrCodeField, "ecx", 0) = 0 
+                    If AddElement(LL_ASM_extrn())
+                      LL_ASM_extrn() = TrCodeField
+                    EndIf
+                  EndIf
+                EndIf
+              EndIf
           EndSelect 
-        Next;}
+        Next
+        If CountList(LL_ASM_extrn()) > 0
+          ForEach LL_ASM_extrn()
+            WriteStringN(lFile, "extrn "+LL_ASM_extrn())
+          Next
+        EndIf
+        ;}
+        
         WriteStringN(lFile, "")      
         ;{ code
         If LL_DLLFunctions()\IsDLLFunction = #True

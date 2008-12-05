@@ -43,7 +43,5 @@ Global NewList LL_PBFunctions.S_PBFunctionInfo()
 Global NewList LL_Functions.s()
 Global NewList LL_LibUsed.s()
 Global NewList LL_DLLUsed.s()
-
+Global NewList LL_ASM_extrn.s()
 #DQuote = Chr(34)
-; IDE Options = PureBasic 4.20 (Linux - x86)
-; EnableXP
