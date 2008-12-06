@@ -5,19 +5,19 @@
 = Milestone 0.1 =
  * ADDED : Compiling a simple userlib : Sample_00
 = Milestone 0.2 =
- * IMPROVED : Replace CompilerIf by CompilerSelect
- * IMPROVED : Add #Program_Hide for RunProgram
+ * IMPROVED : Replace Compilerif by Compilerselect
+ * IMPROVED : Add #Program_Hide for Runprogram
  * IMPROVED : Creation of Directory of Project in system "temp" directory
- * IMPROVED : CreateDirectory Recursive
+ * IMPROVED : Createdirectory Recursive
  * ADDED : Detection of Purebasic Directory
- * ADDED : ReStart PBCompiler after creating the userlib
- * ADDED : Unicode & ThreadSafe
+ * ADDED : Restart Pbcompiler after creating the userlib
+ * ADDED : Unicode & Threadsafe
  * ADDED : Logging Functions
-  * Log Return of RunProgram
+  * Log Return of Runprogram
 = Milestone 0.3 _Current_=
- * TO ADD : CPU modifiers
+ * ADDED : CPU modifiers
  * TO IMPROVE : Include with all declare functions
- * TO IMPROVE : Divide Moebius_MainThread.pb
+ * IMPROVED : Divide Moebius_mainthread.pb
 = Milestone 0.4 =
  * TO ADD : Global variables
  * TO ADD : Imported Libraries
