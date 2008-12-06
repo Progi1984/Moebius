@@ -41,6 +41,3 @@ EndProcedure
 ProcedureDLL Log_End()
   CloseFile(hFileLog)
 EndProcedure
-
-; IDE Options = PureBasic 4.30 Beta 4 (Windows - x86)
-; EnableXP
