@@ -17,6 +17,7 @@
 = Milestone 0.3 _Current_=
  * TO ADD : CPU modifiers
  * TO IMPROVE : Include with all declare functions
+ * TO IMPROVE : Divide Moebius_MainThread.pb
 = Milestone 0.4 =
  * TO ADD : Global variables
  * TO ADD : Imported Libraries
