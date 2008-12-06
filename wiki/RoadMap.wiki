@@ -18,17 +18,25 @@
  * ADDED : CPU modifiers
  * TO IMPROVE : Include with all declare functions
  * IMPROVED : Divide Moebius_mainthread.pb
+
+ * TO DO : Tests with all Samples
 = Milestone 0.4 =
  * TO ADD : Global variables
  * TO ADD : Imported Libraries
  * TO ADD : Used Userlibs
  * TO ADD : End Function like the Init
+
+ * TO DO : Tests with all Samples
 = Milestone 0.5 =
  * TO ADD : Parameter with default value
  * TO ADD : Parameter with type : linked list
  * TO ADD : Parameter with type : tables
+
+ * TO DO : Tests with all Samples
 = Milestone 0.6 =
  * TO ADD : Debug Routine
+
+ * TO DO : Tests with all Samples
 = Milestone 0.7 =
  * TO ADD : Management of Profile
   * ProgramParameter (in Tailbite)
@@ -44,11 +52,17 @@
    * /THRD : The library will be THREADSAFE compiled
    * /WRIT : Generate build batch file: TailBite will generate a batch file in the library source folder to allow fast rebuilding which, anyway, you can do more easyly with TailBite itself (processing the .Desc file).
   * INI File
+
+ * TO DO : Tests with all Samples
 = Milestone 0.8 =
  * TO ADD : GUI For Moebius
+
+ * TO DO : Tests with all Samples
 = Milestone 0.9 =
  * TO ADD : Multilanguage
  * TO ADD : Code Documentation
  * TO ADD : Help Fr & En
+
+ * TO DO : Tests with all Samples
 = Milestone 1.0 =
  * TO ADD : Equivalent to Tailbite : Windows, Linux, MacOS
