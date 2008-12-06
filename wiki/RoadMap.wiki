@@ -22,6 +22,7 @@
  * TO ADD : Global variables
  * TO ADD : Imported Libraries
  * TO ADD : Used Userlibs
+ * TO ADD : End Function like the Init
 = Milestone 0.5 =
  * TO ADD : Parameter with default value
  * TO ADD : Parameter with type : linked list
