@@ -11,7 +11,7 @@ ProcedureDLL Moebius_ReadPrefs()
   EndIf
 
   ; ReadPreferences > Project
-  If OpenPreferences("Prefs"+#System_Separator+"Project_Sample"+Sample+".ini") <> 0
+  If OpenPreferences("Lib_Source"+#System_Separator+"Project_Sample"+Sample+".ini") <> 0
     PreferenceGroup(UCase(#System_OS))
     gProject\Name = ReadPreferenceString("Name", "")
     gProject\FileName = ReadPreferenceString("FileName", "")

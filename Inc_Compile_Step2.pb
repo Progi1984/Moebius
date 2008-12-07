@@ -4,7 +4,7 @@ ProcedureDLL Moebius_Compile_Step2()
   Protected CodeContent.s, CodeCleaned.s, CodeCleaned2.s, CodeField.s, TrCodeField.s, FunctionList.s
   Protected Inc.l, IncA.l, NotCapture.l, lFound.l
   Protected bInFunction.b, bInSystemLib.b, bFunctionEverAdded.b, bInSharedCode.b
-  Protected sNameOfFunction.s, sCallExtrn.s, sFuncName.s, sReturnValField.s, sFuncNameCleared.s, sCodeShared.s
+  Protected sNameOfFunction.s, sCallExtrn.s, sFuncName.s, sReturnValField.s, sFuncNameCleared.s, sCodeShared.s, sTmpString.s
   If ReadFile(0, gConf_ProjectDir+"purebasic.asm")
     CodeContent = Space(Lof(0)+1)
     ReadData(0,@CodeContent, Lof(0))
@@ -17,7 +17,12 @@ ProcedureDLL Moebius_Compile_Step2()
     TrCodeField = ReplaceString(CodeField, Chr(13), "")
     TrCodeField = ReplaceString(TrCodeField, Chr(10), "")
     TrCodeField = Trim(TrCodeField)
-    If Left(TrCodeField, 1) =";"
+    sTmpString  = StringField(CodeContent, Inc+2, #System_EOL)
+    sTmpString  = StringField(sTmpString, 1, " ")
+    sTmpString  = ReplaceString(sTmpString, Chr(13), "")
+    sTmpString  = ReplaceString(sTmpString, Chr(10), "")
+    sTmpString  = Trim(sTmpString)
+    If Left(TrCodeField, 1) =";" And sTmpString  = "macro"
       TrCodeField = Right(TrCodeField, Len(TrCodeField) - 2)
       If TrCodeField <> ""
         CodeCleaned2 = Trim(StringField(TrCodeField, 1, " "))
@@ -186,125 +191,137 @@ ProcedureDLL Moebius_Compile_Step2()
         LL_Functions() = Right(CodeField, Len(CodeField)-4)
         LL_Functions() = Left(TrCodeField, Len(TrCodeField)-1)
       EndIf
-    Else    
-        Select StringField(TrCodeField, 1, " ")
-          Case "extrn"
-          ;{
-            Protected Function.s = StringField(TrCodeField, 2, " ")
-            Protected Pos.l = FindString(Function, "_", 2)
-            Protected LibName.s
-            If Pos < Len(Function)-2
-              Function = Right(Function, Len(Function)-Pos)
+    Else
+      Select StringField(TrCodeField, 1, " ")
+        Case "extrn"
+        ;{
+          Protected Function.s = StringField(TrCodeField, 2, " ")
+          Protected Pos.l = FindString(Function, "_", 2)
+          Protected LibName.s
+          If Pos < Len(Function)-2
+            Function = Right(Function, Len(Function)-Pos)
+          EndIf
+          LibName = Trim(PB_ListFunctions(Function))
+          If LibName <> ""
+            If AddElement(LL_LibUsed())
+              LL_LibUsed() = LCase(LibName)
             EndIf
-            LibName = Trim(PB_ListFunctions(Function))
-            If LibName <> ""
-              If AddElement(LL_LibUsed())
-                LL_LibUsed() = LCase(LibName)
-              EndIf
-            EndIf
-            If NotCapture = 0
-              CodeCleaned + TrCodeField + #System_EOL
-            EndIf
-          ;}
-          Case "public"
-          ;{
-            If NotCapture = 0
-              Select StringField(TrCodeField, 2, " ")
-                Case "main"
-                  ;CodeCleaned + ";TB-Function-List" + #System_EOL
-                Default
-                  ;Do nothing
-              EndSelect
-            EndIf
-          ;}
-          Case "macro"     
-          ;{
-            If NotCapture = 1
-              CodeCleaned + StringField(CodeContent, Inc-1, #System_EOL)+#System_EOL
-            EndIf
+          EndIf
+          If NotCapture = 0
             CodeCleaned + TrCodeField + #System_EOL
+          EndIf
+        ;}
+        Case "public"
+        ;{
+          If NotCapture = 0
+            Select StringField(TrCodeField, 2, " ")
+              Case "main"
+                ;CodeCleaned + ";TB-Function-List" + #System_EOL
+              Default
+                ;Do nothing
+            EndSelect
+          EndIf
+        ;}
+        Case "macro"     
+        ;{
+          If NotCapture = 1
+            CodeCleaned + StringField(CodeContent, Inc-1, #System_EOL)+#System_EOL
+          EndIf
+          CodeCleaned + TrCodeField + #System_EOL
+          NotCapture = 0
+          sNameOfFunction = StringField(CodeContent, Inc, #System_EOL)
+          sNameOfFunction = ReplaceString(sNameOfFunction, Chr(13), "")
+          sNameOfFunction = ReplaceString(sNameOfFunction, Chr(10), "")
+          sNameOfFunction = Trim(sNameOfFunction)
+          sNameOfFunction = StringField(sNameOfFunction, 3, " ")
+          sNameOfFunction = StringField(sNameOfFunction, 1, "(")
+          sNameOfFunction = StringField(sNameOfFunction, 1, ".")
+          ForEach LL_DLLFunctions()
+            If LL_DLLFunctions()\FuncName = sNameOfFunction
+              bInFunction = #True
+              LL_DLLFunctions()\Win_ASMNameFunc = StringField(CodeContent, Inc+2, #System_EOL)
+              LL_DLLFunctions()\Win_ASMNameFunc = ReplaceString(LL_DLLFunctions()\Win_ASMNameFunc, Chr(13), "")
+              LL_DLLFunctions()\Win_ASMNameFunc = ReplaceString(LL_DLLFunctions()\Win_ASMNameFunc, Chr(10), "")
+              LL_DLLFunctions()\Win_ASMNameFunc = Trim(LL_DLLFunctions()\Win_ASMNameFunc)
+              LL_DLLFunctions()\Win_ASMNameFunc = ReplaceString(LL_DLLFunctions()\Win_ASMNameFunc, ":", "")
+              Break
+            EndIf
+          Next
+        ;}
+        Case "main:"
+        ;{
+          NotCapture = 1
+        ;}
+        Case "JMP"
+        ;{
+          If NotCapture = 1
             NotCapture = 0
-            sNameOfFunction = StringField(CodeContent, Inc, #System_EOL)
-            sNameOfFunction = ReplaceString(sNameOfFunction, Chr(13), "")
-            sNameOfFunction = ReplaceString(sNameOfFunction, Chr(10), "")
-            sNameOfFunction = Trim(sNameOfFunction)
-            sNameOfFunction = StringField(sNameOfFunction, 3, " ")
-            sNameOfFunction = StringField(sNameOfFunction, 1, "(")
-            sNameOfFunction = StringField(sNameOfFunction, 1, ".")
-            ForEach LL_DLLFunctions()
-              If LL_DLLFunctions()\FuncName = sNameOfFunction
-                bInFunction = #True
-                LL_DLLFunctions()\Win_ASMNameFunc = StringField(CodeContent, Inc+2, #System_EOL)
-                LL_DLLFunctions()\Win_ASMNameFunc = ReplaceString(LL_DLLFunctions()\Win_ASMNameFunc, Chr(13), "")
-                LL_DLLFunctions()\Win_ASMNameFunc = ReplaceString(LL_DLLFunctions()\Win_ASMNameFunc, Chr(10), "")
-                LL_DLLFunctions()\Win_ASMNameFunc = Trim(LL_DLLFunctions()\Win_ASMNameFunc)
-                LL_DLLFunctions()\Win_ASMNameFunc = ReplaceString(LL_DLLFunctions()\Win_ASMNameFunc, ":", "")
-                Break
-              EndIf
-            Next
-          ;}
-          Case "main:"
-          ;{
-            NotCapture = 1
-          ;}
-          Case "JMP"
-          ;{
-            If NotCapture = 1
-              NotCapture = 0
-            Else
-              CodeCleaned + TrCodeField + #System_EOL  
-              If bInFunction = #True
-                LL_DLLFunctions()\Code + TrCodeField + #System_EOL
-              EndIf
-            EndIf
-          ;}
-          Case "section"
-          ;{
-            If StringField(TrCodeField, 2, " ") = "'.text'"
-              CodeCleaned + ";TB-Function-List" +#System_EOL + TrCodeField + #System_EOL
-            ElseIf StringField(TrCodeField, 2, " ") = "'.data'"
-              If sCodeShared = ""
-                sCodeShared = TrCodeField + #System_EOL
-                sCodeShared + "" + #System_EOL
-              EndIf
-            EndIf
-          ;}
-          Case "}"
-          ;{
+          Else
+            CodeCleaned + TrCodeField + #System_EOL  
             If bInFunction = #True
-              bInFunction = #False
+              LL_DLLFunctions()\Code + TrCodeField + #System_EOL
             EndIf
+          EndIf
+        ;}
+        Case "section"
+        ;{
+          If StringField(TrCodeField, 2, " ") = "'.text'"
+            CodeCleaned + ";TB-Function-List" +#System_EOL + TrCodeField + #System_EOL
+          ElseIf StringField(TrCodeField, 2, " ") = "'.data'"
+            If sCodeShared = ""
+              sCodeShared = TrCodeField + #System_EOL
+              sCodeShared + "" + #System_EOL
+            EndIf
+          EndIf
+        ;}
+        Case "}"
+        ;{
+          If bInFunction = #True
+            bInFunction = #False
+          EndIf
+          CodeCleaned + TrCodeField + #System_EOL
+        ;}
+        Case "_SYS_StaticStringStart:"
+        ;{
+          bInSharedCode = #True
+          sCodeShared + TrCodeField + #System_EOL
+        ;}
+        Case "_SYS_StaticStringEnd:"
+        ;{
+          bInSharedCode = #False
+          sCodeShared + TrCodeField + #System_EOL
+        ;}
+        Case "pb_public"
+        ;{
+          If bInSharedCode = #True
+            ; Don't write PB_NullString in sSharedCode
+          EndIf
+        ;}
+        Case "RET"
+        ;{
+          If NotCapture = 0 And bInFunction = #True
+            If LL_DLLFunctions()\IsDLLFunction = #True And LL_DLLFunctions()\FuncRetType = "String" And #PB_Compiler_OS = #PB_OS_Windows
+              LL_DLLFunctions()\Code + TrCodeField + " + 4" + #System_EOL
+            Else
+              LL_DLLFunctions()\Code + TrCodeField + #System_EOL
+            EndIf
+          EndIf
+          CodeCleaned + TrCodeField + #System_EOL
+        ;}
+        Default
+        ;{
+          
+          If NotCapture = 0
             CodeCleaned + TrCodeField + #System_EOL
-          ;}
-          Case "_SYS_StaticStringStart:"
-          ;{
-            bInSharedCode = #True
-            sCodeShared + TrCodeField + #System_EOL
-          ;}
-          Case "_SYS_StaticStringEnd:"
-          ;{
-            bInSharedCode = #False
-            sCodeShared + TrCodeField + #System_EOL
-          ;}
-          Case "pb_public"
-          ;{
+            If bInFunction = #True
+              LL_DLLFunctions()\Code + TrCodeField + #System_EOL
+            EndIf
             If bInSharedCode = #True
-              ; Don't write PB_NullString in sSharedCode
+              sCodeShared + TrCodeField + #System_EOL
             EndIf
-          ;}
-          Default
-          ;{
-            If NotCapture = 0
-              CodeCleaned + TrCodeField + #System_EOL
-              If bInFunction = #True
-                LL_DLLFunctions()\Code + TrCodeField + #System_EOL
-              EndIf
-              If bInSharedCode = #True
-                sCodeShared + TrCodeField + #System_EOL
-              EndIf
-            EndIf
-          ;}
-        EndSelect
+          EndIf
+        ;}
+      EndSelect
     EndIf
   Next
   ;}
@@ -359,22 +376,9 @@ ProcedureDLL Moebius_Compile_Step2()
             Case "mov";{
               TrCodeField = Trim(StringField(CodeField, 2, ","))
               If TrCodeField <> "0"
-                If Left(TrCodeField, 1) = "["
+                If Left(TrCodeField, 1) = "[" Or Left(TrCodeField, 2) = "_S"
                   TrCodeField = ReplaceString(TrCodeField, "[", "")
                   TrCodeField = ReplaceString(TrCodeField, "]", "")
-                  lFound = #False
-                  ForEach LL_ASM_extrn()
-                    If LL_ASM_extrn() = TrCodeField
-                      lFound = #True
-                      Break
-                    EndIf
-                  Next
-                  If lFound = #False
-                    If AddElement(LL_ASM_extrn())
-                      LL_ASM_extrn() = TrCodeField
-                    EndIf
-                  EndIf
-                Else
                   lFound = #False
                   ForEach LL_ASM_extrn()
                     If LL_ASM_extrn() = TrCodeField
