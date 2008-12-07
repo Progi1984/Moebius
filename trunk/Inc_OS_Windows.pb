@@ -16,5 +16,3 @@
 #System_EOL = Chr(13)+Chr(10)
 #System_LibFormat = "MS COFF"
 #System_OS = "Windows"
-; IDE Options = PureBasic 4.20 (Linux - x86)
-; EnableXP

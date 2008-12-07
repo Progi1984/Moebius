@@ -257,7 +257,3 @@ ProcedureDLL PB_DisConnect()
   CloseProgram(hCompiler)
   ProcedureReturn #True
 EndProcedure
-
-; IDE Options = PureBasic 4.20 (Linux - x86)
-; EnableXP
-; UseMainFile = Moebius_Main.pb

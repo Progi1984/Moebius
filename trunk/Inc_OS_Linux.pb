@@ -18,5 +18,3 @@
 #System_OS = "Linux"
 
 #PB_FileSystem_Normal = 0
-; IDE Options = PureBasic 4.20 (Linux - x86)
-; EnableXP

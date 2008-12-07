@@ -27,5 +27,3 @@ ProcedureDLL Moebius_ReadPrefs()
   EndIf
  EndProcedure
  
-; IDE Options = PureBasic 4.20 (Linux - x86)
-; EnableXP
