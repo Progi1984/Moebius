@@ -15,7 +15,4 @@ Unicode = #true
 ThreadSafe = #true
 -----------------------------------------------------------------------------------------------------------------------
 /home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Sample_04.pb
-
------------------------------------------------------------------------------------------------------------------------
-/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Sample_05.pb
 Testing of CPU modifiers 
