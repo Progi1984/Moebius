@@ -19,7 +19,7 @@
  * TO IMPROVE : Include with all declare functions
  * IMPROVED : Divide Moebius_mainthread.pb
 
- * TO DO : Tests with all Samples
+ * DONE : Tests with all Samples
 = Milestone 0.4 =
  * TO ADD : Global variables
  * TO ADD : Imported Libraries
