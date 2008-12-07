@@ -203,8 +203,17 @@ ProcedureDLL Moebius_Compile_Step2()
           EndIf
           LibName = Trim(PB_ListFunctions(Function))
           If LibName <> ""
-            If AddElement(LL_LibUsed())
-              LL_LibUsed() = LCase(LibName)
+            lFound = #False
+            ForEach LL_LibUsed()
+              If LL_LibUsed() = LibName
+                lFound = #True
+                Break
+              EndIf
+            Next
+            If lFound = #False
+              If AddElement(LL_LibUsed())
+                LL_LibUsed() = LCase(LibName)
+              EndIf
             EndIf
           EndIf
           If NotCapture = 0
@@ -373,27 +382,27 @@ ProcedureDLL Moebius_Compile_Step2()
                 EndIf
               EndIf
             ;}
-            Case "mov";{
-              TrCodeField = Trim(StringField(CodeField, 2, ","))
-              If TrCodeField <> "0"
-                If Left(TrCodeField, 1) = "[" Or Left(TrCodeField, 2) = "_S"
-                  TrCodeField = ReplaceString(TrCodeField, "[", "")
-                  TrCodeField = ReplaceString(TrCodeField, "]", "")
-                  lFound = #False
-                  ForEach LL_ASM_extrn()
-                    If LL_ASM_extrn() = TrCodeField
-                      lFound = #True
-                      Break
-                    EndIf
-                  Next
-                  If lFound = #False
-                    If AddElement(LL_ASM_extrn())
-                      LL_ASM_extrn() = TrCodeField
-                    EndIf
-                  EndIf
-                EndIf
-              EndIf
-            ;}
+;             Case "mov";{
+;               TrCodeField = Trim(StringField(CodeField, 2, ","))
+;               If TrCodeField <> "0"
+;                 If Left(TrCodeField, 1) = "[" Or Left(TrCodeField, 2) = "_S"
+;                   TrCodeField = ReplaceString(TrCodeField, "[", "")
+;                   TrCodeField = ReplaceString(TrCodeField, "]", "")
+;                   lFound = #False
+;                   ForEach LL_ASM_extrn()
+;                     If LL_ASM_extrn() = TrCodeField
+;                       lFound = #True
+;                       Break
+;                     EndIf
+;                   Next
+;                   If lFound = #False
+;                     If AddElement(LL_ASM_extrn())
+;                       LL_ASM_extrn() = TrCodeField
+;                     EndIf
+;                   EndIf
+;                 EndIf
+;               EndIf
+;             ;}
             Default;{
               If FindString(CodeField, "[", 0) > 0 And FindString(CodeField, "]", 0) > 0
                 TrCodeField = Mid(CodeField, FindString(CodeField, "[", 0)+1, FindString(CodeField, "]", 0) - FindString(CodeField, "[", 0) -1)
@@ -410,12 +419,32 @@ ProcedureDLL Moebius_Compile_Step2()
                             EndIf
                           Next
                           If lFound = #False
+                            Debug LL_DLLFunctions()\FuncName
+                            Debug "----------"+TrCodeField
                             If AddElement(LL_ASM_extrn())
                               LL_ASM_extrn() = TrCodeField
                             EndIf
                           EndIf
                         EndIf
                       EndIf
+                    EndIf
+                  EndIf
+                EndIf
+              Else
+                TrCodeField = Trim(StringField(CodeField, 2, ","))
+                If TrCodeField <> "0" And Left(TrCodeField, 2) = "_S"
+                  TrCodeField = ReplaceString(TrCodeField, "[", "")
+                  TrCodeField = ReplaceString(TrCodeField, "]", "")
+                  lFound = #False
+                  ForEach LL_ASM_extrn()
+                    If LL_ASM_extrn() = TrCodeField
+                      lFound = #True
+                      Break
+                    EndIf
+                  Next
+                  If lFound = #False
+                    If AddElement(LL_ASM_extrn())
+                      LL_ASM_extrn() = TrCodeField
                     EndIf
                   EndIf
                 EndIf

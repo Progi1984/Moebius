@@ -1,8 +1,8 @@
 ProcedureDLL S00_FunctionTest(PrimParam.l)
 	ProcedureReturn PrimParam
 EndProcedure
-ProcedureDLL S00_FunctionBis(PrimParam.l, TestSecundo.s)
-	ProcedureReturn PrimParam
+ProcedureDLL.s S00_FunctionBis(PrimParam.l, TestSecundo.s)
+	ProcedureReturn TestSecundo
 EndProcedure
 Procedure S00_FunctionTestPriv(PrimParam.l)
 	ProcedureReturn PrimParam

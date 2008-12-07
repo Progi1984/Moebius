@@ -1,6 +1,6 @@
 EnableExplicit
 
-Global Sample.s = "04"
+Global Sample.s = "05"
 
 XIncludeFile "Inc_Declare.pb"
 XIncludeFile "Inc_Var.pb" 
@@ -11,6 +11,13 @@ CompilerEndSelect
 XIncludeFile "Inc_Prefs.pb"
 XIncludeFile "Inc_Misc.pb"
 XIncludeFile "Inc_PB.pb"
+XIncludeFile "Inc_Compile_Step0.pb"
+XIncludeFile "Inc_Compile_Step1.pb"
+XIncludeFile "Inc_Compile_Step2.pb"
+XIncludeFile "Inc_Compile_Step3.pb"
+XIncludeFile "Inc_Compile_Step4.pb"
+XIncludeFile "Inc_Compile_Step5.pb"
+XIncludeFile "Inc_Compile_Step6.pb"
 XIncludeFile "Moebius_MainThread.pb"
 
 Moebius_ReadPrefs()

@@ -1,11 +1,3 @@
-XIncludeFile "Inc_Compile_Step0.pb"
-XIncludeFile "Inc_Compile_Step1.pb"
-XIncludeFile "Inc_Compile_Step2.pb"
-XIncludeFile "Inc_Compile_Step3.pb"
-XIncludeFile "Inc_Compile_Step4.pb"
-XIncludeFile "Inc_Compile_Step5.pb"
-XIncludeFile "Inc_Compile_Step6.pb"
-
 ProcedureDLL Moebius_MainThread(Param.l)
   Protected RetValue.l
   RetValue = Moebius_Compile_Step0()

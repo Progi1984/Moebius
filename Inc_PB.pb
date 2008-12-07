@@ -151,22 +151,22 @@ Procedure.s PB_ListFunctions(Function.s)
       NextDir = NextDirectoryEntry(0)
       Repeat
         NameOfLib = DirectoryEntryName(0)
-        LibFileName = gConf_PureBasic_Path+"purelibraries"+#System_Separator+LCase(#System_OS)+#System_Separator+"+NameOfLib"
+        LibFileName = gConf_PureBasic_Path+"purelibraries"+#System_Separator+LCase(#System_OS)+#System_Separator+NameOfLib
         PB_GetInfoLib(LibFileName)
         NextDir = NextDirectoryEntry(0)
       Until NextDir = #False
     EndIf
     
     ; List all functions contained in PureLibraries\UserLibrairies
-;     If ExamineDirectory(0, gConf_PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator, "")
-;       NextDir = NextDirectoryEntry(0)
-;       Repeat
-;         NameOfLib = DirectoryEntryName(0)
-;         LibFileName = gConf_PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator+NameOfLib
-;         GetUserLibInfo(LibFileName)
-;         NextDir = NextDirectoryEntry(0)
-;       Until NextDir = #False
-;     EndIf
+    If ExamineDirectory(0, gConf_PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator, "")
+      NextDir = NextDirectoryEntry(0)
+      Repeat
+        NameOfLib = DirectoryEntryName(0)
+        LibFileName = gConf_PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator+NameOfLib
+        PB_GetInfoUserLib(LibFileName)
+        NextDir = NextDirectoryEntry(0)
+      Until NextDir = #False
+    EndIf
   EndIf
   
   ForEach LL_PBFunctions()
