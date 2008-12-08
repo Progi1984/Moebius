@@ -3,7 +3,7 @@ ProcedureDLL Moebius_Compile_Step2()
   ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
   Protected CodeContent.s, CodeCleaned.s, CodeCleaned2.s, CodeField.s, TrCodeField.s, FunctionList.s
   Protected Inc.l, IncA.l, NotCapture.l, lFound.l
-  Protected bInFunction.b, bInSystemLib.b, bFunctionEverAdded.b, bInSharedCode.b
+  Protected bInFunction.b, bInSystemLib.b, bFunctionEverAdded.b, bInSharedCode.b, bInBSSSection.b
   Protected sNameOfFunction.s, sCallExtrn.s, sFuncName.s, sReturnValField.s, sFuncNameCleared.s, sCodeShared.s, sTmpString.s
   If ReadFile(0, gConf_ProjectDir+"purebasic.asm")
     CodeContent = Space(Lof(0)+1)
@@ -281,6 +281,10 @@ ProcedureDLL Moebius_Compile_Step2()
               sCodeShared = TrCodeField + #System_EOL
               sCodeShared + "" + #System_EOL
             EndIf
+          ElseIf StringField(TrCodeField, 2, " ") = "'.bss'" ; variables globales non initialisee
+            sCodeShared = TrCodeField + #System_EOL
+            sCodeShared + "" + #System_EOL
+            bInBSSSection = #True  
           EndIf
         ;}
         Case "}"
@@ -299,6 +303,11 @@ ProcedureDLL Moebius_Compile_Step2()
         ;{
           bInSharedCode = #False
           sCodeShared + TrCodeField + #System_EOL
+        ;}
+        Case "I_BSSEnd:"
+        ;{
+          bInBSSSection = #False
+          CodeCleaned + TrCodeField + #System_EOL
         ;}
         Case "pb_public"
         ;{
@@ -327,6 +336,21 @@ ProcedureDLL Moebius_Compile_Step2()
             EndIf
             If bInSharedCode = #True
               sCodeShared + TrCodeField + #System_EOL
+            EndIf
+            If bInBSSSection >= #True
+              If TrCodeField = "_PB_BSSSection:"
+                sCodeShared + TrCodeField + #System_EOL
+              ElseIf TrCodeField = "I_BSSStart:"
+                bInBSSSection + 1
+              Else
+                If bInBSSSection > #True
+                  If Left(TrCodeField, 2) = "PB" And StringField(TrCodeField, 1, " ") <> "PB_DataPointer"
+                    ; Don't Write in SharedCode
+                  Else
+                    sCodeShared + TrCodeField + #System_EOL
+                  EndIf
+                EndIf
+              EndIf
             EndIf
           EndIf
         ;}
@@ -419,8 +443,6 @@ ProcedureDLL Moebius_Compile_Step2()
                             EndIf
                           Next
                           If lFound = #False
-                            Debug LL_DLLFunctions()\FuncName
-                            Debug "----------"+TrCodeField
                             If AddElement(LL_ASM_extrn())
                               LL_ASM_extrn() = TrCodeField
                             EndIf
