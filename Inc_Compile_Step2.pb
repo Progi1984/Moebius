@@ -1,3 +1,4 @@
+Global Moebius_Compile_Step2_sCodeShared.s
 Procedure Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
   Protected Inc.l, IncA.l
   Protected CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned2.s, sFuncName.s, sFuncNameCleared.s, sReturnValField.s
@@ -147,7 +148,6 @@ Procedure Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
             LL_DLLFunctions()\InDescFile = 1-bFunctionEverAdded
             Log_Add("LL_DLLFunctions()\InDescFile > "+Str(LL_DLLFunctions()\InDescFile), 4)
           EndIf
-          
         Else
           If TrCodeField = ":System"
             bInSystemLib = #True
@@ -169,22 +169,10 @@ Procedure Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
   CodeCleaned2 = ""
   ;}
 EndProcedure
-Procedure Moebius_Compile_Step2_ModifyASM()
-ProcedureDLL Moebius_Compile_Step2()
-  ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
-  Protected CodeContent.s, CodeCleaned.s, CodeCleaned2.s, CodeField.s, TrCodeField.s, FunctionList.s
-  Protected Inc.l, IncA.l, NotCapture.l, lFound.l
-  Protected bInFunction.b, bInSystemLib.b, bFunctionEverAdded.b, bInSharedCode.b, bInBSSSection.b
-  Protected sNameOfFunction.s, sCallExtrn.s, sFuncName.s, sReturnValField.s, sFuncNameCleared.s, sCodeShared.s, sTmpString.s
-  If ReadFile(0, gConf_ProjectDir+"purebasic.asm")
-    CodeContent = Space(Lof(0)+1)
-    ReadData(0,@CodeContent, Lof(0))
-    CloseFile(0)
-  EndIf
-  Log_Add("Extracts information for the future creation of the DESC File", 2)
-  Moebius_Compile_Step2_ExtractMainInformations(CodeContent)
-  Log_Add("Remove some ASM code", 2)
-  Moebius_Compile_Step2_ModifyASM()
+Procedure.s Moebius_Compile_Step2_ModifyASM(CodeContent.s)
+  Protected Inc.l
+  Protected CodeField.s, TrCodeField.s, CodeCleaned.s, sNameOfFunction.s
+  Protected bFound.b, bNotCapture.b, bInFunction.b, bInBSSSection.b, bInSharedCode.b
   ;{ Permits in functions of some code to extract, remove some code & informations
   For Inc = 0 To CountString(CodeContent, #System_EOL)
     CodeField = StringField(CodeContent, Inc+1, #System_EOL)
@@ -210,26 +198,26 @@ ProcedureDLL Moebius_Compile_Step2()
           EndIf
           LibName = Trim(PB_ListFunctions(Function))
           If LibName <> ""
-            lFound = #False
+            bFound = #False
             ForEach LL_LibUsed()
               If LL_LibUsed() = LibName
-                lFound = #True
+                bFound = #True
                 Break
               EndIf
             Next
-            If lFound = #False
+            If bFound = #False
               If AddElement(LL_LibUsed())
                 LL_LibUsed() = LCase(LibName)
               EndIf
             EndIf
           EndIf
-          If NotCapture = 0
+          If bNotCapture = 0
             CodeCleaned + TrCodeField + #System_EOL
           EndIf
         ;}
         Case "public"
         ;{
-          If NotCapture = 0
+          If bNotCapture = 0
             Select StringField(TrCodeField, 2, " ")
               Case "main"
                 ;CodeCleaned + ";TB-Function-List" + #System_EOL
@@ -240,11 +228,11 @@ ProcedureDLL Moebius_Compile_Step2()
         ;}
         Case "macro"     
         ;{
-          If NotCapture = 1
+          If bNotCapture = 1
             CodeCleaned + StringField(CodeContent, Inc-1, #System_EOL)+#System_EOL
           EndIf
           CodeCleaned + TrCodeField + #System_EOL
-          NotCapture = 0
+          bNotCapture = 0
           sNameOfFunction = StringField(CodeContent, Inc, #System_EOL)
           sNameOfFunction = ReplaceString(sNameOfFunction, Chr(13), "")
           sNameOfFunction = ReplaceString(sNameOfFunction, Chr(10), "")
@@ -266,12 +254,12 @@ ProcedureDLL Moebius_Compile_Step2()
         ;}
         Case "main:"
         ;{
-          NotCapture = 1
+          bNotCapture = 1
         ;}
         Case "JMP"
         ;{
-          If NotCapture = 1
-            NotCapture = 0
+          If bNotCapture = 1
+            bNotCapture = 0
           Else
             CodeCleaned + TrCodeField + #System_EOL  
             If bInFunction = #True
@@ -284,13 +272,16 @@ ProcedureDLL Moebius_Compile_Step2()
           If StringField(TrCodeField, 2, " ") = "'.text'"
             CodeCleaned + ";TB-Function-List" +#System_EOL + TrCodeField + #System_EOL
           ElseIf StringField(TrCodeField, 2, " ") = "'.data'"
-            If sCodeShared = ""
-              sCodeShared = TrCodeField + #System_EOL
-              sCodeShared + "" + #System_EOL
+            If Moebius_Compile_Step2_sCodeShared = ""
+              Moebius_Compile_Step2_sCodeShared = TrCodeField + #System_EOL
+              Moebius_Compile_Step2_sCodeShared + "" + #System_EOL
             EndIf
-          ElseIf StringField(TrCodeField, 2, " ") = "'.bss'" ; variables globales non initialisee
-            sCodeShared = TrCodeField + #System_EOL
-            sCodeShared + "" + #System_EOL
+            If #PB_Compiler_OS = #PB_OS_Linux
+              bInBSSSection = #True  
+            EndIf
+          ElseIf StringField(TrCodeField, 2, " ") = "'.bss'" And #PB_Compiler_OS = #PB_OS_Windows ; variables globales non initialisee
+            Moebius_Compile_Step2_sCodeShared = TrCodeField + #System_EOL
+            Moebius_Compile_Step2_sCodeShared + "" + #System_EOL
             bInBSSSection = #True  
           EndIf
         ;}
@@ -304,12 +295,12 @@ ProcedureDLL Moebius_Compile_Step2()
         Case "_SYS_StaticStringStart:"
         ;{
           bInSharedCode = #True
-          sCodeShared + TrCodeField + #System_EOL
+          Moebius_Compile_Step2_sCodeShared + TrCodeField + #System_EOL
         ;}
         Case "_SYS_StaticStringEnd:"
         ;{
           bInSharedCode = #False
-          sCodeShared + TrCodeField + #System_EOL
+          Moebius_Compile_Step2_sCodeShared + TrCodeField + #System_EOL
         ;}
         Case "I_BSSEnd:"
         ;{
@@ -324,7 +315,7 @@ ProcedureDLL Moebius_Compile_Step2()
         ;}
         Case "RET"
         ;{
-          If NotCapture = 0 And bInFunction = #True
+          If bNotCapture = 0 And bInFunction = #True
             If LL_DLLFunctions()\IsDLLFunction = #True And LL_DLLFunctions()\FuncRetType = "String" And #PB_Compiler_OS = #PB_OS_Windows
               LL_DLLFunctions()\Code + TrCodeField + " + 4" + #System_EOL
             Else
@@ -335,17 +326,17 @@ ProcedureDLL Moebius_Compile_Step2()
         ;}
         Default
         ;{
-          If NotCapture = 0
+          If bNotCapture = 0
             CodeCleaned + TrCodeField + #System_EOL
             If bInFunction = #True
               LL_DLLFunctions()\Code + TrCodeField + #System_EOL
             EndIf
             If bInSharedCode = #True
-              sCodeShared + TrCodeField + #System_EOL
+              Moebius_Compile_Step2_sCodeShared + TrCodeField + #System_EOL
             EndIf
             If bInBSSSection >= #True
               If TrCodeField = "_PB_BSSSection:"
-                sCodeShared + TrCodeField + #System_EOL
+                Moebius_Compile_Step2_sCodeShared + TrCodeField + #System_EOL
               ElseIf TrCodeField = "I_BSSStart:"
                 bInBSSSection + 1
               Else
@@ -353,7 +344,7 @@ ProcedureDLL Moebius_Compile_Step2()
                   If Left(TrCodeField, 2) = "PB" And StringField(TrCodeField, 1, " ") <> "PB_DataPointer"
                     ; Don't Write in SharedCode
                   Else
-                    sCodeShared + TrCodeField + #System_EOL
+                    Moebius_Compile_Step2_sCodeShared + TrCodeField + #System_EOL
                   EndIf
                 EndIf
               EndIf
@@ -364,6 +355,22 @@ ProcedureDLL Moebius_Compile_Step2()
     EndIf
   Next
   ;}
+  ProcedureReturn CodeCleaned
+EndProcedure
+ProcedureDLL Moebius_Compile_Step2()
+  ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
+  Protected CodeContent.s, CodeField.s, TrCodeField.s , CodeCleaned.s
+  Protected IncA.l
+  Protected bFound.b
+  If ReadFile(0, gConf_ProjectDir+"purebasic.asm")
+    CodeContent = Space(Lof(0)+1)
+    ReadData(0,@CodeContent, Lof(0))
+    CloseFile(0)
+  EndIf
+  Log_Add("Extracts information for the future creation of the DESC File", 2)
+  Moebius_Compile_Step2_ExtractMainInformations(CodeContent)
+  Log_Add("Remove some ASM code", 2)
+  CodeCleaned = Moebius_Compile_Step2_ModifyASM(CodeContent)
   Log_Add("Create ASM Files", 2)
   ;{ Create ASM Files
     Protected lFile.l
@@ -382,6 +389,16 @@ ProcedureDLL Moebius_Compile_Step2()
     ForEach LL_DLLFunctions()
       ClearList(LL_ASM_extrn())
       lFile = CreateFile(#PB_Any, gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
+      If LCase(Right(LL_DLLFunctions()\FuncName,5)) = "_init"
+        LL_DLLFunctions()\FuncRetType = "InitFunction"
+        LL_DLLFunctions()\Params = ""
+        LL_DLLFunctions()\ParamsRetType = ""
+      EndIf
+      If LCase(Right(LL_DLLFunctions()\FuncName,4)) = "_end"
+        LL_DLLFunctions()\FuncRetType = "EndFunction"
+        LL_DLLFunctions()\Params = ""
+        LL_DLLFunctions()\ParamsRetType = ""
+      EndIf
       If lFile
         WriteStringN(lFile, "format "+#System_LibFormat)
         WriteStringN(lFile, "")
@@ -399,14 +416,14 @@ ProcedureDLL Moebius_Compile_Step2()
           CodeField = ReplaceString(CodeField, Chr(10), "")
           Select LCase(StringField(CodeField, 1, " "))
             Case "call";{
-              lFound = #False
+              bFound = #False
               ForEach LL_ASM_extrn()
                 If LL_ASM_extrn() = StringField(CodeField, CountString(CodeField, " ")+1, " ")
-                  lFound = #True
+                  bFound = #True
                   Break
                 EndIf
               Next
-              If lFound = #False
+              If bFound = #False
                 If AddElement(LL_ASM_extrn())
                   LL_ASM_extrn() = StringField(CodeField, CountString(CodeField, " ")+1, " ")
                 EndIf
@@ -421,14 +438,14 @@ ProcedureDLL Moebius_Compile_Step2()
                     If CreateRegularExpression(1, "e[a-z]p")
                       If MatchRegularExpression(0, TrCodeField) = #False
                         If MatchRegularExpression(1, TrCodeField) = #False
-                          lFound = #False
+                          bFound = #False
                           ForEach LL_ASM_extrn()
                             If LL_ASM_extrn() = TrCodeField
-                              lFound = #True
+                              bFound = #True
                               Break
                             EndIf
                           Next
-                          If lFound = #False
+                          If bFound = #False
                             If AddElement(LL_ASM_extrn())
                               LL_ASM_extrn() = TrCodeField
                             EndIf
@@ -444,14 +461,14 @@ ProcedureDLL Moebius_Compile_Step2()
                 If TrCodeField <> "0" And Left(TrCodeField, 2) = "_S"
                   TrCodeField = ReplaceString(TrCodeField, "[", "")
                   TrCodeField = ReplaceString(TrCodeField, "]", "")
-                  lFound = #False
+                  bFound = #False
                   ForEach LL_ASM_extrn()
                     If LL_ASM_extrn() = TrCodeField
-                      lFound = #True
+                      bFound = #True
                       Break
                     EndIf
                   Next
-                  If lFound = #False
+                  If bFound = #False
                     If AddElement(LL_ASM_extrn())
                       LL_ASM_extrn() = TrCodeField
                     EndIf
@@ -466,9 +483,21 @@ ProcedureDLL Moebius_Compile_Step2()
             WriteStringN(lFile, "extrn "+LL_ASM_extrn())
           Next
         EndIf
+        If LL_DLLFunctions()\FuncRetType = "InitFunction"
+          CompilerSelect #PB_Compiler_OS 
+            CompilerCase #PB_OS_Windows : LL_DLLFunctions()\Code + "extrn _SYS_InitString@0" + #System_EOL
+            CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "extrn SYS_InitString" + #System_EOL
+          CompilerEndSelect
+        EndIf
         ;}
         WriteStringN(lFile, "")      
         ;{ code
+        If LL_DLLFunctions()\FuncRetType = "InitFunction"
+          CompilerSelect #PB_Compiler_OS 
+            CompilerCase #PB_OS_Windows : LL_DLLFunctions()\Code + "CALL _SYS_InitString@0" + #System_EOL
+            CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "CALL SYS_InitString" + #System_EOL
+          CompilerEndSelect
+        EndIf
         If LL_DLLFunctions()\IsDLLFunction = #True
           CompilerSelect #PB_Compiler_OS
             CompilerCase #PB_OS_Windows
@@ -506,55 +535,45 @@ ProcedureDLL Moebius_Compile_Step2()
       EndIf
     Next
     ;{ _Init Function
-    ; We search if an Init Function exists
-    ForEach LL_DLLFunctions()
-      If LCase(Right(LL_DLLFunctions()\FuncName,5)) = "_init"
-        lFound = #True
-        Break
+      ; We search if an Init Function exists
+      ForEach LL_DLLFunctions()
+        If LCase(Right(LL_DLLFunctions()\FuncName,5)) = "_init"
+          bFound = #True
+          Break
+        EndIf
+      Next
+      ; The Init Function doesn't exist
+      If bFound = #False
+        If AddElement(LL_DLLFunctions())
+          LL_DLLFunctions()\FuncName = ReplaceString(gProject\Name, " ", "_")+"_Init" 
+          LL_DLLFunctions()\FuncRetType = "InitFunction"
+          LL_DLLFunctions()\FuncDesc = ""
+          LL_DLLFunctions()\Params = ""
+          LL_DLLFunctions()\ParamsRetType = ""
+          LL_DLLFunctions()\Code = "format "+#System_LibFormat + #System_EOL
+          LL_DLLFunctions()\Code + "" + #System_EOL
+          CompilerSelect #PB_Compiler_OS 
+            CompilerCase #PB_OS_Windows : LL_DLLFunctions()\Code + "extrn _SYS_InitString@0" + #System_EOL
+            CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "extrn SYS_InitString" + #System_EOL
+          CompilerEndSelect
+          LL_DLLFunctions()\Code + "" + #System_EOL
+          LL_DLLFunctions()\Code + "Public PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init"  + #System_EOL
+          LL_DLLFunctions()\Code + "" + #System_EOL
+          LL_DLLFunctions()\Code + "PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init:" + #System_EOL
+          CompilerSelect #PB_Compiler_OS 
+            CompilerCase #PB_OS_Windows : LL_DLLFunctions()\Code + "CALL _SYS_InitString@0" + #System_EOL
+            CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "CALL SYS_InitString" + #System_EOL
+          CompilerEndSelect
+          LL_DLLFunctions()\Code + "RET " + #System_EOL
+          LL_DLLFunctions()\IsDLLFunction = #False
+          LL_DLLFunctions()\InDescFile = #True
+        EndIf
+        lFile = CreateFile(#PB_Any, gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
+        If lFile
+          WriteStringN(lFile, LL_DLLFunctions()\Code)
+          CloseFile(lFile)
+        EndIf
       EndIf
-    Next
-    ; The Init Function doesn't exist
-    If lFound = #False
-      If AddElement(LL_DLLFunctions())
-        LL_DLLFunctions()\FuncName = ReplaceString(gProject\Name, " ", "_")+"_Init" 
-        LL_DLLFunctions()\FuncRetType = "InitFunction"
-        LL_DLLFunctions()\FuncDesc = ""
-        LL_DLLFunctions()\Params = ""
-        LL_DLLFunctions()\ParamsRetType = ""
-        LL_DLLFunctions()\Code = "format "+#System_LibFormat + #System_EOL
-        LL_DLLFunctions()\Code + "" + #System_EOL
-        CompilerSelect #PB_Compiler_OS 
-          CompilerCase #PB_OS_Windows : LL_DLLFunctions()\Code + "extrn _SYS_InitString@0" + #System_EOL
-          CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "extrn SYS_InitString" + #System_EOL
-        CompilerEndSelect
-        LL_DLLFunctions()\Code + "" + #System_EOL
-        LL_DLLFunctions()\Code + "Public PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init"  + #System_EOL
-        LL_DLLFunctions()\Code + "" + #System_EOL
-        LL_DLLFunctions()\Code + "PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init:" + #System_EOL
-        CompilerSelect #PB_Compiler_OS 
-          CompilerCase #PB_OS_Windows : LL_DLLFunctions()\Code + "CALL _SYS_InitString@0" + #System_EOL
-          CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "CALL SYS_InitString" + #System_EOL
-        CompilerEndSelect
-        LL_DLLFunctions()\Code + "RET " + #System_EOL
-        LL_DLLFunctions()\IsDLLFunction = #False
-        LL_DLLFunctions()\InDescFile = #True
-      EndIf
-    Else ; The Init Function exist
-      LL_DLLFunctions()\FuncRetType = "InitFunction"
-      LL_DLLFunctions()\Params = ""
-      LL_DLLFunctions()\ParamsRetType = ""
-      Debug "-----------------"
-        Debug LL_DLLFunctions()\Code
-      Debug "-----------------"
-    EndIf
-
-    lFile = CreateFile(#PB_Any, gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
-    If lFile
-      WriteStringN(lFile, LL_DLLFunctions()\Code)
-      CloseFile(lFile)
-    EndIf
-    ;}
-    ;{ End Function
     ;}
     ;{ Shared Code
     If AddElement(LL_DLLFunctions())
@@ -563,7 +582,7 @@ ProcedureDLL Moebius_Compile_Step2()
       LL_DLLFunctions()\FuncDesc = ""
       LL_DLLFunctions()\Params = ""
       LL_DLLFunctions()\ParamsRetType = ""
-      LL_DLLFunctions()\Code =sCodeShared
+      LL_DLLFunctions()\Code =Moebius_Compile_Step2_sCodeShared
       LL_DLLFunctions()\IsDLLFunction = #False
       LL_DLLFunctions()\InDescFile = #False
     EndIf
@@ -571,7 +590,7 @@ ProcedureDLL Moebius_Compile_Step2()
     If lFile
       WriteStringN(lFile, "format "+#System_LibFormat + #System_EOL)
       WriteStringN(lFile, "" + #System_EOL)
-      For IncA = 0 To CountString(sCodeShared, #System_EOL)
+      For IncA = 0 To CountString(Moebius_Compile_Step2_sCodeShared, #System_EOL)
         CodeField = Trim(StringField(LL_DLLFunctions()\Code, IncA, #System_EOL))
         CodeField = ReplaceString(CodeField, Chr(13), "")
         CodeField = ReplaceString(CodeField, Chr(10), "")

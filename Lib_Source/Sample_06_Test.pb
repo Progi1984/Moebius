@@ -1,0 +1,8 @@
+;Debug S06_Init()
+Debug S06_Set(12)
+;Debug S06_Get()
+;Debug S06_Set(24)
+;Debug S06_Get()
+;Debug S06_Set(S06_Get()*2)
+;Debug S06_Get()
+;Debug S06_End()
