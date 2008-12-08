@@ -1,21 +1,23 @@
-/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Sample_00.pb
-
-Simple file
+Nom : Sample_00.pb
+Description : Simple file
 -----------------------------------------------------------------------------------------------------------------------
-/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Sample_01.pb
-
-Unicode = #true
+Nom : Sample_01.pb
+Description : Using Unicode 
 -----------------------------------------------------------------------------------------------------------------------
-/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Sample_02.pb
-
-ThreadSafe = #true
+Nom : Sample_02.pb
+Description : Using ThreadSafe
 -----------------------------------------------------------------------------------------------------------------------
-/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Sample_03.pb
-Unicode = #true
-ThreadSafe = #true
+Nom : Sample_03.pb
+Description : Using Unicode and ThreadSafe
 -----------------------------------------------------------------------------------------------------------------------
-/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Sample_04.pb
-Testing of CPU modifiers 
+Nom : Sample_04.pb
+Description : Using CPU modifiers 
 -----------------------------------------------------------------------------------------------------------------------
-/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Lib_Source/Sample_05.pb
-Using of anothers userlibs
+Nom : Sample_05.pb
+Description : Using Global variables
+-----------------------------------------------------------------------------------------------------------------------
+Nom : Sample_06.pb
+Description : Using _Init And _End Modifiers
+-----------------------------------------------------------------------------------------------------------------------
+Nom : Sample_07.pb
+Description : 

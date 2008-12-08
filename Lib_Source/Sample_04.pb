@@ -13,15 +13,3 @@ EndProcedure
 ProcedureDLL.s S04_FunctionTest_SSE2(PrimParam.l)
 	ProcedureReturn Str(PrimParam)+"SSE2"
 EndProcedure
-; ProcedureDLL.s S04_FunctionTest_DEBUG(PrimParam.l)
-; 	ProcedureReturn Str(PrimParam)+"DEBUG"
-; EndProcedure
-; ProcedureDLL.s S04_FunctionTest_UNICODE(PrimParam.l)
-; 	ProcedureReturn Str(PrimParam)+"Unicode"
-; EndProcedure
-; ProcedureDLL.s S04_FunctionTest_THREAD_UNICODE(PrimParam.l)
-; 	ProcedureReturn Str(PrimParam)+"UnicodeThread"
-; EndProcedure
-; ProcedureDLL.s S04_FunctionTest_THREAD(PrimParam.l)
-; 	ProcedureReturn Str(PrimParam)+"Thread"
-; EndProcedure
