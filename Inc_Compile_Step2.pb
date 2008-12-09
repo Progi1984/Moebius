@@ -1,5 +1,5 @@
 Global Moebius_Compile_Step2_sCodeShared.s
-Procedure Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
+ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
   Protected Inc.l, IncA.l
   Protected CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned2.s, sFuncName.s, sFuncNameCleared.s, sReturnValField.s
   Protected bFunctionEverAdded.b, bInSystemLib.b
@@ -173,7 +173,7 @@ Procedure Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
   CodeCleaned2 = ""
   ;}
 EndProcedure
-Procedure.s Moebius_Compile_Step2_ModifyASM(CodeContent.s)
+ProcedureDLL.s Moebius_Compile_Step2_ModifyASM(CodeContent.s)
   Protected Inc.l
   Protected CodeField.s, TrCodeField.s, CodeCleaned.s, sNameOfFunction.s
   Protected bFound.b, bNotCapture.b, bInFunction.b, bInBSSSection.b, bInSharedCode.b
@@ -288,15 +288,13 @@ Procedure.s Moebius_Compile_Step2_ModifyASM(CodeContent.s)
           If StringField(TrCodeField, 2, " ") = "'.text'"
             CodeCleaned + ";TB-Function-List" +#System_EOL + TrCodeField + #System_EOL
           ElseIf StringField(TrCodeField, 2, " ") = "'.data'"
-            If Moebius_Compile_Step2_sCodeShared = ""
-              Moebius_Compile_Step2_sCodeShared = TrCodeField + #System_EOL
-              Moebius_Compile_Step2_sCodeShared + "" + #System_EOL
-            EndIf
+            Moebius_Compile_Step2_sCodeShared + TrCodeField + #System_EOL
+            Moebius_Compile_Step2_sCodeShared + "" + #System_EOL
             If #PB_Compiler_OS = #PB_OS_Linux
               bInBSSSection = #True  
             EndIf
           ElseIf StringField(TrCodeField, 2, " ") = "'.bss'" And #PB_Compiler_OS = #PB_OS_Windows ; variables globales non initialisee
-            Moebius_Compile_Step2_sCodeShared = TrCodeField + #System_EOL
+            Moebius_Compile_Step2_sCodeShared + TrCodeField + #System_EOL
             Moebius_Compile_Step2_sCodeShared + "" + #System_EOL
             bInBSSSection = #True  
           EndIf
@@ -351,7 +349,7 @@ Procedure.s Moebius_Compile_Step2_ModifyASM(CodeContent.s)
               Moebius_Compile_Step2_sCodeShared + TrCodeField + #System_EOL
             EndIf
             If bInBSSSection >= #True
-              If TrCodeField = "_PB_BSSSection:"
+              If TrCodeField = "_PB_BSSSection:" Or Right(TrCodeField, 2) = "_S"
                 Moebius_Compile_Step2_sCodeShared + TrCodeField + #System_EOL
               ElseIf TrCodeField = "I_BSSStart:"
                 bInBSSSection + 1
@@ -495,7 +493,6 @@ ProcedureDLL Moebius_Compile_Step2()
             WriteStringN(lFile, "extrn "+LL_ASM_extrn())
           Next
         EndIf
-        Debug LL_DLLFunctions()\FuncRetType
         If LL_DLLFunctions()\FuncRetType = "InitFunction"
           CompilerSelect #PB_Compiler_OS 
             CompilerCase #PB_OS_Windows : WriteStringN(lFile, "extrn _SYS_InitString@0")
@@ -578,7 +575,7 @@ ProcedureDLL Moebius_Compile_Step2()
             CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "CALL SYS_InitString" + #System_EOL
           CompilerEndSelect
           LL_DLLFunctions()\Code + "RET " + #System_EOL
-          LL_DLLFunctions()\IsDLLFunction = #False
+          LL_DLLFunctions()\IsDLLFunction = #True
           LL_DLLFunctions()\InDescFile = #True
         EndIf
         lFile = CreateFile(#PB_Any, gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
@@ -603,8 +600,8 @@ ProcedureDLL Moebius_Compile_Step2()
     If lFile
       WriteStringN(lFile, "format "+#System_LibFormat)
       WriteStringN(lFile, "")
-      For IncA = 0 To CountString(Moebius_Compile_Step2_sCodeShared, #System_EOL)
-        CodeField = Trim(StringField(LL_DLLFunctions()\Code, IncA, #System_EOL))
+       For IncA = 0 To CountString(Moebius_Compile_Step2_sCodeShared, #System_EOL)
+        CodeField = Trim(StringField(Moebius_Compile_Step2_sCodeShared, IncA, #System_EOL))
         CodeField = ReplaceString(CodeField, Chr(13), "")
         CodeField = ReplaceString(CodeField, Chr(10), "")
         CodeField = Trim(CodeField)
