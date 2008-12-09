@@ -103,7 +103,6 @@ Procedure PB_GetInfoLib(FileName.s)
       While Eof(hFile) = 0
       If AddElement(LL_PBFunctions())
         LL_PBFunctions()\FuncName = ReadString(hFile)
-        ;    Debug LL_PBFunctions()\FuncName
         LL_PBFunctions()\LibContaining = LibName
         If (Loc(hFile)<(Lof(hFile)-2))
           FileSeek(hFile, Loc(hFile) + 2)
@@ -130,9 +129,8 @@ EndProcedure
 
 ;@desc : List all functions contained in purelibraries & {System}Libraries
 Procedure.s PB_ListFunctions(Function.s)
-  Protected NextDir.l, NameOfLib.s, LibFileName.s
-  Protected lTest.l
-  Function.s = LCase(Trim(Function))
+  Protected NextDir.l, lTest.l
+  Protected NameOfLib.s, LibFileName.s, sTrFunction.s
   If CountList(LL_PBFunctions()) = 0
     ; List all functions contained in purelibraries
     If ExamineDirectory(0, gConf_PureBasic_Path+"purelibraries"+#System_Separator, "")
@@ -168,9 +166,18 @@ Procedure.s PB_ListFunctions(Function.s)
       Until NextDir = #False
     EndIf
   EndIf
-  
+  sTrFunction = LCase(Trim(Function))
+  If Left(sTrFunction, 1) = "_"
+    sTrFunction = Right(sTrFunction, Len(sTrFunction) - 1)
+  EndIf
+  If FindString(sTrFunction, "@", 1) > 0
+    sTrFunction = StringField(sTrFunction, 1, "@")
+  EndIf
+  If Right(sTrFunction, 1) =  "a" Or Right(sTrFunction, 1) =  "a"
+    sTrFunction = Left(sTrFunction, Len(sTrFunction) - 1)
+  EndIf
   ForEach LL_PBFunctions()
-    If LCase(LL_PBFunctions()\FuncName) = Function
+    If LCase(LL_PBFunctions()\FuncName) = sTrFunction
       ProcedureReturn LL_PBFunctions()\LibContaining
     EndIf
   Next

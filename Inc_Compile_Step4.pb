@@ -42,26 +42,19 @@ ProcedureDLL Moebius_Compile_Step4()
     Log_Add(gProject\FileCHM, 4)
     ForEach LL_DLLFunctions()
       If LL_DLLFunctions()\InDescFile = #True
-        If LL_DLLFunctions()\FuncRetType <> "InitFunction"
-          If LL_DLLFunctions()\IsDLLFunction = #True
-            StringTmp = LL_DLLFunctions()\FuncName+LL_DLLFunctions()\ParamsRetType+" ("+LL_DLLFunctions()\Params+")"
-            If LL_DLLFunctions()\FuncDesc <> ""
-              StringTmp + " - "+LL_DLLFunctions()\FuncDesc
-            EndIf
-            WriteStringN(hDescFile, StringTmp)
-            Log_Add(StringTmp, 4)
-            StringTmp = LL_DLLFunctions()\FuncRetType+" | StdCall"
-            If LL_DLLFunctions()\FlagsReturn <> ""
-              StringTmp + LL_DLLFunctions()\FlagsReturn
-            EndIf
-            WriteStringN(hDescFile, StringTmp) 
-            Log_Add(StringTmp, 4)
+        If LL_DLLFunctions()\IsDLLFunction = #True
+          StringTmp = LL_DLLFunctions()\FuncName+LL_DLLFunctions()\ParamsRetType+" ("+LL_DLLFunctions()\Params+")"
+          If LL_DLLFunctions()\FuncDesc <> ""
+            StringTmp + " - "+LL_DLLFunctions()\FuncDesc
           EndIf
-        Else ; FuncType = InitFunction
-          WriteStringN(hDescFile, LL_DLLFunctions()\FuncName)
-          Log_Add(LL_DLLFunctions()\FuncName, 4)
-          WriteStringN(hDescFile, LL_DLLFunctions()\FuncRetType+" | StdCall") 
-          Log_Add(LL_DLLFunctions()\FuncRetType+" | StdCall", 4)
+          WriteStringN(hDescFile, StringTmp)
+          Log_Add(StringTmp, 4)
+          StringTmp = LL_DLLFunctions()\FuncRetType+" | StdCall"
+          If LL_DLLFunctions()\FlagsReturn <> ""
+            StringTmp + LL_DLLFunctions()\FlagsReturn
+          EndIf
+          WriteStringN(hDescFile, StringTmp) 
+          Log_Add(StringTmp, 4)
         EndIf
       EndIf
     Next
