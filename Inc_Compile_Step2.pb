@@ -2,7 +2,7 @@ Global Moebius_Compile_Step2_sCodeShared.s
 ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
   Protected Inc.l, IncA.l
   Protected CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned2.s, sFuncName.s, sFuncNameCleared.s, sReturnValField.s
-  Protected bFunctionEverAdded.b, bInSystemLib.b
+  Protected bFunctionEverAdded.b
   ;{ Extracts information for the future creation of the DESC File
   For Inc = 0 To CountString(CodeContent, #System_EOL)
     CodeField = StringField(CodeContent, Inc+1, #System_EOL)
@@ -140,7 +140,6 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
             ; Type of Parameters
             If Trim(LL_DLLFunctions()\Params) <> ""
               For IncA = 1 To CountString(LL_DLLFunctions()\Params, ",")+1
-                Debug Trim(StringField(LL_DLLFunctions()\Params, IncA, ","))
                 If FindString(Trim(StringField(LL_DLLFunctions()\Params, IncA, ",")), "()", 1)> 0
                   LL_DLLFunctions()\ParamsRetType +  ", LinkedList"
                 Else
@@ -168,31 +167,16 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
             LL_DLLFunctions()\InDescFile = 1-bFunctionEverAdded
             Log_Add("LL_DLLFunctions()\InDescFile > "+Str(LL_DLLFunctions()\InDescFile), 4)
           EndIf
-        Else
-          If TrCodeField = ":System"
-            bInSystemLib = #True
-          Else
-            If Left(TrCodeField, 1) = ":"
-              bInSystemLib = #False
-            Else
-              If bInSystemLib = #True
-                AddElement(LL_DLLUsed())
-                LL_DLLUsed() = TrCodeField
-                Log_Add("LL_DLLUsed() > "+LL_DLLUsed(), 4)
-              EndIf
-            EndIf
-          EndIf
         EndIf
       EndIf
     EndIf
   Next
-  CodeCleaned2 = ""
   ;}
 EndProcedure
-ProcedureDLL.s Moebius_Compile_Step2_ModifyASM(CodeContent.s)
+ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
   Protected Inc.l
   Protected CodeField.s, TrCodeField.s, CodeCleaned.s, sNameOfFunction.s
-  Protected bFound.b, bNotCapture.b, bInFunction.b, bInBSSSection.b, bInSharedCode.b
+  Protected bFound.b, bNotCapture.b, bInFunction.b, bInBSSSection.b, bInSharedCode.b, bInSystemLib.b
   ;{ Permits in functions of some code to extract, remove some code & informations
   For Inc = 0 To CountString(CodeContent, #System_EOL)
     CodeField = StringField(CodeContent, Inc+1, #System_EOL)
@@ -201,13 +185,12 @@ ProcedureDLL.s Moebius_Compile_Step2_ModifyASM(CodeContent.s)
     TrCodeField = Trim(TrCodeField)
     If Left(TrCodeField, 4) = "_PB_" And TrCodeField <> "_PB_EOP:" And TrCodeField <> "_PB_EOP_NoValue:" And TrCodeField <> "_PB_BSSSection:"    
     ; In cases of functions not defined in ProcedureDLL
-      CodeCleaned + "PB_" + Right(CodeField, Len(CodeField)-4) + #System_EOL
       If AddElement(LL_Functions())
         LL_Functions() = Right(CodeField, Len(CodeField)-4)
         LL_Functions() = Left(TrCodeField, Len(TrCodeField)-1)
       EndIf
     Else
-      Select StringField(TrCodeField, 1, " ")
+      Select Trim(StringField(TrCodeField, 1, " "))
         Case "extrn"
         ;{ Extracts extrn functions
           Protected Function.s = StringField(TrCodeField, 2, " ")
@@ -243,16 +226,12 @@ ProcedureDLL.s Moebius_Compile_Step2_ModifyASM(CodeContent.s)
               EndIf
             EndIf
           EndIf
-          If bNotCapture = 0
-            CodeCleaned + TrCodeField + #System_EOL
-          EndIf
         ;}
         Case "public"
         ;{
           If bNotCapture = 0
             Select StringField(TrCodeField, 2, " ")
               Case "main"
-                ;CodeCleaned + ";TB-Function-List" + #System_EOL
               Default
                 ;Do nothing
             EndSelect
@@ -260,10 +239,6 @@ ProcedureDLL.s Moebius_Compile_Step2_ModifyASM(CodeContent.s)
         ;}
         Case "macro"     
         ;{
-          If bNotCapture = 1
-            CodeCleaned + StringField(CodeContent, Inc-1, #System_EOL)+#System_EOL
-          EndIf
-          CodeCleaned + TrCodeField + #System_EOL
           bNotCapture = 0
           sNameOfFunction = StringField(CodeContent, Inc, #System_EOL)
           sNameOfFunction = ReplaceString(sNameOfFunction, Chr(13), "")
@@ -293,7 +268,6 @@ ProcedureDLL.s Moebius_Compile_Step2_ModifyASM(CodeContent.s)
           If bNotCapture = 1
             bNotCapture = 0
           Else
-            CodeCleaned + TrCodeField + #System_EOL  
             If bInFunction = #True
               LL_DLLFunctions()\Code + TrCodeField + #System_EOL
             EndIf
@@ -302,7 +276,6 @@ ProcedureDLL.s Moebius_Compile_Step2_ModifyASM(CodeContent.s)
         Case "section"
         ;{
           If StringField(TrCodeField, 2, " ") = "'.text'"
-            CodeCleaned + ";TB-Function-List" +#System_EOL + TrCodeField + #System_EOL
           ElseIf StringField(TrCodeField, 2, " ") = "'.data'"
             Moebius_Compile_Step2_sCodeShared + TrCodeField + #System_EOL
             Moebius_Compile_Step2_sCodeShared + "" + #System_EOL
@@ -320,7 +293,6 @@ ProcedureDLL.s Moebius_Compile_Step2_ModifyASM(CodeContent.s)
           If bInFunction = #True
             bInFunction = #False
           EndIf
-          CodeCleaned + TrCodeField + #System_EOL
         ;}
         Case "_SYS_StaticStringStart:"
         ;{
@@ -335,7 +307,6 @@ ProcedureDLL.s Moebius_Compile_Step2_ModifyASM(CodeContent.s)
         Case "I_BSSEnd:"
         ;{
           bInBSSSection = #False
-          CodeCleaned + TrCodeField + #System_EOL
         ;}
         Case "pb_public"
         ;{
@@ -352,18 +323,35 @@ ProcedureDLL.s Moebius_Compile_Step2_ModifyASM(CodeContent.s)
               LL_DLLFunctions()\Code + TrCodeField + #System_EOL
             EndIf
           EndIf
-          CodeCleaned + TrCodeField + #System_EOL
+        ;}
+        Case ";"
+        ;{
+          If StringField(TrCodeField, 2, " ") = ":System"
+            bInSystemLib = #True
+          Else
+            If Left(StringField(TrCodeField, 2, " "), 1) = ":"
+              bInSystemLib = #False
+            Else
+              If bInSystemLib = #True
+                AddElement(LL_DLLUsed())
+                LL_DLLUsed() = StringField(TrCodeField, 2, " ")
+                Log_Add("LL_DLLUsed() > "+LL_DLLUsed(), 4)
+              EndIf
+            EndIf
+          EndIf
         ;}
         Default
         ;{
           If bNotCapture = 0
-            CodeCleaned + TrCodeField + #System_EOL
-            If bInFunction = #True
+            ; In the function, getting the code
+            If bInFunction = #True 
               LL_DLLFunctions()\Code + TrCodeField + #System_EOL
             EndIf
+            ; Some Shared Code
             If bInSharedCode = #True
               Moebius_Compile_Step2_sCodeShared + TrCodeField + #System_EOL
             EndIf
+            ; In BSS Section, for getting global variables and strings
             If bInBSSSection >= #True
               If TrCodeField = "_PB_BSSSection:" Or Right(TrCodeField, 2) = "_S"
                 Moebius_Compile_Step2_sCodeShared + TrCodeField + #System_EOL
@@ -385,7 +373,6 @@ ProcedureDLL.s Moebius_Compile_Step2_ModifyASM(CodeContent.s)
     EndIf
   Next
   ;}
-  ProcedureReturn CodeCleaned
 EndProcedure
 ProcedureDLL Moebius_Compile_Step2()
   ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
@@ -400,7 +387,7 @@ ProcedureDLL Moebius_Compile_Step2()
   Log_Add("Extracts information for the future creation of the DESC File", 2)
   Moebius_Compile_Step2_ExtractMainInformations(CodeContent)
   Log_Add("Remove some ASM code", 2)
-  CodeCleaned = Moebius_Compile_Step2_ModifyASM(CodeContent)
+  Moebius_Compile_Step2_ModifyASM(CodeContent)
   Log_Add("Create ASM Files", 2)
   ;{ Create ASM Files
     Protected lFile.l
@@ -487,7 +474,6 @@ ProcedureDLL Moebius_Compile_Step2()
                 TrCodeField = Trim(CodeField)
                 ; It's not a comment or a label
                 If Left(TrCodeField, 1) <> ";" And Right(TrCodeField, 1) <> ":"
-                  ;Debug "----"+TrCodeField
                   ; Looking for strings
                   lPos = FindString(TrCodeField, "_S", 1)
                   If lPos > 0
@@ -508,7 +494,6 @@ ProcedureDLL Moebius_Compile_Step2()
                         LL_ASM_extrn() = TrCodeField
                       EndIf
                     EndIf
-                    Debug "----"+TrCodeField
                   EndIf
                 EndIf
 ;                 TrCodeField = Trim(StringField(CodeField, 2, ","))
@@ -668,10 +653,4 @@ ProcedureDLL Moebius_Compile_Step2()
     ;}
   ;}
   Log_Add("Rewrite the new ASM Code", 2)
-  ;{ Rewrite the new ASM Code
-  If CreateFile(0, gProject\FileAsm)
-    WriteString(0,CodeCleaned)
-    CloseFile(0)
-  EndIf
-  ;}
 EndProcedure

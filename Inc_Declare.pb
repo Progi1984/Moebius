@@ -21,7 +21,7 @@ DeclareDLL Moebius_Compile_Step0()
 DeclareDLL Moebius_Compile_Step1()
 ; Inc_Compile_Step2.pb
 DeclareDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
-DeclareDLL.s Moebius_Compile_Step2_ModifyASM(CodeContent.s)
+DeclareDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
 DeclareDLL Moebius_Compile_Step2()
 ; Inc_Compile_Step3.pb
 DeclareDLL Moebius_Compile_Step3()
