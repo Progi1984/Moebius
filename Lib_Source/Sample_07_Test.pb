@@ -17,6 +17,6 @@ For Inc = 0 To 10
   AnyListPoint()\y = Random(255)
 Next
 
-S07_GetVarL(AnyListL())
-S07_GetVarS(AnyListS())
+S07_GetVarL(AnyListL(), 5)
+S07_GetVarS(5, AnyListS())
 S07_GetVarPoint(AnyListPoint())

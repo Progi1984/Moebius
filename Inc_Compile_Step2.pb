@@ -3,6 +3,7 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
   Protected Inc.l, IncA.l
   Protected CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned2.s, sFuncName.s, sFuncNameCleared.s, sReturnValField.s
   Protected bFunctionEverAdded.b
+  Protected hRExp_Brackets.l
   ;{ Extracts information for the future creation of the DESC File
   For Inc = 0 To CountString(CodeContent, #System_EOL)
     CodeField = StringField(CodeContent, Inc+1, #System_EOL)
@@ -140,8 +141,13 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
             ; Type of Parameters
             If Trim(LL_DLLFunctions()\Params) <> ""
               For IncA = 1 To CountString(LL_DLLFunctions()\Params, ",")+1
-                If FindString(Trim(StringField(LL_DLLFunctions()\Params, IncA, ",")), "()", 1)> 0
-                  LL_DLLFunctions()\ParamsRetType +  ", LinkedList"
+                hRExp_Brackets = CreateRegularExpression(#PB_Any, "([[:digit:]])" )
+                If FindString(Trim(StringField(LL_DLLFunctions()\Params, IncA, ",")), "(", 1)> 0 And FindString(Trim(StringField(LL_DLLFunctions()\Params, IncA, ",")), ")", 1)> 0
+                  If MatchRegularExpression(hRExp_Brackets, Trim(StringField(LL_DLLFunctions()\Params, IncA, ","))) = #True
+                    LL_DLLFunctions()\ParamsRetType +  ", Array"
+                  Else  
+                    LL_DLLFunctions()\ParamsRetType +  ", LinkedList"
+                  EndIf
                 Else
                   Select Right(Trim(StringField(LL_DLLFunctions()\Params, IncA, ",")), 1)
                     Case "b"  : LL_DLLFunctions()\ParamsRetType + ", Byte"
@@ -159,6 +165,7 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
                     CompilerEndIf
                   EndSelect
                 EndIf
+                FreeRegularExpression(hRExp_Brackets)
               Next
             Else
               LL_DLLFunctions()\ParamsRetType = ""
