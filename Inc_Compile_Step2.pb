@@ -1,8 +1,9 @@
 Global Moebius_Compile_Step2_sCodeShared.s
 ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
   Protected Inc.l, IncA.l
-  Protected CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned2.s, sFuncName.s, sFuncNameCleared.s, sReturnValField.s
-  Protected bFunctionEverAdded.b
+  Protected CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned2.s, sFuncName.s, sFuncNameCleared.s, sReturnValField.s, sParamItem.s
+  Protected sIsParameterDefautValueStart.s, sIsParameterDefautValueEnd.s
+  Protected bFunctionEverAdded.b, bHasNumberInLastPlace.b
   Protected hRExp_Brackets.l
   ;{ Extracts information for the future creation of the DESC File
   For Inc = 0 To CountString(CodeContent, #System_EOL)
@@ -33,13 +34,8 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
           TrCodeField = ReplaceString(TrCodeField, " ,", ",")
           TrCodeField = ReplaceString(TrCodeField, ", ", ",")
           TrCodeField = ReplaceString(TrCodeField, " (", "(")
-          If Left(StringField(TrCodeField, 1, " "), 1) = "."
-            sFuncName = StringField(TrCodeField, 2, " ")
-            sReturnValField = StringField(TrCodeField, 1, " ")
-          Else
-            sFuncName = StringField(TrCodeField, 1, " ")
-            sReturnValField = sFuncName
-          EndIf;}
+          ;}
+          sFuncName = TrCodeField
           ; we cleared the name of the function
           If FindString(sFuncName, "(", 0) > 0
             sFuncNameCleared = Mid(sFuncName, 1, FindString(sFuncName, "(", 0)-1)
@@ -51,6 +47,17 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
           sFuncNameCleared = ReplaceString(sFuncNameCleared, "_3DNOW", "", #PB_String_NoCase)
           sFuncNameCleared = ReplaceString(sFuncNameCleared, "_THREAD", "", #PB_String_NoCase)
           sFuncNameCleared = ReplaceString(sFuncNameCleared, "_UNICODE", "", #PB_String_NoCase)
+          Repeat
+            bHasNumberInLastPlace = #False
+            For IncA = 0 To 9
+              If Right(sFuncNameCleared, 1) = Str(IncA)
+                sFuncNameCleared = Left(sFuncNameCleared, Len(sFuncNameCleared) - 1)
+                bHasNumberInLastPlace = #True
+              EndIf
+            Next
+            Debug sFuncNameCleared
+          Until bHasNumberInLastPlace = #False
+          Log_Add("sFuncNameCleared > "+sFuncNameCleared, 4)
           ; we looked if the function already exists
           bFunctionEverAdded = #False
           ForEach LL_DLLFunctions()
@@ -92,9 +99,15 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
             Else
               LL_DLLFunctions()\IsDLLFunction = #False
             EndIf
-            Log_Add("LL_DLLFunctions()\FuncName > "+LL_DLLFunctions()\FuncName, 4)
-
-            LL_DLLFunctions()\Params = Right(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName)-(FindString(LL_DLLFunctions()\FuncName, "(", 1)))
+            Log_Add("LL_DLLFunctions()\FuncName Full> "+LL_DLLFunctions()\FuncName, 4)
+            
+            If FindString(sFuncName, ";",1) > 0
+              LL_DLLFunctions()\FuncDesc = Right(sFuncName, Len(sFuncName) - FindString(sFuncName, ";",1))
+              sFuncName = Trim(Left(sFuncName, Len(sFuncName) - Len(LL_DLLFunctions()\FuncDesc)-1))
+            EndIf
+            Log_Add("LL_DLLFunctions()\FuncDesc > "+LL_DLLFunctions()\FuncDesc, 4)
+            
+            LL_DLLFunctions()\Params = Right(sFuncName, Len(sFuncName)-(FindString(sFuncName, "(", 1)))
             If Right(LL_DLLFunctions()\Params, 1) = ")"
               LL_DLLFunctions()\Params = Left(LL_DLLFunctions()\Params, Len(LL_DLLFunctions()\Params)-1)
             Else
@@ -105,14 +118,11 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
               Next
               LL_DLLFunctions()\Params = Left(LL_DLLFunctions()\Params, IncA-1)
             EndIf
-
-            LL_DLLFunctions()\FuncName = Trim(Left(LL_DLLFunctions()\FuncName, FindString(LL_DLLFunctions()\FuncName, "(", 1)-1))
-            If FindString(TrCodeField, ";",1) > 0
-              LL_DLLFunctions()\FuncDesc = Right(TrCodeField, Len(TrCodeField) - FindString(TrCodeField, ";",1))
-            EndIf
             Log_Add("LL_DLLFunctions()\Params > "+LL_DLLFunctions()\Params, 4)
-            Log_Add("LL_DLLFunctions()\FuncName > "+LL_DLLFunctions()\FuncName, 4)
-            Log_Add("LL_DLLFunctions()\FuncDesc > "+LL_DLLFunctions()\FuncDesc, 4)
+            
+            LL_DLLFunctions()\FuncName = Trim(Left(sFuncName, FindString(sFuncName, "(", 1)-1))
+            Log_Add("LL_DLLFunctions()\FuncName Light> "+LL_DLLFunctions()\FuncName, 4)
+            
             ; Type of the Return Value
             If Mid(sReturnValField, Len(sReturnValField)-1, 1) = "."
               Select Mid(sReturnValField, Len(sReturnValField), 1)
@@ -141,36 +151,53 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
             ; Type of Parameters
             If Trim(LL_DLLFunctions()\Params) <> ""
               For IncA = 1 To CountString(LL_DLLFunctions()\Params, ",")+1
+                sParamItem = Trim(StringField(LL_DLLFunctions()\Params, IncA, ","))
+                If FindString(sParamItem, "=", 1) > 0
+                  sParamItem = Trim(Left(sParamItem, FindString(sParamItem, "=", 1)-1))
+                  sIsParameterDefautValueStart = "["
+                  sIsParameterDefautValueEnd = "]"
+                Else
+                  sIsParameterDefautValueStart = ""
+                  sIsParameterDefautValueEnd = ""
+                EndIf
                 hRExp_Brackets = CreateRegularExpression(#PB_Any, "([[:digit:]])" )
-                If FindString(Trim(StringField(LL_DLLFunctions()\Params, IncA, ",")), "(", 1)> 0 And FindString(Trim(StringField(LL_DLLFunctions()\Params, IncA, ",")), ")", 1)> 0
-                  If MatchRegularExpression(hRExp_Brackets, Trim(StringField(LL_DLLFunctions()\Params, IncA, ","))) = #True
-                    LL_DLLFunctions()\ParamsRetType +  ", Array"
+                If FindString(sParamItem, "(", 1)> 0 And FindString(sParamItem, ")", 1)> 0
+                  If MatchRegularExpression(hRExp_Brackets, sParamItem) = #True
+                    LL_DLLFunctions()\ParamsRetType +  ", "+sIsParameterDefautValueStart+"Array"+sIsParameterDefautValueEnd
                   Else  
-                    LL_DLLFunctions()\ParamsRetType +  ", LinkedList"
+                    LL_DLLFunctions()\ParamsRetType +  ", "+sIsParameterDefautValueStart+"LinkedList"+sIsParameterDefautValueEnd
                   EndIf
                 Else
-                  Select Right(Trim(StringField(LL_DLLFunctions()\Params, IncA, ",")), 1)
-                    Case "b"  : LL_DLLFunctions()\ParamsRetType + ", Byte"
-                    Case "c"  : LL_DLLFunctions()\ParamsRetType + ", Character"
-                    Case "d"  : LL_DLLFunctions()\ParamsRetType + ", Double"
-                    Case "f"  : LL_DLLFunctions()\ParamsRetType + ", Float"
-                    Case "q"  : LL_DLLFunctions()\ParamsRetType + ", Quad"
-                    Case "s"  : LL_DLLFunctions()\ParamsRetType + ", String"
-                    Case "w"  : LL_DLLFunctions()\ParamsRetType + ", Word"
+                  Select Right(sParamItem, 1)
+                    Case "b"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Byte"+sIsParameterDefautValueEnd
+                    Case "c"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Character"+sIsParameterDefautValueEnd
+                    Case "d"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Double"+sIsParameterDefautValueEnd
+                    Case "f"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Float"+sIsParameterDefautValueEnd
+                    Case "q"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Quad"+sIsParameterDefautValueEnd
+                    Case "s"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"String"+sIsParameterDefautValueEnd
+                    Case "w"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Word"+sIsParameterDefautValueEnd
                     CompilerIf #PB_Compiler_Version < 430 ; 420 and inferior
-                      Default  : LL_DLLFunctions()\ParamsRetType + ", Long"
+                      Default  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Long"+sIsParameterDefautValueEnd
                     CompilerElse ; 430
-                      Case "l"  : LL_DLLFunctions()\ParamsRetType + ", Long"
-                      Default  : LL_DLLFunctions()\ParamsRetType + ", Long"
+                      Case "l"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Long"+sIsParameterDefautValueEnd
+                      Default  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Long"+sIsParameterDefautValueEnd
                     CompilerEndIf
                   EndSelect
                 EndIf
                 FreeRegularExpression(hRExp_Brackets)
+                If LL_DLLFunctions()\ParamsClean =""
+                  LL_DLLFunctions()\ParamsClean = sIsParameterDefautValueStart+sParamItem+sIsParameterDefautValueEnd
+                Else
+                  LL_DLLFunctions()\ParamsClean + ", "+sIsParameterDefautValueStart+sParamItem+sIsParameterDefautValueEnd
+                EndIf
               Next
             Else
               LL_DLLFunctions()\ParamsRetType = ""
+              LL_DLLFunctions()\ParamsClean = ""
             EndIf
             Log_Add("LL_DLLFunctions()\ParamsRetType > "+LL_DLLFunctions()\ParamsRetType, 4)
+            Log_Add("LL_DLLFunctions()\ParamsClean > "+LL_DLLFunctions()\ParamsClean, 4)
+            
             LL_DLLFunctions()\InDescFile = 1-bFunctionEverAdded
             Log_Add("LL_DLLFunctions()\InDescFile > "+Str(LL_DLLFunctions()\InDescFile), 4)
           EndIf

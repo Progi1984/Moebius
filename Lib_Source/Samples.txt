@@ -20,4 +20,10 @@ Nom : Sample_06.pb
 Description : Using _Init And _End Modifiers
 -----------------------------------------------------------------------------------------------------------------------
 Nom : Sample_07.pb
-Description : 
+Description : Using LinkedList in parameter
+-----------------------------------------------------------------------------------------------------------------------
+Nom : Sample_08.pb
+Description : Using Arrays in parameter
+-----------------------------------------------------------------------------------------------------------------------
+Nom : Sample_09.pb
+Description : Using Default Value in parameter

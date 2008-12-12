@@ -15,6 +15,7 @@ Structure S_DLLFunctions
   FuncRetType.s
   FuncDesc.s
   Params.s
+  ParamsClean.s
   ParamsRetType.s
   FlagsReturn.s ; FlagsReturn for specific options : MMX, SSE, SSE2, etc...
   InDescFile.b
