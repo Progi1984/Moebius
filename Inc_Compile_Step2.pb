@@ -503,29 +503,6 @@ ProcedureDLL Moebius_Compile_Step2()
                     EndIf
                   EndIf
                 EndIf
-;                 TrCodeField = Trim(StringField(CodeField, 2, ","))
-;                 If TrCodeField <> "0" 
-;                   For IncB = 0 To CountString(TrCodeField, " ")-1
-;                     sTmpString = StringField(TrCodeField, IncB, " ")
-;                     Debug sTmpString
-;                   Next
-;                 
-;                 ;Left(TrCodeField, 2) = "_S"
-;                   TrCodeField = ReplaceString(TrCodeField, "[", "")
-;                   TrCodeField = ReplaceString(TrCodeField, "]", "")
-;                   bFound = #False
-;                   ForEach LL_ASM_extrn()
-;                     If LL_ASM_extrn() = TrCodeField
-;                       bFound = #True
-;                       Break
-;                     EndIf
-;                   Next
-;                   If bFound = #False
-;                     If AddElement(LL_ASM_extrn())
-;                       LL_ASM_extrn() = TrCodeField
-;                     EndIf
-;                   EndIf
-;                 EndIf
               EndIf
             ;}
           EndSelect 
