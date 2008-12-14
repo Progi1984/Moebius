@@ -16,6 +16,7 @@ Structure S_DLLFunctions
   FuncDesc.s
   Params.s
   ParamsClean.s
+  ParamsNumber.l
   ParamsRetType.s
   FlagsReturn.s ; FlagsReturn for specific options : MMX, SSE, SSE2, etc...
   InDescFile.b
@@ -36,8 +37,10 @@ Structure S_Seeker
     l.l
   EndStructureUnion
 EndStructure
+
 Global gProject.S_Project
 Global hCompiler.l
+Global Moebius_Compile_Step2_sCodeShared.s
 
 Global NewList LL_DLLFunctions.S_DLLFunctions()
 Global NewList LL_PBFunctions.S_PBFunctionInfo()
@@ -45,4 +48,6 @@ Global NewList LL_Functions.s()
 Global NewList LL_LibUsed.s()
 Global NewList LL_DLLUsed.s()
 Global NewList LL_ASM_extrn.s()
+
+
 #DQuote = Chr(34)

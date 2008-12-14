@@ -1,9 +1,8 @@
-Global Moebius_Compile_Step2_sCodeShared.s
 ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
   Protected Inc.l, IncA.l
   Protected CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned2.s, sFuncName.s, sFuncNameCleared.s, sReturnValField.s, sParamItem.s
   Protected sIsParameterDefautValueStart.s, sIsParameterDefautValueEnd.s
-  Protected bFunctionEverAdded.b, bHasNumberInLastPlace.b
+  Protected bFunctionEverAdded.b, bFunctionEverAdded_NbParams.b, bHasNumberInLastPlace.b
   Protected hRExp_Brackets.l
   ;{ Extracts information for the future creation of the DESC File
   For Inc = 0 To CountString(CodeContent, #System_EOL)
@@ -55,19 +54,19 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
                 bHasNumberInLastPlace = #True
               EndIf
             Next
-            Debug sFuncNameCleared
           Until bHasNumberInLastPlace = #False
           Log_Add("sFuncNameCleared > "+sFuncNameCleared, 4)
           ; we looked if the function already exists
-          bFunctionEverAdded = #False
+          bFunctionEverAdded = -1
           ForEach LL_DLLFunctions()
             If LL_DLLFunctions()\FuncName = sFuncNameCleared
-              bFunctionEverAdded = #True
+              bFunctionEverAdded = ListIndex(LL_DLLFunctions())
+              bFunctionEverAdded_NbParams = LL_DLLFunctions()\ParamsNumber
               Break
             EndIf
           Next
           ; the function has been ever added but return flags are differents
-          If bFunctionEverAdded = #True
+          If bFunctionEverAdded > -1
             If FindString(UCase(sFuncName), "_DEBUG", 0) > 0 And FindString(LCase(LL_DLLFunctions()\FlagsReturn), "debuggercheck", 0) = 0
               LL_DLLFunctions()\FlagsReturn + " | DebuggerCheck"
             EndIf
@@ -148,18 +147,28 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
               CompilerEndIf
             EndIf
             Log_Add("LL_DLLFunctions()\FuncRetType > "+LL_DLLFunctions()\FuncRetType, 4)
+            
+            ; Number of Params
+            If Trim(LL_DLLFunctions()\Params) <> ""
+              LL_DLLFunctions()\ParamsNumber = CountString(LL_DLLFunctions()\Params, ",")+1
+            Else
+              LL_DLLFunctions()\ParamsNumber = 0
+            EndIf
+            
             ; Type of Parameters
             If Trim(LL_DLLFunctions()\Params) <> ""
-              For IncA = 1 To CountString(LL_DLLFunctions()\Params, ",")+1
+              For IncA = 1 To LL_DLLFunctions()\ParamsNumber
                 sParamItem = Trim(StringField(LL_DLLFunctions()\Params, IncA, ","))
-                If FindString(sParamItem, "=", 1) > 0
-                  sParamItem = Trim(Left(sParamItem, FindString(sParamItem, "=", 1)-1))
+                ; If an another functions exists with the same name AND if it has less parameters than the previous
+                If IncA > bFunctionEverAdded_NbParams And bFunctionEverAdded > -1
                   sIsParameterDefautValueStart = "["
                   sIsParameterDefautValueEnd = "]"
                 Else
                   sIsParameterDefautValueStart = ""
                   sIsParameterDefautValueEnd = ""
                 EndIf
+                
+                ; If the parameters is an array or an linkedlist
                 hRExp_Brackets = CreateRegularExpression(#PB_Any, "([[:digit:]])" )
                 If FindString(sParamItem, "(", 1)> 0 And FindString(sParamItem, ")", 1)> 0
                   If MatchRegularExpression(hRExp_Brackets, sParamItem) = #True
@@ -191,6 +200,8 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
                   LL_DLLFunctions()\ParamsClean + ", "+sIsParameterDefautValueStart+sParamItem+sIsParameterDefautValueEnd
                 EndIf
               Next
+              sIsParameterDefautValueStart = LL_DLLFunctions()\ParamsClean
+              sIsParameterDefautValueEnd = LL_DLLFunctions()\ParamsRetType
             Else
               LL_DLLFunctions()\ParamsRetType = ""
               LL_DLLFunctions()\ParamsClean = ""
@@ -198,7 +209,18 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
             Log_Add("LL_DLLFunctions()\ParamsRetType > "+LL_DLLFunctions()\ParamsRetType, 4)
             Log_Add("LL_DLLFunctions()\ParamsClean > "+LL_DLLFunctions()\ParamsClean, 4)
             
-            LL_DLLFunctions()\InDescFile = 1-bFunctionEverAdded
+            If bFunctionEverAdded > -1
+              LL_DLLFunctions()\InDescFile = #False
+              ; For functions with default parameter, define values for DESC file
+              SelectElement(LL_DLLFunctions(),bFunctionEverAdded)
+              LL_DLLFunctions()\ParamsClean = sIsParameterDefautValueStart
+              LL_DLLFunctions()\ParamsRetType = sIsParameterDefautValueEnd
+              LastElement(LL_DLLFunctions())
+              bFunctionEverAdded = #True
+            Else
+              LL_DLLFunctions()\InDescFile = #True
+              bFunctionEverAdded = #False
+            EndIf
             Log_Add("LL_DLLFunctions()\InDescFile > "+Str(LL_DLLFunctions()\InDescFile), 4)
           EndIf
         EndIf
