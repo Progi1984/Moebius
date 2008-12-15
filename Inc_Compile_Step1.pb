@@ -42,7 +42,7 @@ ProcedureDLL Moebius_Compile_Step1()
   EndIf
   Param +#Switch_Executable+" "+#DQuote+FichierExe+#DQuote
   Compilateur = RunProgram(gConf_Path_PBCOMPILER, #DQuote+gProject\FileName+#DQuote+" "+Param, gConf_ProjectDir, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
-  Log_Add(gConf_Path_PBCOMPILER + #DQuote+gProject\FileName+#DQuote+" "+Param)
+  Log_Add(#DQuote+gConf_Path_PBCOMPILER+#DQuote+" " + #DQuote+gProject\FileName+#DQuote+" "+Param)
   If Compilateur
     While ProgramRunning(Compilateur)
       Sortie + ReadProgramString(Compilateur) + Chr(13)

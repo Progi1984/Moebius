@@ -74,7 +74,7 @@ ProcedureDLL Moebius_Compile_Step4()
         CloseFile(hObjFile)
       EndIf
       Pgm_Polib = RunProgram(gConf_Path_OBJ2LIB, "/out:"+#DQuote+gProject\FileLib+#DQuote+" @"+#DQuote+gProject\DirObj+"ObjList.txt"+#DQuote, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
-      Log_Add(gConf_Path_OBJ2LIB+"/out:"+#DQuote+gProject\FileLib+#DQuote+" @"+#DQuote+gProject\DirObj+"ObjList.txt"+#DQuote, 2)
+      Log_Add(#DQuote+gConf_Path_OBJ2LIB+#DQuote+" /out:"+#DQuote+gProject\FileLib+#DQuote+" @"+#DQuote+gProject\DirObj+"ObjList.txt"+#DQuote, 2)
       If Pgm_Polib
         While ProgramRunning(Pgm_Polib)
           Log_Add(ReadProgramString(Pgm_Polib),2)
@@ -88,6 +88,7 @@ ProcedureDLL Moebius_Compile_Step4()
       StringTmp = "ar rvs "
       StringTmp + #DQuote+gProject\FileLib+#DQuote+" "
       StringTmp + gProject\DirObj + "*"+#System_ExtObj
+      Log_Add(StringTmp, 2)
       system_(@StringTmp)
     ;}
   CompilerEndSelect

@@ -1,6 +1,6 @@
 EnableExplicit
 
-Global Sample.s = "09"
+Global Sample.s = "08"
 
 XIncludeFile "Inc_Declare.pb"
 XIncludeFile "Inc_Var.pb" 

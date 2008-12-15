@@ -33,11 +33,15 @@ ProcedureDLL Log_Init()
   Global hFileLog = OpenFile(#PB_Any, gConf_ProjectDir+"LOGS"+#System_Separator+"Log_"+FormatDate("%yyyy_%mm_%dd_%hh_%ii_%ss", Date())+".log")
 EndProcedure
 ProcedureDLL Log_Add(Content.s, NumTab.l = 0)
-  WriteStringN(hFileLog, Space(NumTab) + Content)
+  If hFileLog
+    WriteStringN(hFileLog, Space(NumTab) + Content)
+  EndIf
   CompilerIf #PB_Compiler_Debugger = #True
     Debug Space(NumTab) + Content
   CompilerEndIf
 EndProcedure
 ProcedureDLL Log_End()
-  CloseFile(hFileLog)
+  If hFileLog
+    CloseFile(hFileLog)
+  EndIf
 EndProcedure
