@@ -3,7 +3,6 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
   Protected CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned2.s, sFuncName.s, sFuncNameCleared.s, sReturnValField.s, sParamItem.s
   Protected sIsParameterDefautValueStart.s, sIsParameterDefautValueEnd.s
   Protected bFunctionEverAdded.b, bFunctionEverAdded_NbParams.b, bHasNumberInLastPlace.b
-  Protected hRExp_Brackets.l
   ;{ Extracts information for the future creation of the DESC File
   For Inc = 0 To CountString(CodeContent, #System_EOL)
     CodeField = StringField(CodeContent, Inc+1, #System_EOL)
@@ -169,12 +168,16 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
                 EndIf
                 
                 ; If the parameters is an array or an linkedlist
-                hRExp_Brackets = CreateRegularExpression(#PB_Any, "([[:digit:]])" )
-                If FindString(sParamItem, "(", 1)> 0 And FindString(sParamItem, ")", 1)> 0
-                  If MatchRegularExpression(hRExp_Brackets, sParamItem) = #True
-                    LL_DLLFunctions()\ParamsRetType +  ", "+sIsParameterDefautValueStart+"Array"+sIsParameterDefautValueEnd
-                  Else  
+                If LCase(StringField(sParamItem, 1, " ")) = "list" Or LCase(StringField(sParamItem, 1, " ")) = "array"
+                  If LCase(StringField(sParamItem, 1, " ")) = "list" 
                     LL_DLLFunctions()\ParamsRetType +  ", "+sIsParameterDefautValueStart+"LinkedList"+sIsParameterDefautValueEnd
+                  ElseIf LCase(StringField(sParamItem, 1, " ")) = "array"
+                    LL_DLLFunctions()\ParamsRetType +  ", "+sIsParameterDefautValueStart+"Array"+sIsParameterDefautValueEnd
+                  EndIf
+                  If LL_DLLFunctions()\ParamsClean =""
+                    LL_DLLFunctions()\ParamsClean = sIsParameterDefautValueStart+Trim(Right(sParamItem, Len(sParamItem) - Len(StringField(sParamItem, 1, " "))))+sIsParameterDefautValueEnd
+                  Else
+                    LL_DLLFunctions()\ParamsClean + ", "+sIsParameterDefautValueStart+Trim(Right(sParamItem, Len(sParamItem) - Len(StringField(sParamItem, 1, " "))))+sIsParameterDefautValueEnd
                   EndIf
                 Else
                   Select Right(sParamItem, 1)
@@ -192,12 +195,11 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
                       Default  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Long"+sIsParameterDefautValueEnd
                     CompilerEndIf
                   EndSelect
-                EndIf
-                FreeRegularExpression(hRExp_Brackets)
-                If LL_DLLFunctions()\ParamsClean =""
-                  LL_DLLFunctions()\ParamsClean = sIsParameterDefautValueStart+sParamItem+sIsParameterDefautValueEnd
-                Else
-                  LL_DLLFunctions()\ParamsClean + ", "+sIsParameterDefautValueStart+sParamItem+sIsParameterDefautValueEnd
+                  If LL_DLLFunctions()\ParamsClean =""
+                    LL_DLLFunctions()\ParamsClean = sIsParameterDefautValueStart+sParamItem+sIsParameterDefautValueEnd
+                  Else
+                    LL_DLLFunctions()\ParamsClean + ", "+sIsParameterDefautValueStart+sParamItem+sIsParameterDefautValueEnd
+                  EndIf
                 EndIf
               Next
               sIsParameterDefautValueStart = LL_DLLFunctions()\ParamsClean
@@ -577,19 +579,10 @@ ProcedureDLL Moebius_Compile_Step2()
           CompilerEndSelect
         EndIf
         If LL_DLLFunctions()\IsDLLFunction = #True
-          CompilerSelect #PB_Compiler_OS
-            CompilerCase #PB_OS_Windows
-            ;{
-              CodeField = LL_DLLFunctions()\Code
-              CodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
-              CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
-              CodeField + Right(LL_DLLFunctions()\Code, Len(LL_DLLFunctions()\Code) - Len(StringField(LL_DLLFunctions()\Code, 1, #System_EOL)))
-            ;}
-            CompilerCase #PB_OS_Linux
-            ;{
-              CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName,"PB_"+LL_DLLFunctions()\FuncName)
-            ;}
-          CompilerEndSelect
+          CodeField = LL_DLLFunctions()\Code
+          CodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
+          CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
+          CodeField + Right(LL_DLLFunctions()\Code, Len(LL_DLLFunctions()\Code) - Len(StringField(LL_DLLFunctions()\Code, 1, #System_EOL)))
           WriteStringN(lFile, CodeField)
         Else
           CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName, ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
