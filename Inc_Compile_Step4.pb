@@ -9,8 +9,8 @@ ProcedureDLL Moebius_Compile_Step4()
     WriteStringN(hDescFile,"ASM") 
     Log_Add("ASM", 4)
     ; Lib Systems
-    WriteStringN(hDescFile,Str(CountList(LL_DLLUsed())))
-    Log_Add(Str(CountList(LL_DLLUsed())), 4)
+    WriteStringN(hDescFile,Str(ListSize(LL_DLLUsed())))
+    Log_Add(Str(ListSize(LL_DLLUsed())), 4)
     ForEach LL_DLLUsed()
       WriteStringN(hDescFile, LL_DLLUsed())
       Log_Add(LL_DLLUsed(), 4)
@@ -31,8 +31,8 @@ ProcedureDLL Moebius_Compile_Step4()
     ForEach LL_LibUsed()
       StringTmp=StringTmp+"~"+LL_LibUsed()+"~"
     Next
-    WriteStringN(hDescFile,Str(CountList(LL_LibUsed())))
-    Log_Add(Str(CountList(LL_LibUsed())), 4)
+    WriteStringN(hDescFile,Str(ListSize(LL_LibUsed())))
+    Log_Add(Str(ListSize(LL_LibUsed())), 4)
     StringTmp=""
     ForEach LL_LibUsed()
       WriteStringN(hDescFile,LL_LibUsed())

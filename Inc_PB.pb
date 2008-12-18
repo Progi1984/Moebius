@@ -131,7 +131,7 @@ EndProcedure
 Procedure.s PB_ListFunctions(Function.s)
   Protected NextDir.l, lTest.l
   Protected NameOfLib.s, LibFileName.s, sTrFunction.s
-  If CountList(LL_PBFunctions()) = 0
+  If ListSize(LL_PBFunctions()) = 0
     ; List all functions contained in purelibraries
     If ExamineDirectory(0, gConf_PureBasic_Path+"purelibraries"+#System_Separator, "")
       NextDir = NextDirectoryEntry(0)

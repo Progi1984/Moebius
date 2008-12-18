@@ -1,3 +1,4 @@
+;XIncludeFile "Sample_08.pb"
 Dim AnyArrayL.l(11)
 For Inc = 0 To 10
   AnyArrayL(Inc) = Random(255)

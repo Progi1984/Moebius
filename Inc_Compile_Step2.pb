@@ -448,7 +448,7 @@ ProcedureDLL Moebius_Compile_Step2()
   ;{ Create ASM Files
     Protected lFile.l
     ; private functions
-    For IncA = 0 To CountList(LL_DLLFunctions())-1
+    For IncA = 0 To ListSize(LL_DLLFunctions())-1
       SelectElement(LL_DLLFunctions(), IncA)
       CodeField   = LL_DLLFunctions()\FuncName         ; Function Name
       TrCodeField = LL_DLLFunctions()\Win_ASMNameFunc  ; ASM Function Name
@@ -556,7 +556,7 @@ ProcedureDLL Moebius_Compile_Step2()
             ;}
           EndSelect 
         Next
-        If CountList(LL_ASM_extrn()) > 0
+        If ListSize(LL_ASM_extrn()) > 0
           ForEach LL_ASM_extrn()
             WriteStringN(lFile, "extrn "+LL_ASM_extrn())
           Next
