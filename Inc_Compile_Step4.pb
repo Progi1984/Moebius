@@ -6,15 +6,27 @@ ProcedureDLL Moebius_Compile_Step4()
   Protected StringTmp.s
   Protected hDescFile.l = CreateFile(#PB_Any, gProject\FileDesc)
   If hDescFile
+    ;{ Langage used to code the library
+    WriteStringN(hDescFile,"; Langage used to code the library") 
+    Log_Add("; Langage used to code the library", 4)
     WriteStringN(hDescFile,"ASM") 
     Log_Add("ASM", 4)
-    ; Lib Systems
+    WriteStringN(hDescFile, ""):Log_Add("", 4)
+    ;}
+    ;{ Lib Systems
+    WriteStringN(hDescFile,"; Number of Libraries than the library need")
+    Log_Add("; Number of Libraries than the library need", 4)
     WriteStringN(hDescFile,Str(ListSize(LL_DLLUsed())))
     Log_Add(Str(ListSize(LL_DLLUsed())), 4)
     ForEach LL_DLLUsed()
       WriteStringN(hDescFile, LL_DLLUsed())
       Log_Add(LL_DLLUsed(), 4)
     Next
+    WriteStringN(hDescFile, ""):Log_Add("", 4)
+    ;}
+    ;{ Library Type
+    WriteStringN(hDescFile,"; Library Type")
+    Log_Add("; Library Type", 4)
     WriteStringN(hDescFile,"LIB")
     Log_Add("LIB", 4)
     StringTmp=""
@@ -31,6 +43,11 @@ ProcedureDLL Moebius_Compile_Step4()
     ForEach LL_LibUsed()
       StringTmp=StringTmp+"~"+LL_LibUsed()+"~"
     Next
+    WriteStringN(hDescFile, ""):Log_Add("", 4)
+    ;}
+    ;{ PureBasic library needed by the library
+    WriteStringN(hDescFile,"; PureBasic library needed by the library")
+    Log_Add("; PureBasic library needed by the library", 4)
     WriteStringN(hDescFile,Str(ListSize(LL_LibUsed())))
     Log_Add(Str(ListSize(LL_LibUsed())), 4)
     StringTmp=""
@@ -38,8 +55,18 @@ ProcedureDLL Moebius_Compile_Step4()
       WriteStringN(hDescFile,LL_LibUsed())
       Log_Add(LL_LibUsed(), 4)
     Next
+    WriteStringN(hDescFile, ""):Log_Add("", 4)
+    ;}
+    ;{ Help directory name
+    WriteStringN(hDescFile,"; Help directory name")
+    Log_Add("; Help directory name", 4)
     WriteStringN(hDescFile, gProject\FileCHM)
     Log_Add(gProject\FileCHM, 4)
+    WriteStringN(hDescFile, ""):Log_Add("", 4)
+    ;}
+    ;{ Library functions
+    WriteStringN(hDescFile,"; Library functions")
+    Log_Add("; Library functions", 4)
     ForEach LL_DLLFunctions()
       If LL_DLLFunctions()\InDescFile = #True
         If LL_DLLFunctions()\IsDLLFunction = #True
@@ -58,6 +85,7 @@ ProcedureDLL Moebius_Compile_Step4()
         EndIf
       EndIf
     Next
+    ;}
     CloseFile(hDescFile)
   EndIf
   ; Creating archive
