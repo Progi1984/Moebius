@@ -7,6 +7,7 @@ ProcedureDLL Moebius_Compile_Step3()
   ForEach LL_DLLFunctions()
     Pgm_Fasm = RunProgram(gConf_Path_FASM, " "+#DQuote+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide | #PB_Program_Error)
     Log_Add(#DQuote+gConf_Path_FASM+#DQuote+" "+#DQuote+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, 2)
+    Batch_Add(#DQuote+gConf_Path_FASM+#DQuote+" "+#DQuote+gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote)
     If Pgm_Fasm
       sFASMError = ""
       While ProgramRunning(Pgm_Fasm)

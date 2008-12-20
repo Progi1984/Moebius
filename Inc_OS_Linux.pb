@@ -11,6 +11,7 @@
 #System_ExtObj = ".o"
 #System_ExtLib = ".a"
 #System_ExtHelp = ""
+#System_ExtBatch = ".sh"
 
 #System_Separator = "/"
 #System_EOL = Chr(10)

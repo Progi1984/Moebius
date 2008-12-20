@@ -6,6 +6,9 @@ DeclareDLL.l CreateDirectoryEx(FolderPath.s)
 DeclareDLL Log_Init()
 DeclareDLL Log_Add(Content.s, NumTab.l = 0)
 DeclareDLL Log_End()
+DeclareDLL Batch_Init()
+DeclareDLL Batch_Add(Content.s)
+DeclareDLL Batch_End()
 
 ; Inc_PB.pb
 Declare PB_GetInfoUserLib(LibFileName.s)

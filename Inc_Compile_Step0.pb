@@ -9,6 +9,8 @@
 ;@returnvalue : -6 > Error : Can't delete the directory ASM of project
 ;@returnvalue : -7 > Error : Can't delete the directory LIB of project
 ;@returnvalue : -8 > Error : Can't delete the directory OBJ of project
+;@returnvalue : -9 > Error : Can't create the directory "Project\BAT"
+;@returnvalue : -10> Error : Can't delete the directory BAT of project
 ProcedureDLL Moebius_Compile_Step0()
   ; 0. Cleaning & Preparing
   ;Cleans the old userlib
@@ -20,7 +22,12 @@ ProcedureDLL Moebius_Compile_Step0()
   ;Prepares the location For Moebius
   If FileSize(gConf_ProjectDir+"ASM"+#System_Separator) = -2
     If DeleteDirectory(gConf_ProjectDir+"ASM"+#System_Separator, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
-      ProcedureReturn #False-6
+      ProcedureReturn #False -6
+    EndIf
+  EndIf
+  If FileSize(gConf_ProjectDir+"BAT"+#System_Separator) = -2
+    If DeleteDirectory(gConf_ProjectDir+"BAT"+#System_Separator, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
+      ProcedureReturn #False -10
     EndIf
   EndIf
   If FileSize(gConf_ProjectDir+"LIB"+#System_Separator) = -2
@@ -33,26 +40,25 @@ ProcedureDLL Moebius_Compile_Step0()
       ProcedureReturn #False -8
     EndIf
   EndIf
-  If CreateDirectoryEx(gConf_ProjectDir)
-    If CreateDirectoryEx(gConf_ProjectDir+"ASM"+#System_Separator)
-      If CreateDirectoryEx(gConf_ProjectDir+"LOGS"+#System_Separator)
-        Log_Init()
-        If CreateDirectoryEx(gConf_ProjectDir+"LIB"+#System_Separator)
-          If CreateDirectoryEx(gConf_ProjectDir+"OBJ"+#System_Separator)
-            ProcedureReturn #True
-          Else
-            ProcedureReturn #False -5
-          EndIf
-        Else
-          ProcedureReturn #False -4
-        EndIf
-      Else
-        ProcedureReturn #False -3
-      EndIf
-    Else
-      ProcedureReturn #False -2
-    EndIf
-  Else
+  If CreateDirectoryEx(gConf_ProjectDir) = #False
     ProcedureReturn #False -1
   EndIf
+  If CreateDirectoryEx(gConf_ProjectDir+"BAT"+#System_Separator)= #False
+    ProcedureReturn #False -9
+  EndIf
+  Batch_Init()
+  If CreateDirectoryEx(gConf_ProjectDir+"ASM"+#System_Separator)= #False
+    ProcedureReturn #False -2
+  EndIf
+  If CreateDirectoryEx(gConf_ProjectDir+"LOGS"+#System_Separator)= #False
+    ProcedureReturn #False -3
+  EndIf
+  Log_Init()
+  If CreateDirectoryEx(gConf_ProjectDir+"LIB"+#System_Separator)= #False
+    ProcedureReturn #False -4
+  EndIf
+  If CreateDirectoryEx(gConf_ProjectDir+"OBJ"+#System_Separator)= #False
+    ProcedureReturn #False -5
+  EndIf
+  ProcedureReturn #True
 EndProcedure

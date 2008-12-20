@@ -7,4 +7,5 @@ ProcedureDLL Moebius_Compile_Step6()
 ;     DeleteFile(gConf_SourceDir+#System_Separator+"purebasic.out")
 ;   EndIf
   Log_End()
+  Batch_End()
 EndProcedure

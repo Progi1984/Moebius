@@ -11,6 +11,7 @@
 #System_ExtObj = ".obj"
 #System_ExtLib = ".lib"
 #System_ExtHelp = ".chm"
+#System_ExtBatch = ".bat"
 
 #System_Separator = "\"
 #System_EOL = Chr(13)+Chr(10)

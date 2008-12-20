@@ -45,3 +45,22 @@ ProcedureDLL Log_End()
     CloseFile(hFileLog)
   EndIf
 EndProcedure
+ProcedureDLL Batch_Init()
+  Global hFileBatch = OpenFile(#PB_Any, gConf_ProjectDir+"BAT"+#System_Separator+"Script"+#System_ExtBatch)
+EndProcedure
+ProcedureDLL Batch_Add(Content.s)
+  If hFileBatch
+    WriteStringN(hFileBatch, Content)
+  EndIf
+  CompilerIf #PB_Compiler_Debugger = #True
+    Debug "BATCH > "+Content
+  CompilerEndIf
+EndProcedure
+ProcedureDLL Batch_End()
+  If hFileBatch
+    CloseFile(hFileBatch)
+    CompilerSelect #PB_Compiler_OS
+      CompilerCase #PB_OS_Linux : RunProgram("chmod", "+x "+"Script"+#System_ExtBatch,gConf_ProjectDir+"BAT"+#System_Separator)
+    CompilerEndSelect
+  EndIf
+EndProcedure
