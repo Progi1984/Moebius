@@ -14,6 +14,7 @@ Structure S_DLLFunctions
   FuncName.s
   FuncRetType.s
   FuncDesc.s
+  CallingConvention.s
   Params.s
   ParamsClean.s
   ParamsNumber.l

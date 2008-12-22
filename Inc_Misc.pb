@@ -37,7 +37,7 @@ ProcedureDLL Log_Add(Content.s, NumTab.l = 0)
     WriteStringN(hFileLog, Space(NumTab) + Content)
   EndIf
   CompilerIf #PB_Compiler_Debugger = #True
-    Debug Space(NumTab) + Content
+    Debug "LOG > "+Space(NumTab) + Content
   CompilerEndIf
 EndProcedure
 ProcedureDLL Log_End()

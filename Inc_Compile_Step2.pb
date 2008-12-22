@@ -1,7 +1,7 @@
 ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
   Protected Inc.l, IncA.l
   Protected CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned2.s, sFuncName.s, sFuncNameCleared.s, sReturnValField.s, sParamItem.s
-  Protected sIsParameterDefautValueStart.s, sIsParameterDefautValueEnd.s
+  Protected sIsParameterDefautValueStart.s, sIsParameterDefautValueEnd.s, sCallingConvention.s
   Protected bFunctionEverAdded.b, bFunctionEverAdded_NbParams.b, bHasNumberInLastPlace.b
   ;{ Extracts information for the future creation of the DESC File
   For Inc = 0 To CountString(CodeContent, #System_EOL)
@@ -21,6 +21,11 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
         CodeCleaned2 = Trim(StringField(CodeCleaned2, 1, "."))
         CodeCleaned2 = Trim(CodeCleaned2)
         If (LCase(CodeCleaned2) = "proceduredll" Or LCase(CodeCleaned2) = "procedurecdll" Or LCase(CodeCleaned2) = "procedurec" Or LCase(CodeCleaned2) = "procedure") And sTmpString  = "macro"
+          If LCase(CodeCleaned2) = "proceduredll" 
+            sCallingConvention = "StdCall"
+          ElseIf LCase(CodeCleaned2) = "procedurecdll" Or LCase(CodeCleaned2) = "procedurec"
+            sCallingConvention = "CDecl"
+          EndIf
           ;{ Clears the line for extracting informations
           TrCodeField = ReplaceString(TrCodeField, "proceduredll", "", #PB_String_NoCase)
           TrCodeField = ReplaceString(TrCodeField, "procedurecdll", "", #PB_String_NoCase)
@@ -98,6 +103,9 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
               LL_DLLFunctions()\IsDLLFunction = #False
             EndIf
             Log_Add("LL_DLLFunctions()\FuncName Full> "+LL_DLLFunctions()\FuncName, 4)
+            
+            LL_DLLFunctions()\CallingConvention = sCallingConvention
+            Log_Add("LL_DLLFunctions()\CallingConvention > "+sCallingConvention, 4)
             
             If FindString(sFuncName, ";",1) > 0
               LL_DLLFunctions()\FuncDesc = Right(sFuncName, Len(sFuncName) - FindString(sFuncName, ";",1))

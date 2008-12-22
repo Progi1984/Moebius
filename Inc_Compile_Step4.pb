@@ -76,7 +76,7 @@ ProcedureDLL Moebius_Compile_Step4()
           EndIf
           WriteStringN(hDescFile, StringTmp)
           Log_Add(StringTmp, 4)
-          StringTmp = LL_DLLFunctions()\FuncRetType+" | StdCall"
+          StringTmp = LL_DLLFunctions()\FuncRetType+" | "+LL_DLLFunctions()\CallingConvention
           If LL_DLLFunctions()\FlagsReturn <> ""
             StringTmp + LL_DLLFunctions()\FlagsReturn
           EndIf

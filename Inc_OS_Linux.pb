@@ -5,7 +5,7 @@
 #Switch_Executable = "-e"
 #Switch_StandBy = "-sb"
 
-#Switch_NoUnicodeWarning = ""
+#Switch_NoUnicodeWarning = "/NOUNICODEWARNING"
 
 #System_ExtExec = ""
 #System_ExtObj = ".o"
