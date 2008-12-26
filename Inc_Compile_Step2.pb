@@ -626,6 +626,7 @@ ProcedureDLL Moebius_Compile_Step2()
         If AddElement(LL_DLLFunctions())
           LL_DLLFunctions()\FuncName = ReplaceString(gProject\Name, " ", "_")+"_Init" 
           LL_DLLFunctions()\FuncRetType = "InitFunction"
+          LL_DLLFunctions()\CallingConvention = "StdCall"
           LL_DLLFunctions()\FuncDesc = ""
           LL_DLLFunctions()\Params = ""
           LL_DLLFunctions()\ParamsRetType = ""
