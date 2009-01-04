@@ -242,7 +242,7 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
   Protected Inc.l
   Protected CodeField.s, TrCodeField.s, CodeCleaned.s, sNameOfFunction.s
-  Protected bFound.b, bNotCapture.b, bInFunction.b, bInBSSSection.b, bInSharedCode.b, bInSystemLib.b
+  Protected bFound.b, bNotCapture.b, bInFunction.b, bInBSSSection.b, bInSharedCode.b, bInSystemLib.b, bInImportLib.b
   ;{ Permits in functions of some code to extract, remove some code & informations
   For Inc = 0 To CountString(CodeContent, #System_EOL)
     CodeField = StringField(CodeContent, Inc+1, #System_EOL)
@@ -394,14 +394,23 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
         ;{
           If StringField(TrCodeField, 2, " ") = ":System"
             bInSystemLib = #True
+            bInImportLib = #False
+          ElseIf StringField(TrCodeField, 2, " ") = ":Import"
+            bInSystemLib = #False
+            bInImportLib = #True
           Else
             If Left(StringField(TrCodeField, 2, " "), 1) = ":"
               bInSystemLib = #False
+              bInImportLib = #False
             Else
-              If bInSystemLib = #True
+              If bInSystemLib = #True And StringField(TrCodeField, 2, " ") <> ""
                 AddElement(LL_DLLUsed())
                 LL_DLLUsed() = StringField(TrCodeField, 2, " ")
                 Log_Add("LL_DLLUsed() > "+LL_DLLUsed(), 4)
+              ElseIf bInImportLib = #True And StringField(TrCodeField, 2, " ") <> ""
+                AddElement(LL_ImportUsed())
+                LL_ImportUsed() = StringField(TrCodeField, 2, " ")
+                Log_Add("LL_ImportUsed() > "+LL_ImportUsed(), 4)
               EndIf
             EndIf
           EndIf

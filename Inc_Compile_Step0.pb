@@ -1,4 +1,3 @@
-
 ;@returnvalue : 1  > Success
 ;@returnvalue : 0  > Error : Can't delete userlibs of old projects
 ;@returnvalue : -1 > Error : Can't create the directory of project

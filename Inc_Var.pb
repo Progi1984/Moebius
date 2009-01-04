@@ -48,6 +48,7 @@ Global NewList LL_PBFunctions.S_PBFunctionInfo()
 Global NewList LL_Functions.s()
 Global NewList LL_LibUsed.s()
 Global NewList LL_DLLUsed.s()
+Global NewList LL_ImportUsed.s()
 Global NewList LL_ASM_extrn.s()
 
 
