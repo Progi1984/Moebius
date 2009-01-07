@@ -451,9 +451,9 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
 EndProcedure
 ProcedureDLL Moebius_Compile_Step2()
   ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
-  Protected CodeContent.s, CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned.s
+  Protected CodeContent.s, CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned.s, sDataSectionForArray.s
   Protected IncA.l, IncB.l
-  Protected bFound.b
+  Protected bFound.b, bLastIsLabel.b
   If ReadFile(0, gConf_ProjectDir+"purebasic.asm")
     CodeContent = Space(Lof(0)+1)
     ReadData(0,@CodeContent, Lof(0))
@@ -600,25 +600,43 @@ ProcedureDLL Moebius_Compile_Step2()
           CodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
           CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
           CodeField + Right(LL_DLLFunctions()\Code, Len(LL_DLLFunctions()\Code) - Len(StringField(LL_DLLFunctions()\Code, 1, #System_EOL)))
-          WriteStringN(lFile, CodeField)
+          TrCodeField = CodeField
         Else
           CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName, ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
           If Right(Trim(StringField(CodeField, 1, #System_EOL)), 1) = ":" ; declaration de la function
             CompilerSelect #PB_Compiler_OS
-              CompilerCase #PB_OS_Windows
-              ;{
+              CompilerCase #PB_OS_Windows ;{
                 TrCodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
                 TrCodeField + ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
               ;}
-              CompilerCase #PB_OS_Linux
-              ;{
+              CompilerCase #PB_OS_Linux;{
                 TrCodeField = ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
               ;}
             CompilerEndSelect
             TrCodeField + Right(CodeField, Len(CodeField) - Len(StringField(CodeField, 1, #System_EOL)))
           EndIf
-          WriteStringN(lFile, TrCodeField)
         EndIf;}
+        ; We initialize the var for testing if the line contains a label
+        bLastIsLabel = #True
+        For IncA = 0 To CountString(TrCodeField, #System_EOL)
+          sTmpString = StringField(TrCodeField, IncA+1, #System_EOL)
+          sTmpString = ReplaceString(sTmpString, Chr(13), "")
+          sTmpString = ReplaceString(sTmpString, Chr(10), "")
+          sTmpString = Trim(sTmpString)
+          If bLastIsLabel <> #False
+            If Right(sTmpString, 1) = ":" ; so it's a label
+              bLastIsLabel = #True
+            Else
+              If bLastIsLabel = #True
+                Log_Add("Moebius_Compile_Step2_WriteASMForArrays()", 2)
+                sDataSectionForArray = Moebius_Compile_Step2_WriteASMForArrays(lFile)
+                bLastIsLabel = #False
+              EndIf
+            EndIf
+          EndIf
+          WriteStringN(lFile, sTmpString)
+        Next
+        WriteStringN(lFile, sDataSectionForArray)
         CloseFile(lFile)
       EndIf
     Next
@@ -697,4 +715,54 @@ ProcedureDLL Moebius_Compile_Step2()
     ;}
   ;}
   Log_Add("Rewrite the new ASM Code", 2)
+EndProcedure
+ProcedureDLL.s Moebius_Compile_Step2_WriteASMForArrays(lFile.l)
+  Protected lIncA.l, lIncB.l, lOffset.l
+  Protected sItemParam.s, sReturnDataSection.s
+  Protected bNbArrays.b
+  If FindString(LCase(LL_DLLFunctions()\ParamsRetType), "array", 0)  > 0
+    For lIncA = 1 To CountString(LL_DLLFunctions()\ParamsRetType, ",")
+      ; Param's Type
+      sItemParam = StringField(LL_DLLFunctions()\ParamsRetType, lIncA +1, ",")
+      sItemParam = LCase(sItemParam)
+      sItemParam = Trim(sItemParam)
+      If sItemParam = "array"
+        ; Offset
+        If lIncA = 1 
+          lOffset  = 4
+        Else
+          lOffset  = 0
+          For lIncB = 1 To lIncA - 1
+            sItemParam = StringField(LL_DLLFunctions()\ParamsRetType, lIncA +1, ",")
+            sItemParam = LCase(sItemParam)
+            sItemParam = Trim(sItemParam)
+            Select sItemParam
+              Case "array"  : lOffset +4
+              Case "linkedlist"  : lOffset +4
+              Default:lOffset+SizeOf(sItemParam)
+            EndSelect
+          Next
+          lOffset +4
+        EndIf
+        WriteStringN(lFile, "MOV  edx, dword [esp+"+Str(lOffset)+"]") 
+        WriteStringN(lFile, "MOV  dword [_Ptr_Array_"+Str(bNbArrays)+"], edx ")
+        WriteStringN(lFile, "MOV  dword [esp+"+Str(lOffset)+"], _Ptr_Array_"+Str(bNbArrays))
+        If sReturnDataSection = ""
+          sReturnDataSection = "Macro align value { rb (value-1) - ($-_"+LL_DLLFunctions()\FuncName+" + value-1) mod value }"+ #System_EOL
+          CompilerSelect #PB_Compiler_OS 
+            CompilerCase #PB_OS_Windows : sReturnDataSection + "section '.Arrays' readable writeable"+ #System_EOL
+            CompilerCase #PB_OS_Linux : sReturnDataSection + "section '.Arrays' writeable"+ #System_EOL
+          CompilerEndSelect
+          sReturnDataSection + "_"+LL_DLLFunctions()\FuncName+":"+ #System_EOL
+          sReturnDataSection + "align 4"+ #System_EOL
+        EndIf
+        sReturnDataSection + "_Ptr_Array_"+Str(bNbArrays)+":"+ #System_EOL
+        sReturnDataSection + "rd 1"+ #System_EOL
+        bNbArrays +1
+      EndIf
+    Next
+  Else
+    sReturnDataSection = ""
+  EndIf 
+  ProcedureReturn sReturnDataSection
 EndProcedure

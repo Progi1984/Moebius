@@ -1,7 +1,7 @@
 ;XIncludeFile "Sample_08.pb"
 Dim AnyArrayL.l(11)
 For Inc = 0 To 10
-  AnyArrayL(Inc) = Random(255)
+  AnyArrayL(Inc) = Inc*100
 Next
 
 Dim AnyArrayS.s(11)
@@ -16,5 +16,6 @@ For Inc = 0 To 10
 Next
 
 S08_GetVarL(AnyArrayL(), 5)
-; S08_GetVarS(5, AnyArrayS())
-; S08_GetVarPoint(AnyArrayPoint())
+Debug S08_2GetVarL(AnyArrayL(), 5)
+S08_GetVarS(5, AnyArrayS())
+S08_GetVarPoint(AnyArrayPoint())
