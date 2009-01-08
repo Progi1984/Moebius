@@ -127,6 +127,7 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
             Log_Add("LL_DLLFunctions()\Params > "+LL_DLLFunctions()\Params, 4)
             
             LL_DLLFunctions()\FuncName = Trim(Left(sFuncName, FindString(sFuncName, "(", 1)-1))
+            LL_DLLFunctions()\FuncName = Trim(Right(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName) - FindString(LL_DLLFunctions()\FuncName, " ", 1)))
             Log_Add("LL_DLLFunctions()\FuncName Light> "+LL_DLLFunctions()\FuncName, 4)
             
             ; Type of the Return Value
@@ -409,7 +410,7 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
                 Log_Add("LL_DLLUsed() > "+LL_DLLUsed(), 4)
               ElseIf bInImportLib = #True And StringField(TrCodeField, 2, " ") <> ""
                 AddElement(LL_ImportUsed())
-                LL_ImportUsed() = StringField(TrCodeField, 2, " ")
+                LL_ImportUsed() = Trim(RemoveString(TrCodeField, ";"))
                 Log_Add("LL_ImportUsed() > "+LL_ImportUsed(), 4)
               EndIf
             EndIf
@@ -449,6 +450,56 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
   Next
   ;}
 EndProcedure
+ProcedureDLL.s Moebius_Compile_Step2_WriteASMForArrays(lFile.l)
+  Protected lIncA.l, lIncB.l, lOffset.l
+  Protected sItemParam.s, sReturnDataSection.s
+  Protected bNbArrays.b
+  If FindString(LCase(LL_DLLFunctions()\ParamsRetType), "array", 0)  > 0
+    For lIncA = 1 To CountString(LL_DLLFunctions()\ParamsRetType, ",")
+      ; Param's Type
+      sItemParam = StringField(LL_DLLFunctions()\ParamsRetType, lIncA +1, ",")
+      sItemParam = LCase(sItemParam)
+      sItemParam = Trim(sItemParam)
+      If sItemParam = "array"
+        ; Offset
+        If lIncA = 1 
+          lOffset  = 4
+        Else
+          lOffset  = 0
+          For lIncB = 1 To lIncA - 1
+            sItemParam = StringField(LL_DLLFunctions()\ParamsRetType, lIncA +1, ",")
+            sItemParam = LCase(sItemParam)
+            sItemParam = Trim(sItemParam)
+            Select sItemParam
+              Case "array"  : lOffset +4
+              Case "linkedlist"  : lOffset +4
+              Default:lOffset+SizeOf(sItemParam)
+            EndSelect
+          Next
+          lOffset +4
+        EndIf
+        WriteStringN(lFile, "MOV  edx, dword [esp+"+Str(lOffset)+"]") 
+        WriteStringN(lFile, "MOV  dword [_Ptr_Array_"+Str(bNbArrays)+"], edx ")
+        WriteStringN(lFile, "MOV  dword [esp+"+Str(lOffset)+"], _Ptr_Array_"+Str(bNbArrays))
+        If sReturnDataSection = ""
+          sReturnDataSection = "Macro align value { rb (value-1) - ($-_"+LL_DLLFunctions()\FuncName+" + value-1) mod value }"+ #System_EOL
+          CompilerSelect #PB_Compiler_OS 
+            CompilerCase #PB_OS_Windows : sReturnDataSection + "section '.Arrays' readable writeable"+ #System_EOL
+            CompilerCase #PB_OS_Linux : sReturnDataSection + "section '.Arrays' writeable"+ #System_EOL
+          CompilerEndSelect
+          sReturnDataSection + "_"+LL_DLLFunctions()\FuncName+":"+ #System_EOL
+          sReturnDataSection + "align 4"+ #System_EOL
+        EndIf
+        sReturnDataSection + "_Ptr_Array_"+Str(bNbArrays)+":"+ #System_EOL
+        sReturnDataSection + "rd 1"+ #System_EOL
+        bNbArrays +1
+      EndIf
+    Next
+  Else
+    sReturnDataSection = ""
+  EndIf 
+  ProcedureReturn sReturnDataSection
+EndProcedure
 ProcedureDLL Moebius_Compile_Step2()
   ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
   Protected CodeContent.s, CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned.s, sDataSectionForArray.s
@@ -472,8 +523,12 @@ ProcedureDLL Moebius_Compile_Step2()
       CodeField   = LL_DLLFunctions()\FuncName         ; Function Name
       TrCodeField = LL_DLLFunctions()\Win_ASMNameFunc  ; ASM Function Name
       ForEach LL_DLLFunctions()
-        If LL_DLLFunctions()\FuncName <> CodeField
-          LL_DLLFunctions()\Code = ReplaceString(LL_DLLFunctions()\Code, TrCodeField, ReplaceString(gProject\Name, " ", "_")+"_"+CodeField)
+        If LL_DLLFunctions()\FuncName <> CodeField 
+          If LL_DLLFunctions()\IsDLLFunction = #False
+            LL_DLLFunctions()\Code = ReplaceString(LL_DLLFunctions()\Code, TrCodeField, ReplaceString(gProject\Name, " ", "_")+"_"+CodeField)
+          Else
+            LL_DLLFunctions()\Code = ReplaceString(LL_DLLFunctions()\Code, TrCodeField, "PB_"+CodeField)
+          EndIf
         EndIf
       Next  
     Next  
@@ -490,7 +545,7 @@ ProcedureDLL Moebius_Compile_Step2()
       If lFile
         WriteStringN(lFile, "format "+#System_LibFormat)
         WriteStringN(lFile, "")
-        ;{ déclarations
+        ;{ dï¿½clarations
         If LL_DLLFunctions()\IsDLLFunction = #True
           WriteStringN(lFile, "public PB_"+LL_DLLFunctions()\FuncName)
         Else
@@ -526,6 +581,9 @@ ProcedureDLL Moebius_Compile_Step2()
                     If CreateRegularExpression(1, "e[a-z]p")
                       If MatchRegularExpression(0, TrCodeField) = #False
                         If MatchRegularExpression(1, TrCodeField) = #False
+                          If FindString(TrCodeField, "+", 1) > 0
+                            TrCodeField = StringField(TrCodeField, 1, "+")
+                          EndIf
                           bFound = #False
                           ForEach LL_ASM_extrn()
                             If LL_ASM_extrn() = TrCodeField
@@ -640,7 +698,7 @@ ProcedureDLL Moebius_Compile_Step2()
         CloseFile(lFile)
       EndIf
     Next
-    ;{ _Init Function
+    ;{ Init Function
       ; We search if an Init Function exists
       ForEach LL_DLLFunctions()
         If LCase(Right(LL_DLLFunctions()\FuncName,5)) = "_init"
@@ -715,54 +773,4 @@ ProcedureDLL Moebius_Compile_Step2()
     ;}
   ;}
   Log_Add("Rewrite the new ASM Code", 2)
-EndProcedure
-ProcedureDLL.s Moebius_Compile_Step2_WriteASMForArrays(lFile.l)
-  Protected lIncA.l, lIncB.l, lOffset.l
-  Protected sItemParam.s, sReturnDataSection.s
-  Protected bNbArrays.b
-  If FindString(LCase(LL_DLLFunctions()\ParamsRetType), "array", 0)  > 0
-    For lIncA = 1 To CountString(LL_DLLFunctions()\ParamsRetType, ",")
-      ; Param's Type
-      sItemParam = StringField(LL_DLLFunctions()\ParamsRetType, lIncA +1, ",")
-      sItemParam = LCase(sItemParam)
-      sItemParam = Trim(sItemParam)
-      If sItemParam = "array"
-        ; Offset
-        If lIncA = 1 
-          lOffset  = 4
-        Else
-          lOffset  = 0
-          For lIncB = 1 To lIncA - 1
-            sItemParam = StringField(LL_DLLFunctions()\ParamsRetType, lIncA +1, ",")
-            sItemParam = LCase(sItemParam)
-            sItemParam = Trim(sItemParam)
-            Select sItemParam
-              Case "array"  : lOffset +4
-              Case "linkedlist"  : lOffset +4
-              Default:lOffset+SizeOf(sItemParam)
-            EndSelect
-          Next
-          lOffset +4
-        EndIf
-        WriteStringN(lFile, "MOV  edx, dword [esp+"+Str(lOffset)+"]") 
-        WriteStringN(lFile, "MOV  dword [_Ptr_Array_"+Str(bNbArrays)+"], edx ")
-        WriteStringN(lFile, "MOV  dword [esp+"+Str(lOffset)+"], _Ptr_Array_"+Str(bNbArrays))
-        If sReturnDataSection = ""
-          sReturnDataSection = "Macro align value { rb (value-1) - ($-_"+LL_DLLFunctions()\FuncName+" + value-1) mod value }"+ #System_EOL
-          CompilerSelect #PB_Compiler_OS 
-            CompilerCase #PB_OS_Windows : sReturnDataSection + "section '.Arrays' readable writeable"+ #System_EOL
-            CompilerCase #PB_OS_Linux : sReturnDataSection + "section '.Arrays' writeable"+ #System_EOL
-          CompilerEndSelect
-          sReturnDataSection + "_"+LL_DLLFunctions()\FuncName+":"+ #System_EOL
-          sReturnDataSection + "align 4"+ #System_EOL
-        EndIf
-        sReturnDataSection + "_Ptr_Array_"+Str(bNbArrays)+":"+ #System_EOL
-        sReturnDataSection + "rd 1"+ #System_EOL
-        bNbArrays +1
-      EndIf
-    Next
-  Else
-    sReturnDataSection = ""
-  EndIf 
-  ProcedureReturn sReturnDataSection
 EndProcedure

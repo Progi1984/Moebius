@@ -1,10 +1,11 @@
 
 ProcedureDLL Moebius_Compile_Step4()
+  Protected StringTmp.s
+  Protected hDescFile.l, lNbImportLib.l
   ; 4. POLIB creates the LIB library from the *.OBJ files
   ; Creating descriptor file
   Log_Add("Creating descriptor file", 2)
-  Protected StringTmp.s
-  Protected hDescFile.l = CreateFile(#PB_Any, gProject\FileDesc)
+  hDescFile = CreateFile(#PB_Any, gProject\FileDesc)
   If hDescFile
     ;{ Langage used to code the library
     WriteStringN(hDescFile,"; Langage used to code the library") 
@@ -88,6 +89,14 @@ ProcedureDLL Moebius_Compile_Step4()
     ;}
     CloseFile(hDescFile)
   EndIf
+  ; Working on Import .lib/.a
+  Log_Add("Working on Import", 2)
+  ForEach LL_ImportUsed()
+    CopyFile(LL_ImportUsed(), gProject\DirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed()))
+    Log_Add("IN  > "+LL_ImportUsed(), 4)
+    LL_ImportUsed() = gProject\DirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed())
+    Log_Add("OUT > "+LL_ImportUsed(), 4)
+  Next
   ; Creating archive
   Log_Add("Creating archive", 2)
   ; Generates a file which contains all objects files
@@ -98,6 +107,9 @@ ProcedureDLL Moebius_Compile_Step4()
       If hObjFile
         ForEach LL_DLLFunctions()
           WriteStringN(hObjFile, #DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote)
+        Next
+        ForEach LL_ImportUsed()
+          WriteStringN(hObjFile, #DQuote+LL_ImportUsed()+#DQuote)
         Next
         CloseFile(hObjFile)
       EndIf
@@ -116,7 +128,7 @@ ProcedureDLL Moebius_Compile_Step4()
     CompilerCase #PB_OS_Linux;{
       StringTmp = "ar rvs "
       StringTmp + #DQuote+gProject\FileLib+#DQuote+" "
-      StringTmp + gProject\DirObj + "*"+#System_ExtObj
+      StringTmp + gProject\DirObj + "*";+#System_ExtObj
       Log_Add(StringTmp, 2)
       Batch_Add(StringTmp)
       system_(@StringTmp)
