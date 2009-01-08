@@ -9,7 +9,7 @@ ProcedureCDLL S10_FuncL_Debug(Var1.l, Var2.s)
 	Protected sContent.s
 	sContent + "1 : " + Str(Var1) + Chr(13) + Chr(10)
 	sContent + "2 : " +     Var2  + Chr(13) + Chr(10)
-	;DebugLog("S09_FuncL")
+	DebugLog("S09_FuncL")
 	;DebugLog(sContent)
 	ProcedureReturn #True
 EndProcedure

@@ -30,3 +30,6 @@ Description : Using Default Value in parameter
 -----------------------------------------------------------------------------------------------------------------------
 Nom : Sample_10.pb
 Description :  Using _Debug Modifiers
+-----------------------------------------------------------------------------------------------------------------------
+Nom : Sample_11.pb
+Description :  Using an Import Lib
