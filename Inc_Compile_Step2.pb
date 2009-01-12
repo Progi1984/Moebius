@@ -243,7 +243,7 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
   Protected Inc.l
   Protected CodeField.s, TrCodeField.s, CodeCleaned.s, sNameOfFunction.s
-  Protected bFound.b, bNotCapture.b, bInFunction.b, bInBSSSection.b, bInSharedCode.b, bInSystemLib.b, bInImportLib.b
+  Protected bFound.b, bNotCapture.b, bInFunction.b, bInBSSSection.b, bInSharedCode.b, bInSystemLib.b, bInImportLib.b, bInPBLib.b
   ;{ Permits in functions of some code to extract, remove some code & informations
   For Inc = 0 To CountString(CodeContent, #System_EOL)
     CodeField = StringField(CodeContent, Inc+1, #System_EOL)
@@ -396,13 +396,20 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
           If StringField(TrCodeField, 2, " ") = ":System"
             bInSystemLib = #True
             bInImportLib = #False
+            bInPBLib     = #False
           ElseIf StringField(TrCodeField, 2, " ") = ":Import"
             bInSystemLib = #False
             bInImportLib = #True
+            bInPBLib     = #False
+          ElseIf TrCodeField = "; The header must remain intact for Re-Assembly"
+            bInSystemLib = #False
+            bInImportLib = #False
+            bInPBLib     = #True
           Else
             If Left(StringField(TrCodeField, 2, " "), 1) = ":"
               bInSystemLib = #False
               bInImportLib = #False
+              bInPBLib     = #False
             Else
               If bInSystemLib = #True And StringField(TrCodeField, 2, " ") <> ""
                 AddElement(LL_DLLUsed())
@@ -412,6 +419,10 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
                 AddElement(LL_ImportUsed())
                 LL_ImportUsed() = Trim(RemoveString(TrCodeField, ";"))
                 Log_Add("LL_ImportUsed() > "+LL_ImportUsed(), 4)
+              ElseIf bInPBLib = #True And StringField(TrCodeField, 2, " ") <> ""
+                AddElement(LL_LibUsed())
+                LL_LibUsed() = Trim(LCase(RemoveString(TrCodeField, ";")))
+                Log_Add("LL_LibUsed() > "+LL_LibUsed(), 4)
               EndIf
             EndIf
           EndIf
@@ -536,16 +547,16 @@ ProcedureDLL Moebius_Compile_Step2()
     ForEach LL_DLLFunctions()
       ClearList(LL_ASM_extrn())
       lFile = CreateFile(#PB_Any, gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
-      If LCase(Right(LL_DLLFunctions()\FuncName,5)) = "_init"
+      If UCase(Right(LL_DLLFunctions()\FuncName,5)) = "_INIT"
         LL_DLLFunctions()\FuncRetType = "InitFunction"
       EndIf
-      If LCase(Right(LL_DLLFunctions()\FuncName,4)) = "_end"
+      If UCase(Right(LL_DLLFunctions()\FuncName,4)) = "_END"
         LL_DLLFunctions()\FuncRetType = "EndFunction"
       EndIf
       If lFile
         WriteStringN(lFile, "format "+#System_LibFormat)
         WriteStringN(lFile, "")
-        ;{ d�clarations
+        ;{ declarations
         If LL_DLLFunctions()\IsDLLFunction = #True
           WriteStringN(lFile, "public PB_"+LL_DLLFunctions()\FuncName)
         Else
@@ -700,8 +711,9 @@ ProcedureDLL Moebius_Compile_Step2()
     Next
     ;{ Init Function
       ; We search if an Init Function exists
+      bFound = #False
       ForEach LL_DLLFunctions()
-        If LCase(Right(LL_DLLFunctions()\FuncName,5)) = "_init"
+        If UCase(Right(LL_DLLFunctions()\FuncName,5)) = "_INIT"
           bFound = #True
           Break
         EndIf
