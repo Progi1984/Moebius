@@ -1,2 +1,0 @@
-C:\ZPersoSpace\moebius-pb\trunk\Addons\DebugLogLib\Windows\DebugLogLib.asm
-C:\ZPersoSpace\moebius-pb\trunk\Addons\DebugLogLib\Windows\DebugLogLib_DEBUG.asm
