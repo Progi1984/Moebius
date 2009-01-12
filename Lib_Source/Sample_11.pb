@@ -1,82 +1,3 @@
-; Import "C:\Program Files\PureBasic\Compilers\ObjectManager.lib"
-;   Object_GetOrAllocateID (Objects, Object.l) As "_PB_Object_GetOrAllocateID@8"
-;   Object_GetObject       (Objects, Object.l) As "_PB_Object_GetObject@8"
-;   Object_IsObject        (Objects, Object.l) As "_PB_Object_IsObject@8"
-;   Object_EnumerateAll    (Objects, ObjectEnumerateAllCallback, *VoidData) As "_PB_Object_EnumerateAll@12"
-;   Object_EnumerateStart  (Objects) As "_PB_Object_EnumerateStart@4"
-;   Object_EnumerateNext   (Objects, *object.Long) As "_PB_Object_EnumerateNext@8"
-;   Object_EnumerateAbort  (Objects) As "_PB_Object_EnumerateAbort@4"
-;   Object_FreeID          (Objects, Object.l) As "_PB_Object_FreeID@8"
-;   Object_Init            (StructureSize.l, IncrementStep.l, ObjectFreeFunction) As "_PB_Object_Init@12"
-;   Object_GetThreadMemory (MemoryID.l) As "_PB_Object_GetThreadMemory@4"
-;   Object_InitThreadMemory(Size.l, InitFunction, EndFunction) As "_PB_Object_InitThreadMemory@12"
-; EndImport
-; 
-; Procedure S11Free(Id.l)
-;   Protected *Test.Point
-;   If Id <> #PB_Any And Object_IsObject(TestObjects, Id)
-;    *Test = Object_GetObject(TestObjects, Id)
-;   EndIf
-;   If *Test
-;    Object_FreeID(TestObjects,Id)
-;   EndIf
-;   ProcedureReturn #True
-; EndProcedure
-; ProcedureDLL S11_GetX(Id.l)
-;   Protected *Object.Point = Object_GetObject(TestObjects, Id)
-;   If *Object
-;     ProcedureReturn *Object\x
-;   Else
-;     ProcedureReturn -1
-;   EndIf
-; EndProcedure
-; ProcedureDLL S11_GetY(Id.l)
-;   Protected *Object.Point = Object_GetObject(TestObjects, Id)
-;   If *Object
-;     ProcedureReturn *Object\y
-;   Else
-;     ProcedureReturn -1
-;   EndIf
-; EndProcedure
-; ProcedureDLL S11_SetX(Id.l, x.l)
-;   Protected *Object.Point = Object_GetObject(TestObjects, Id)
-;   If *Object
-;     *Object\x = x
-;     ProcedureReturn #True
-;   Else
-;     ProcedureReturn #False
-;   EndIf
-; EndProcedure
-; ProcedureDLL S11_SetY(Id.l, y.l)
-;   Protected *Object.Point = Object_GetObject(TestObjects, Id)
-;   If *Object
-;     *Object\y = y
-;     ProcedureReturn #True
-;   Else
-;     ProcedureReturn #False
-;   EndIf
-; EndProcedure
-; 
-; ProcedureDLL S11_Free(Id.l)
-;   ProcedureReturn S11Free(Id)
-; EndProcedure
-; ProcedureDLL S11_Create(Id.l, x.l, y.l)
-;   Protected *Object.Point = Object_GetOrAllocateID(TestObjects, Id)
-;   If *Object
-;     *Object\x = x
-;     *Object\y = y
-;     ProcedureReturn *Object
-;   Else
-;     ProcedureReturn -1
-;   EndIf
-; EndProcedure
-; ProcedureDLL S11_Init()
-;   Global TestObjects
-;   TestObjects = Object_Init(SizeOf(Point), 1, @S11Free())
-;   If IsWindow(#PB_Any)
-;   EndIf
-; EndProcedure
-
 Import "C:\Program Files\PureBasic\Compilers\ObjectManager.lib"
   Object_GetOrAllocateID  (Objects, Object.l) As "_PB_Object_GetOrAllocateID@8"
   Object_GetObject        (Objects, Object.l) As "_PB_Object_GetObject@8"
@@ -91,62 +12,60 @@ Import "C:\Program Files\PureBasic\Compilers\ObjectManager.lib"
   Object_InitThreadMemory (Size.l, InitFunction, EndFunction) As "_PB_Object_InitThreadMemory@12"
 EndImport
 
-Structure S_RTmp_Union
+Structure S_S11_Union
   URL.s
 EndStructure
-Structure S_RTmp
+Structure S_S11
   ID.l
-  type.l
+  Type.l
   StructureUnion
-    Union.S_RTmp_Union
+    Union.S_S11_Union
   EndStructureUnion
 EndStructure 
-
-;- Macros
-Macro RTmp_ID(object)
-  Object_GetObject(RTmpObjects, object)
+; 
+; ;- Macros
+Macro S11_ID(object)
+  Object_GetObject(S11Objects, object)
 EndMacro
-Macro RTmp_IS(object)
-  Object_IsObject(RTmpObjects, object)
+Macro S11_IS(object)
+  Object_IsObject(S11Objects, object)
 EndMacro
-Macro RTmp_NEW(object)
-  Object_GetOrAllocateID(RTmpObjects, object)
+Macro S11_NEW(object)
+  Object_GetOrAllocateID(S11Objects, object)
 EndMacro
-Macro RTmp_FREEID(object)
-  If object <> #PB_Any And RTmp_IS(object) = #True
-    Object_FreeID(RTmpObjects, object)
+Macro S11_FREEID(object)
+  If object <> #PB_Any And S11_IS(object) = #True
+    Object_FreeID(S11Objects, object)
   EndIf
 EndMacro
-Macro RTmp_INITIALIZE(hCloseFunction)
-  Object_Init(SizeOf(S_RTmp), 1, hCloseFunction)
+Macro S11_INITIALIZE(hCloseFunction)
+  Object_Init(SizeOf(S_S11), 1, hCloseFunction)
 EndMacro
 
 
-ProcedureDLL RTmpFree(Id.l)
-  Protected *RObject.S_RTmp
+ProcedureDLL S11Free(Id.l)
+  Protected *RObject.S_S11
    If *RObject
-    RTmp_FREEID(Id)
+    S11_FREEID(Id)
   EndIf
   ProcedureReturn #True
 EndProcedure
-ProcedureDLL RTmp_Init()
-  Global RTmpObjects
-  RTmpObjects = RTmp_INITIALIZE(@RTmpFree())
-  Global NewList LL_RLog_Logs.l()
+ProcedureDLL S11_Init()
+  Global S11Objects
+  S11Objects = S11_INITIALIZE(@S11Free())
+  If IsWindow(#PB_Any)
+  EndIf
 EndProcedure
-ProcedureDLL.l RTmp_GetType(Id.l)
-  Protected *RObject.S_RTmp = RTmp_ID(Id)
+ProcedureDLL.l S11_GetType(Id.l)
+  Protected *RObject.S_S11 = S11_ID(Id)
   If *RObject
     ProcedureReturn *RObject\Type
   Else
     ProcedureReturn -1
   EndIf
 EndProcedure
-ProcedureDLL.l RTmp_(Id.l)
-  Protected *RObject.S_RTmp = RTmp_ID(Id)
-EndProcedure
-ProcedureDLL.l RTmp_Create(Id.l, type.l)
-  Protected *RObject.S_RTmp = RTmp_NEW(Id)
+ProcedureDLL.l S11_Create(Id.l, type.l)
+  Protected *RObject.S_S11 = S11_NEW(Id)
    With *RObject
       \ID = *RObject
       \Type = type
@@ -154,6 +73,3 @@ ProcedureDLL.l RTmp_Create(Id.l, type.l)
   ProcedureReturn *RObject
 EndProcedure 
 
-
-; IDE Options = PureBasic 4.30 (Windows - x86)
-; EnableXP
