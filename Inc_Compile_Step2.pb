@@ -558,7 +558,20 @@ ProcedureDLL Moebius_Compile_Step2()
         WriteStringN(lFile, "")
         ;{ declarations
         If LL_DLLFunctions()\IsDLLFunction = #True
-          WriteStringN(lFile, "public PB_"+LL_DLLFunctions()\FuncName)
+          CompilerSelect #PB_Compiler_OS 
+            CompilerCase #PB_OS_Windows :
+            ;{
+              If UCase(Right(LL_DLLFunctions()\FuncName,6)) = "_DEBUG"
+                WriteStringN(lFile, "public _PB_"+LL_DLLFunctions()\FuncName)
+              Else
+                WriteStringN(lFile, "public PB_"+LL_DLLFunctions()\FuncName)
+              EndIf
+            ;}
+            CompilerCase #PB_OS_Linux
+            ;{
+              WriteStringN(lFile, "public PB_"+LL_DLLFunctions()\FuncName)
+            ;}
+          CompilerEndSelect
         Else
           WriteStringN(lFile, "public "+ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
         EndIf;}
@@ -667,7 +680,20 @@ ProcedureDLL Moebius_Compile_Step2()
         If LL_DLLFunctions()\IsDLLFunction = #True
           CodeField = LL_DLLFunctions()\Code
           CodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
-          CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
+          CompilerSelect #PB_Compiler_OS 
+            CompilerCase #PB_OS_Windows :
+            ;{
+              If UCase(Right(LL_DLLFunctions()\FuncName,6)) = "_DEBUG"
+                CodeField + "_PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
+              Else
+                CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
+              EndIf
+            ;}
+            CompilerCase #PB_OS_Linux
+            ;{
+              CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
+            ;}
+          CompilerEndSelect
           CodeField + Right(LL_DLLFunctions()\Code, Len(LL_DLLFunctions()\Code) - Len(StringField(LL_DLLFunctions()\Code, 1, #System_EOL)))
           TrCodeField = CodeField
         Else
