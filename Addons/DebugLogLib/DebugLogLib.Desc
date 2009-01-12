@@ -1,0 +1,13 @@
+ASM
+;
+1
+USER32
+;
+LIB
+;
+0
+;
+
+;
+DebugLog, Long (ErrorMessage$) - Send an error to the debug window.
+None | DebuggerCheck
