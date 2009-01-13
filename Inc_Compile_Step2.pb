@@ -238,6 +238,7 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
               bFunctionEverAdded = #False
             EndIf
             Log_Add("LL_DLLFunctions()\InDescFile > "+Str(LL_DLLFunctions()\InDescFile), 4)
+            Log_Add("", 4)
           EndIf
         EndIf
       EndIf
@@ -719,6 +720,7 @@ ProcedureDLL Moebius_Compile_Step2()
         EndIf;}
         ; We initialize the var for testing if the line contains a label
         bLastIsLabel = #True
+        Debug TrCodeField
         For IncA = 0 To CountString(TrCodeField, #System_EOL)
           sTmpString = StringField(TrCodeField, IncA+1, #System_EOL)
           sTmpString = ReplaceString(sTmpString, Chr(13), "")
@@ -766,7 +768,7 @@ ProcedureDLL Moebius_Compile_Step2()
             CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "extrn SYS_InitString" + #System_EOL
           CompilerEndSelect
           LL_DLLFunctions()\Code + "" + #System_EOL
-          LL_DLLFunctions()\Code + "Public PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init"  + #System_EOL
+          LL_DLLFunctions()\Code + "public PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init"  + #System_EOL
           LL_DLLFunctions()\Code + "" + #System_EOL
           LL_DLLFunctions()\Code + "PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init:" + #System_EOL
           CompilerSelect #PB_Compiler_OS 
