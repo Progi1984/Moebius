@@ -21,7 +21,7 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
         CodeCleaned2 = Trim(StringField(CodeCleaned2, 1, "."))
         CodeCleaned2 = Trim(CodeCleaned2)
         If (LCase(CodeCleaned2) = "proceduredll" Or LCase(CodeCleaned2) = "procedurecdll" Or LCase(CodeCleaned2) = "procedurec" Or LCase(CodeCleaned2) = "procedure") And sTmpString  = "macro"
-          If LCase(CodeCleaned2) = "proceduredll" 
+          If LCase(CodeCleaned2) = "proceduredll" Or LCase(CodeCleaned2) = "procedure"
             sCallingConvention = "StdCall"
           ElseIf LCase(CodeCleaned2) = "procedurecdll" Or LCase(CodeCleaned2) = "procedurec"
             sCallingConvention = "CDecl"
@@ -59,7 +59,7 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
               EndIf
             Next
           Until bHasNumberInLastPlace = #False
-          Log_Add("sFuncNameCleared > "+sFuncNameCleared, 4)
+          Log_Add("LL_DLLFunctions()\sFuncNameCleared > "+sFuncNameCleared, 4)
           ; we looked if the function already exists
           bFunctionEverAdded = -1
           ForEach LL_DLLFunctions()
@@ -126,13 +126,18 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
             EndIf
             Log_Add("LL_DLLFunctions()\Params > "+LL_DLLFunctions()\Params, 4)
             
+            If Left(Trim(LL_DLLFunctions()\FuncName), 1) = "."
+              sReturnValField = Mid(Trim(LL_DLLFunctions()\FuncName), 2, 1)
+            Else
+              sReturnValField = ""
+            EndIf
             LL_DLLFunctions()\FuncName = Trim(Left(sFuncName, FindString(sFuncName, "(", 1)-1))
             LL_DLLFunctions()\FuncName = Trim(Right(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName) - FindString(LL_DLLFunctions()\FuncName, " ", 1)))
             Log_Add("LL_DLLFunctions()\FuncName Light> "+LL_DLLFunctions()\FuncName, 4)
             
             ; Type of the Return Value
-            If Mid(sReturnValField, Len(sReturnValField)-1, 1) = "."
-              Select Mid(sReturnValField, Len(sReturnValField), 1)
+            If sReturnValField <> ""
+              Select sReturnValField
                 Case "b"  : LL_DLLFunctions()\FuncRetType = "Byte"
                 Case "c"  : LL_DLLFunctions()\FuncRetType = "Character"
                 Case "d"  : LL_DLLFunctions()\FuncRetType = "Double"
@@ -144,7 +149,7 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
                   Default  : LL_DLLFunctions()\FuncRetType = "Long"
                 CompilerElse ; 430
                   Case "l"  : LL_DLLFunctions()\FuncRetType = "Long"
-                  Default  : LL_DLLFunctions()\FuncRetType = "Integer"
+                  Default  : LL_DLLFunctions()\FuncRetType = "Long"
                 CompilerEndIf
               EndSelect
             Else
@@ -515,7 +520,7 @@ ProcedureDLL Moebius_Compile_Step2()
   ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
   Protected CodeContent.s, CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned.s, sDataSectionForArray.s
   Protected IncA.l, IncB.l
-  Protected bFound.b, bLastIsLabel.b
+  Protected bFound.b, bLastIsLabel.b, bIsDLLFunction.b
   If ReadFile(0, gConf_ProjectDir+"purebasic.asm")
     CodeContent = Space(Lof(0)+1)
     ReadData(0,@CodeContent, Lof(0))
@@ -531,11 +536,12 @@ ProcedureDLL Moebius_Compile_Step2()
     ; private functions
     For IncA = 0 To ListSize(LL_DLLFunctions())-1
       SelectElement(LL_DLLFunctions(), IncA)
-      CodeField   = LL_DLLFunctions()\FuncName         ; Function Name
-      TrCodeField = LL_DLLFunctions()\Win_ASMNameFunc  ; ASM Function Name
+      CodeField     = LL_DLLFunctions()\FuncName         ; Function Name
+      TrCodeField   = LL_DLLFunctions()\Win_ASMNameFunc  ; ASM Function Name
+      bIsDLLFunction= LL_DLLFunctions()\IsDLLFunction
       ForEach LL_DLLFunctions()
         If LL_DLLFunctions()\FuncName <> CodeField 
-          If LL_DLLFunctions()\IsDLLFunction = #False
+          If bIsDLLFunction = #False
             LL_DLLFunctions()\Code = ReplaceString(LL_DLLFunctions()\Code, TrCodeField, ReplaceString(gProject\Name, " ", "_")+"_"+CodeField)
           Else
             LL_DLLFunctions()\Code = ReplaceString(LL_DLLFunctions()\Code, TrCodeField, "PB_"+CodeField)
