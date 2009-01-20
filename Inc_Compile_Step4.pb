@@ -132,7 +132,7 @@ ProcedureDLL Moebius_Compile_Step4()
     CompilerCase #PB_OS_Linux;{
       StringTmp = "ar rvs "
       StringTmp + #DQuote+gProject\FileLib+#DQuote+" "
-      StringTmp + gProject\DirObj + "*";+#System_ExtObj
+      StringTmp + gProject\DirObj + "*"
       Log_Add(StringTmp, 2)
       Batch_Add(StringTmp)
       system_(@StringTmp)

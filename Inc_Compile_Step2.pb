@@ -50,6 +50,10 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
           sFuncNameCleared = ReplaceString(sFuncNameCleared, "_3DNOW", "", #PB_String_NoCase)
           sFuncNameCleared = ReplaceString(sFuncNameCleared, "_THREAD", "", #PB_String_NoCase)
           sFuncNameCleared = ReplaceString(sFuncNameCleared, "_UNICODE", "", #PB_String_NoCase)
+          sFuncNameCleared = Trim(sFuncNameCleared)
+          If Left(sFuncNameCleared, 1) = "."
+            sFuncNameCleared = Trim(Right(sFuncNameCleared, Len(sFuncNameCleared) - FindString(sFuncNameCleared, " ", 1)))
+          EndIf
           Repeat
             bHasNumberInLastPlace = #False
             For IncA = 0 To 9
@@ -390,11 +394,15 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
         Case "RET"
         ;{
           If bNotCapture = 0 And bInFunction = #True
-            If LL_DLLFunctions()\IsDLLFunction = #True And LL_DLLFunctions()\FuncRetType = "String" And #PB_Compiler_OS = #PB_OS_Windows
-              LL_DLLFunctions()\Code + TrCodeField + " + 4" + #System_EOL
-            Else
-              LL_DLLFunctions()\Code + TrCodeField + #System_EOL
+            LL_DLLFunctions()\Code + TrCodeField
+            If LL_DLLFunctions()\IsDLLFunction = #True 
+              If LL_DLLFunctions()\FuncRetType = "String" 
+                If #PB_Compiler_OS = #PB_OS_Windows
+                  LL_DLLFunctions()\Code + " + 4"
+                EndIf
+              EndIf
             EndIf
+            LL_DLLFunctions()\Code + #System_EOL
           EndIf
         ;}
         Case ";"
@@ -720,7 +728,6 @@ ProcedureDLL Moebius_Compile_Step2()
         EndIf;}
         ; We initialize the var for testing if the line contains a label
         bLastIsLabel = #True
-        Debug TrCodeField
         For IncA = 0 To CountString(TrCodeField, #System_EOL)
           sTmpString = StringField(TrCodeField, IncA+1, #System_EOL)
           sTmpString = ReplaceString(sTmpString, Chr(13), "")
