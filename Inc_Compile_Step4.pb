@@ -1,4 +1,3 @@
-
 ProcedureDLL Moebius_Compile_Step4()
   Protected StringTmp.s
   Protected hDescFile.l, lNbImportLib.l

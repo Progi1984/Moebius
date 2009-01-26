@@ -34,10 +34,10 @@ ProcedureDLL Moebius_Compile_Step1()
   DeleteFile(gConf_ProjectDir + "PureBasic.asm")
   Param = #Switch_InlineASM+" "
   Param + #Switch_Commented+" "
-  If gProject\isUnicode
+  If gProject\bUnicode
     Param + #Switch_Unicode+" "
   EndIf
-  If gProject\isThreadSafe
+  If gProject\bThreadSafe
     Param + #Switch_ThreadSafe+" "
   EndIf
   Param +#Switch_Executable+" "+#DQuote+FichierExe+#DQuote

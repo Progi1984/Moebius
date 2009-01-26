@@ -1,5 +1,6 @@
 ; Inc_Prefs.pb
 DeclareDLL Moebius_ReadPrefs()
+DeclareDLL Moebius_ReadParameters()
 
 ; Inc_Misc.pb
 DeclareDLL.l CreateDirectoryEx(FolderPath.s)

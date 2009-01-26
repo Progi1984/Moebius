@@ -7,8 +7,14 @@ Structure S_Project
   DirObj.s
   FileLib.s
   FileCHM.s
-  IsUnicode.b
-  IsThreadSafe.b
+  sFileOutput.s
+  
+  bUnicode.b
+  bThreadSafe.b
+  bDontBuildLib.b
+  bKeepSrcFiles.b
+  bLogFile.b
+  bBatFile.b
 EndStructure
 Structure S_DLLFunctions
   FuncName.s
@@ -42,6 +48,14 @@ EndStructure
 Global gProject.S_Project
 Global hCompiler.l
 Global Moebius_Compile_Step2_sCodeShared.s
+Global gConf_PureBasic_Path.s
+Global gConf_Path_PBCOMPILER.s
+Global gConf_Path_FASM.s
+Global gConf_Path_OBJ2LIB.s
+Global gConf_Path_PBLIBMAKER.s
+Global gConf_SourceDir.s
+Global gConf_ProjectDir.s
+Global gConf_Ini_Purebasic.s
 
 Global NewList LL_DLLFunctions.S_DLLFunctions()
 Global NewList LL_PBFunctions.S_PBFunctionInfo()
@@ -53,3 +67,11 @@ Global NewList LL_ASM_extrn.s()
 
 
 #DQuote = Chr(34)
+
+Macro M_SetConstantPrefs(Name, ValL, ValS, ValSl)
+  #Name#_l = ValL
+  #Name#_s = ValS
+  #Name#_sl = ValSl
+EndMacro
+
+Global Dim D_Parameters.s(9)

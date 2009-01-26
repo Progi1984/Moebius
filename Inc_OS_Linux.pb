@@ -19,3 +19,20 @@
 #System_OS = "Linux"
 
 #PB_FileSystem_Normal = 0
+
+M_SetConstantPrefs(Switch_Param_Help, 0, "-h", "--chm")
+M_SetConstantPrefs(Switch_Param_DontBuildLib, 1, "-n", "--dontbuildlib")
+M_SetConstantPrefs(Switch_Param_KeepSrcFiles, 2, "-k", "--keepsrcfiles")
+M_SetConstantPrefs(Switch_Param_LibName, 3, "-l", "--libname")
+M_SetConstantPrefs(Switch_Param_LogFile, 4, "-f", "--logfile")
+M_SetConstantPrefs(Switch_Param_OutputLib, 5, "-o", "--output")
+M_SetConstantPrefs(Switch_Param_Unicode, 6, "-u", "--unicode")
+M_SetConstantPrefs(Switch_Param_ThreadSafe, 7, "-t", "--threadsafe")
+M_SetConstantPrefs(Switch_Param_BatchFile, 8, "-b", "--batchfile")
+M_SetConstantPrefs(Switch_Param_PB_Path, 9, "-pbp", "--pbpath")
+M_SetConstantPrefs(Switch_Param_PB_Compiler, 10, "-pbc", "--pbcompiler")
+M_SetConstantPrefs(Switch_Param_PB_Obj2Lib, 11, "-pbo", "--pbobj2lib")
+M_SetConstantPrefs(Switch_Param_PB_Fasm, 12, "-pbf", "--pbfasm")
+M_SetConstantPrefs(Switch_Param_PB_LibMaker, 13, "-pbl", "--pblibmaker")
+M_SetConstantPrefs(Switch_Param_PB_Ini, 14, "-pbi", "--pbini")
+M_SetConstantPrefs(Switch_Param_Last, 15, "", "")
