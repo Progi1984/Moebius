@@ -12,18 +12,31 @@ ProcedureDLL Moebius_ReadPrefs()
     EndIf
   EndIf
 
-;   ; ReadPreferences > Project
-;   If OpenPreferences("Sample_Lib"+#System_Separator+"Project_Sample"+Sample+".ini") <> 0
-;     PreferenceGroup(UCase(#System_OS))
-;     gProject\Name = ReadPreferenceString("Name", "")
-;     gProject\FileName = ReadPreferenceString("FileName", "")
-;     
-;     PreferenceGroup("PROJECT")
-;     gProject\isUnicode = ReadPreferenceLong("Unicode", #False)
-;     gProject\isThreadSafe = ReadPreferenceLong("ThreadSafe", #False)
-;     
-;     ClosePreferences()
-;   EndIf
+  ; ReadPreferences > Project
+  If gConf_Ini_Project <> "" And FileSize(gConf_Ini_Project) > 0
+    If OpenPreferences(gConf_Ini_Project) <> 0
+      PreferenceGroup(UCase(#System_OS))
+      gProject\LibName = ReadPreferenceString("LibName", "")
+      gProject\FileName = ReadPreferenceString("FileName", "")
+      gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
+      gConf_ProjectDir = gConf_SourceDir + gProject\LibName + #System_Separator
+      gProject\FileAsm  = gConf_ProjectDir + "ASM" + #System_Separator +"Moebius_" + gProject\LibName + ".asm"
+      gProject\FileDesc = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName+".desc"      
+      gProject\DirObj   = gConf_ProjectDir + "OBJ" + #System_Separator
+      gProject\FileLib  = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName + #System_ExtLib
+      gProject\FileCHM  = gProject\LibName + #System_ExtHelp
+      
+      PreferenceGroup("PROJECT")
+      gProject\sFileOutput  = ReadPreferenceString("Output",gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))-1))
+      gProject\bDontBuildLib  = ReadPreferenceLong("DontBuildLib", #False)
+      gProject\bDontKeepSrcFiles  = ReadPreferenceLong("DontKeepSrcFiles", #False)
+      gProject\bUnicode = ReadPreferenceLong("Unicode", #False)
+      gProject\bThreadSafe = ReadPreferenceLong("ThreadSafe", #False)
+      gProject\bBatFile  = ReadPreferenceLong("BatFile", #False)
+      gProject\bLogFile  = ReadPreferenceLong("LogFile", #False)
+      ClosePreferences()
+    EndIf
+  EndIf
 EndProcedure
 ProcedureDLL Moebius_ReadParameters()
   Protected IncA.l, lLastParam.l
@@ -46,6 +59,7 @@ ProcedureDLL Moebius_ReadParameters()
   gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
   gConf_ProjectDir = gConf_SourceDir + gProject\LibName + #System_Separator
   gConf_Ini_Purebasic = ""
+  gConf_Ini_Project = ""
   
   gProject\FileAsm  = gConf_ProjectDir + "ASM" + #System_Separator +"Moebius_" + gProject\LibName + ".asm"
   gProject\FileDesc = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName+".desc"      
@@ -53,13 +67,12 @@ ProcedureDLL Moebius_ReadParameters()
   gProject\FileLib  = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName + #System_ExtLib
   gProject\FileCHM  = gProject\LibName + #System_ExtHelp
   gProject\bDontBuildLib = #False
-  gProject\bKeepSrcFiles  = #True
+  gProject\bDontKeepSrcFiles  = #True
   gProject\bLogFile  = #False
   gProject\sFileOutput  = gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))-1)
   gProject\bUnicode  = #False
   gProject\bThreadSafe  = #False
   gProject\bBatFile  = #False
-  Debug CountProgramParameters()
   For IncA = 0 To CountProgramParameters()-1
       Select ProgramParameter(IncA)
         Case #Switch_Param_Help_s, #Switch_Param_Help_sl  ;{
@@ -116,9 +129,11 @@ ProcedureDLL Moebius_ReadParameters()
           gConf_Ini_Purebasic = ProgramParameter(IncA + 1)
           IncA = IncA + 1
         ;}
+        Case #Switch_Param_Project_Ini_s, #Switch_Param_Project_Ini_sl;{
+          gConf_Ini_Project = ProgramParameter(IncA + 1)
+          IncA = IncA + 1
+        ;}
         Default:
       EndSelect
   Next
 EndProcedure 
-
-

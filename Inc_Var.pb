@@ -1,5 +1,4 @@
 Structure S_Project
-  Name.s
   FileName.s
   LibName.s
   FileAsm.s
@@ -58,6 +57,7 @@ Global gConf_Path_PBLIBMAKER.s
 Global gConf_SourceDir.s
 Global gConf_ProjectDir.s
 Global gConf_Ini_Purebasic.s
+Global gConf_Ini_Project.s
 
 Global NewList LL_DLLFunctions.S_DLLFunctions()
 Global NewList LL_PBFunctions.S_PBFunctionInfo()

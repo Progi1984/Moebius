@@ -551,7 +551,7 @@ ProcedureDLL Moebius_Compile_Step2()
       ForEach LL_DLLFunctions()
         If LL_DLLFunctions()\FuncName <> CodeField 
           If bIsDLLFunction = #False
-            LL_DLLFunctions()\Code = ReplaceString(LL_DLLFunctions()\Code, TrCodeField, ReplaceString(gProject\Name, " ", "_")+"_"+CodeField)
+            LL_DLLFunctions()\Code = ReplaceString(LL_DLLFunctions()\Code, TrCodeField, ReplaceString(gProject\LibName, " ", "_")+"_"+CodeField)
           Else
             LL_DLLFunctions()\Code = ReplaceString(LL_DLLFunctions()\Code, TrCodeField, "PB_"+CodeField)
           EndIf
@@ -588,7 +588,7 @@ ProcedureDLL Moebius_Compile_Step2()
             ;}
           CompilerEndSelect
         Else
-          WriteStringN(lFile, "public "+ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
+          WriteStringN(lFile, "public "+ReplaceString(gProject\LibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
         EndIf;}
         WriteStringN(lFile, "")
         ;{ extrn
@@ -712,7 +712,7 @@ ProcedureDLL Moebius_Compile_Step2()
           CodeField + Right(LL_DLLFunctions()\Code, Len(LL_DLLFunctions()\Code) - Len(StringField(LL_DLLFunctions()\Code, 1, #System_EOL)))
           TrCodeField = CodeField
         Else
-          CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName, ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
+          CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName, ReplaceString(gProject\LibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
           If Right(Trim(StringField(CodeField, 1, #System_EOL)), 1) = ":" ; declaration de la function
             CompilerSelect #PB_Compiler_OS
               CompilerCase #PB_OS_Windows ;{
@@ -720,7 +720,7 @@ ProcedureDLL Moebius_Compile_Step2()
                 TrCodeField + ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
               ;}
               CompilerCase #PB_OS_Linux;{
-                TrCodeField = ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
+                TrCodeField = ReplaceString(gProject\LibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
               ;}
             CompilerEndSelect
             TrCodeField + Right(CodeField, Len(CodeField) - Len(StringField(CodeField, 1, #System_EOL)))
@@ -762,7 +762,7 @@ ProcedureDLL Moebius_Compile_Step2()
       ; The Init Function doesn't exist
       If bFound = #False
         If AddElement(LL_DLLFunctions())
-          LL_DLLFunctions()\FuncName = ReplaceString(gProject\Name, " ", "_")+"_Init" 
+          LL_DLLFunctions()\FuncName = ReplaceString(gProject\LibName, " ", "_")+"_Init" 
           LL_DLLFunctions()\FuncRetType = "InitFunction"
           LL_DLLFunctions()\CallingConvention = "StdCall"
           LL_DLLFunctions()\FuncDesc = ""
@@ -775,9 +775,9 @@ ProcedureDLL Moebius_Compile_Step2()
             CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "extrn SYS_InitString" + #System_EOL
           CompilerEndSelect
           LL_DLLFunctions()\Code + "" + #System_EOL
-          LL_DLLFunctions()\Code + "public PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init"  + #System_EOL
+          LL_DLLFunctions()\Code + "public PB_"+ReplaceString(gProject\LibName, " ", "_")+"_Init"  + #System_EOL
           LL_DLLFunctions()\Code + "" + #System_EOL
-          LL_DLLFunctions()\Code + "PB_"+ReplaceString(gProject\Name, " ", "_")+"_Init:" + #System_EOL
+          LL_DLLFunctions()\Code + "PB_"+ReplaceString(gProject\LibName, " ", "_")+"_Init:" + #System_EOL
           CompilerSelect #PB_Compiler_OS 
             CompilerCase #PB_OS_Windows : LL_DLLFunctions()\Code + "CALL _SYS_InitString@0" + #System_EOL
             CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "CALL SYS_InitString" + #System_EOL
@@ -795,7 +795,7 @@ ProcedureDLL Moebius_Compile_Step2()
     ;}
     ;{ Shared Code
     If AddElement(LL_DLLFunctions())
-      LL_DLLFunctions()\FuncName = ReplaceString(gProject\Name, " ", "_")+"_Shared" 
+      LL_DLLFunctions()\FuncName = ReplaceString(gProject\LibName, " ", "_")+"_Shared" 
       LL_DLLFunctions()\FuncRetType = "SharedCode"
       LL_DLLFunctions()\FuncDesc = ""
       LL_DLLFunctions()\Params = ""
