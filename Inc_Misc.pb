@@ -30,37 +30,49 @@ ProcedureDLL.l CreateDirectoryEx(FolderPath.s)
 EndProcedure 
 
 ProcedureDLL Log_Init()
-  Global hFileLog = OpenFile(#PB_Any, gConf_ProjectDir+"LOGS"+#System_Separator+"Log_"+FormatDate("%yyyy_%mm_%dd_%hh_%ii_%ss", Date())+".log")
+  If gProject\bLogFile = #True
+    hFileLog = OpenFile(#PB_Any, gConf_ProjectDir+"LOGS"+#System_Separator+"Log_"+FormatDate("%yyyy_%mm_%dd_%hh_%ii_%ss", Date())+".log")
+  EndIf
 EndProcedure
 ProcedureDLL Log_Add(Content.s, NumTab.l = 0)
-  If hFileLog
-    WriteStringN(hFileLog, Space(NumTab) + Content)
+  If gProject\bLogFile = #True
+    If hFileLog
+      WriteStringN(hFileLog, Space(NumTab) + Content)
+    EndIf
+    CompilerIf #PB_Compiler_Debugger = #True
+      Debug "LOG > "+Space(NumTab) + Content
+    CompilerEndIf
   EndIf
-  CompilerIf #PB_Compiler_Debugger = #True
-    Debug "LOG > "+Space(NumTab) + Content
-  CompilerEndIf
 EndProcedure
 ProcedureDLL Log_End()
-  If hFileLog
-    CloseFile(hFileLog)
+  If gProject\bLogFile = #True
+    If hFileLog
+      CloseFile(hFileLog)
+    EndIf
   EndIf
 EndProcedure
 ProcedureDLL Batch_Init()
-  Global hFileBatch = OpenFile(#PB_Any, gConf_ProjectDir+"BAT"+#System_Separator+"Script"+#System_ExtBatch)
+  If gProject\bBatFile = #True
+    hFileBatch = OpenFile(#PB_Any, gConf_ProjectDir+"BAT"+#System_Separator+"Script"+#System_ExtBatch)
+  EndIf
 EndProcedure
 ProcedureDLL Batch_Add(Content.s)
-  If hFileBatch
-    WriteStringN(hFileBatch, Content)
+  If gProject\bBatFile = #True
+    If hFileBatch
+      WriteStringN(hFileBatch, Content)
+    EndIf
+    CompilerIf #PB_Compiler_Debugger = #True
+      Debug "BATCH > "+Content
+    CompilerEndIf
   EndIf
-  CompilerIf #PB_Compiler_Debugger = #True
-    Debug "BATCH > "+Content
-  CompilerEndIf
 EndProcedure
 ProcedureDLL Batch_End()
-  If hFileBatch
-    CloseFile(hFileBatch)
-    CompilerSelect #PB_Compiler_OS
-      CompilerCase #PB_OS_Linux : RunProgram("chmod", "+x "+"Script"+#System_ExtBatch,gConf_ProjectDir+"BAT"+#System_Separator)
-    CompilerEndSelect
+  If gProject\bBatFile = #True
+    If hFileBatch
+      CloseFile(hFileBatch)
+      CompilerSelect #PB_Compiler_OS
+        CompilerCase #PB_OS_Linux : RunProgram("chmod", "+x "+"Script"+#System_ExtBatch,gConf_ProjectDir+"BAT"+#System_Separator)
+      CompilerEndSelect
+    EndIf
   EndIf
 EndProcedure

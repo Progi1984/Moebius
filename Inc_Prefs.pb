@@ -1,13 +1,15 @@
 ProcedureDLL Moebius_ReadPrefs()
   ; ReadPreferences > Path
-  If OpenPreferences(gConf_Ini_Purebasic) <> 0
-    PreferenceGroup("PATH")
-    gConf_PureBasic_Path.s = ReadPreferenceString("PureBasic", PB_GetPBFolder())
-    gConf_Path_PBCOMPILER.s = ReadPreferenceString("PBCompiler", gConf_PureBasic_Path+#System_Separator+"compilers"+#System_Separator+"pbcompiler"+#System_ExtExec)
-    gConf_Path_FASM.s = ReadPreferenceString("PBFasm",gConf_PureBasic_Path+#System_Separator+"compilers"+#System_Separator+"fasm"+#System_ExtExec)
-    gConf_Path_OBJ2LIB.s = ReadPreferenceString("PBObj2Lib","")
-    gConf_Path_PBLIBMAKER.s = ReadPreferenceString("PBLibMaker","")
-    ClosePreferences()
+  If gConf_Ini_Purebasic <> "" And FileSize(gConf_Ini_Purebasic) > 0
+    If OpenPreferences(gConf_Ini_Purebasic) <> 0
+      PreferenceGroup("PATH")
+      gConf_PureBasic_Path.s = ReadPreferenceString("PureBasic", PB_GetPBFolder())
+      gConf_Path_PBCOMPILER.s = ReadPreferenceString("PBCompiler", gConf_PureBasic_Path+#System_Separator+"compilers"+#System_Separator+"pbcompiler"+#System_ExtExec)
+      gConf_Path_FASM.s = ReadPreferenceString("PBFasm",gConf_PureBasic_Path+#System_Separator+"compilers"+#System_Separator+"fasm"+#System_ExtExec)
+      gConf_Path_OBJ2LIB.s = ReadPreferenceString("PBObj2Lib","")
+      gConf_Path_PBLIBMAKER.s = ReadPreferenceString("PBLibMaker","")
+      ClosePreferences()
+    EndIf
   EndIf
 
 ;   ; ReadPreferences > Project
@@ -43,7 +45,8 @@ ProcedureDLL Moebius_ReadParameters()
 
   gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
   gConf_ProjectDir = gConf_SourceDir + gProject\LibName + #System_Separator
-
+  gConf_Ini_Purebasic = ""
+  
   gProject\FileAsm  = gConf_ProjectDir + "ASM" + #System_Separator +"Moebius_" + gProject\LibName + ".asm"
   gProject\FileDesc = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName+".desc"      
   gProject\DirObj   = gConf_ProjectDir + "OBJ" + #System_Separator
@@ -66,8 +69,8 @@ ProcedureDLL Moebius_ReadParameters()
         Case #Switch_Param_DontBuildLib_s, #Switch_Param_DontBuildLib_sl  ;{
           gProject\bDontBuildLib = #True
         ;}
-        Case #Switch_Param_KeepSrcFiles_s, #Switch_Param_KeepSrcFiles_sl  ;{
-          gProject\bKeepSrcFiles = #True
+        Case #Switch_Param_DontKeepSrcFiles_s, #Switch_Param_DontKeepSrcFiles_sl  ;{
+          gProject\bDontKeepSrcFiles = #False
         ;}
         Case #Switch_Param_LibName_s, #Switch_Param_LibName_sl  ;{
           gProject\LibName = ProgramParameter(IncA + 1)

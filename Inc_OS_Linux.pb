@@ -22,7 +22,7 @@
 
 M_SetConstantPrefs(Switch_Param_Help, 0, "-h", "--chm")
 M_SetConstantPrefs(Switch_Param_DontBuildLib, 1, "-n", "--dontbuildlib")
-M_SetConstantPrefs(Switch_Param_KeepSrcFiles, 2, "-k", "--keepsrcfiles")
+M_SetConstantPrefs(Switch_Param_DontKeepSrcFiles, 2, "-k", "--dontkeepsrcfiles")
 M_SetConstantPrefs(Switch_Param_LibName, 3, "-l", "--libname")
 M_SetConstantPrefs(Switch_Param_LogFile, 4, "-f", "--logfile")
 M_SetConstantPrefs(Switch_Param_OutputLib, 5, "-o", "--output")
