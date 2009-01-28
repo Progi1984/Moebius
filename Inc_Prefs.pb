@@ -73,6 +73,7 @@ ProcedureDLL Moebius_ReadParameters()
   gProject\bUnicode  = #False
   gProject\bThreadSafe  = #False
   gProject\bBatFile  = #False
+  gProject\sSubsystem  = ""
   For IncA = 0 To CountProgramParameters()-1
       Select ProgramParameter(IncA)
         Case #Switch_Param_Help_s, #Switch_Param_Help_sl  ;{
@@ -131,6 +132,10 @@ ProcedureDLL Moebius_ReadParameters()
         ;}
         Case #Switch_Param_Project_Ini_s, #Switch_Param_Project_Ini_sl;{
           gConf_Ini_Project = ProgramParameter(IncA + 1)
+          IncA = IncA + 1
+        ;}
+        Case #Switch_Param_Subsytem_s, #Switch_Param_Subsytem_sl;{
+          gProject\sSubsystem = ProgramParameter(IncA + 1)
           IncA = IncA + 1
         ;}
         Default:

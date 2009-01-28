@@ -4,6 +4,7 @@
 #Switch_InlineASM = "/INLINEASM"
 #Switch_Executable = "/EXE"
 #Switch_StandBy = "/STANDBY"
+#Switch_SubSystem = "/SUBSYSTEM"
 
 #Switch_NoUnicodeWarning = "/NOUNICODEWARNING"
 

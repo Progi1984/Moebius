@@ -7,6 +7,7 @@ Structure S_Project
   FileLib.s
   FileCHM.s
   sFileOutput.s
+  sSubsystem.s
   
   bUnicode.b
   bThreadSafe.b

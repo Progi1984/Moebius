@@ -40,6 +40,9 @@ ProcedureDLL Moebius_Compile_Step1()
   If gProject\bThreadSafe
     Param + #Switch_ThreadSafe+" "
   EndIf
+  If gProject\sSubSystem <> ""
+    Param + #Switch_SubSystem + #DQuote + gProject\sSubSystem + #DQuote
+  EndIf
   Param +#Switch_Executable+" "+#DQuote+FichierExe+#DQuote
   Compilateur = RunProgram(gConf_Path_PBCOMPILER, #DQuote+gProject\FileName+#DQuote+" "+Param, gConf_ProjectDir, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
   Log_Add(#DQuote+gConf_Path_PBCOMPILER+#DQuote+" " + #DQuote+gProject\FileName+#DQuote+" "+Param)
