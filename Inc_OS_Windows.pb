@@ -36,4 +36,6 @@ M_SetConstantPrefs(Switch_Param_PB_Fasm, 12, "/pbf", "/PBFASM")
 M_SetConstantPrefs(Switch_Param_PB_LibMaker, 13, "/pbl", "/PBLIBMAKER")
 M_SetConstantPrefs(Switch_Param_PB_Ini, 14, "/pbi", "/PBINI")
 M_SetConstantPrefs(Switch_Param_Project_Ini, 15, "/p", "/PROJECTINI")
-M_SetConstantPrefs(Switch_Param_Last, 16, "", "")
+M_SetConstantPrefs(Switch_Param_Subsytem, 16, "/s", "/SUBSYSTEM")
+M_SetConstantPrefs(Switch_Param_Last, 17, "", "")
+
