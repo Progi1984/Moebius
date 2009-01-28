@@ -717,7 +717,7 @@ ProcedureDLL Moebius_Compile_Step2()
             CompilerSelect #PB_Compiler_OS
               CompilerCase #PB_OS_Windows ;{
                 TrCodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
-                TrCodeField + ReplaceString(gProject\Name, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
+                TrCodeField + ReplaceString(gProject\LibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
               ;}
               CompilerCase #PB_OS_Linux;{
                 TrCodeField = ReplaceString(gProject\LibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
