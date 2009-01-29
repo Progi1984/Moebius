@@ -1,5 +1,14 @@
 #Moebius_App = #True
 
+IncludePath "../../"
+; Some includes must be included before others because of some specifics vars are called
+  XIncludeFile "Inc_Declare.pb"
+  XIncludeFile "Inc_Var.pb" 
+  CompilerSelect #PB_Compiler_OS
+    CompilerCase #PB_OS_Windows : XIncludeFile "Inc_OS_Windows.pb"
+    CompilerCase #PB_OS_Linux : XIncludeFile "Inc_OS_Linux.pb"
+  CompilerEndSelect
+
 IncludePath "./"
   XIncludeFile "MGUI_Inc_Var.pb"
   XIncludeFile "MGUI_Inc_Func.pb"
@@ -52,6 +61,11 @@ Repeat
                 SetGadgetText(#String_0, gProject\LibName)
                 gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
                 gConf_ProjectDir = gConf_SourceDir + gProject\LibName + #System_Separator
+                gProject\FileAsm  = gConf_ProjectDir + "ASM" + #System_Separator +"Moebius_" + gProject\LibName + ".asm"
+                gProject\FileDesc = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName+".desc"      
+                gProject\DirObj   = gConf_ProjectDir + "OBJ" + #System_Separator
+                gProject\FileLib  = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName + #System_ExtLib
+                gProject\FileCHM  = gProject\LibName + #System_ExtHelp
               EndIf
             ;}
             Case #Button_2 ;{ Help File
@@ -62,7 +76,44 @@ Repeat
               EndIf
             ;}
             Case #Button_3 ;{ Compile
-              Moebius_MainThread(0)
+              ; Clear the log editor
+              ClearGadgetItems(#Editor_0)
+              ; Clear variables before any compilation
+              ClearList(LL_DLLFunctions())
+              ClearList(LL_PBFunctions())
+              ClearList(LL_Functions())
+              ClearList(LL_LibUsed())
+              ClearList(LL_DLLUsed())
+              ClearList(LL_ImportUsed())
+              ClearList(LL_ASM_extrn())
+              hCompiler = #False
+              hFileLog = #False
+              hFileBatch = #False
+              ; Launchs a thread for compilation
+              CreateThread(@Moebius_MainThread(),0)
+            ;}
+            Case #Button_11 ;{ Validate before compilation
+              If bPBParams_Valid = 5
+                If gProject\FileName <> "" And FileSize(gProject\FileName) > 0
+                  If gProject\LibName = ""
+                    gProject\LibName = Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))-1)
+                    gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
+                    gConf_ProjectDir = gConf_SourceDir + gProject\LibName + #System_Separator
+                    gProject\FileAsm  = gConf_ProjectDir + "ASM" + #System_Separator +"Moebius_" + gProject\LibName + ".asm"
+                    gProject\FileDesc = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName+".desc"      
+                    gProject\DirObj   = gConf_ProjectDir + "OBJ" + #System_Separator
+                    gProject\FileLib  = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName + #System_ExtLib
+                    gProject\FileCHM  = gProject\LibName + #System_ExtHelp
+                  EndIf
+                  DisableGadget(#Button_3, #False)
+                  MessageRequester("Moebius", "Ready to Compile :)")
+                Else
+                  DisableGadget(#Button_3, #True)
+                  MessageRequester("Moebius", "Need a real purebasic source file for compiling")
+                EndIf
+              Else
+                MessageRequester("Moebius", "But How do you come here ?")
+              EndIf
             ;}
           EndSelect
         ;}
@@ -166,7 +217,7 @@ Repeat
                 EndIf
               EndIf
               If gConf_Path_PBLIBMAKER <> ""
-                If LCase(GetFilePart(gConf_Path_PBLIBMAKER)) = "pblibrarymakker" Or LCase(GetFilePart(gConf_Path_PBLIBMAKER)) = "librarymaker.exe"
+                If LCase(GetFilePart(gConf_Path_PBLIBMAKER)) = "pblibrarymaker" Or LCase(GetFilePart(gConf_Path_PBLIBMAKER)) = "librarymaker.exe"
                   SetGadgetColor(#Text_15, #PB_Gadget_BackColor, RGB(0,255,0))
                   bPBParams_Valid +1
                 EndIf
@@ -179,6 +230,11 @@ Repeat
             ;}
             Case #Button_10 ;{ Fermer
               CloseWindow(#Window_1)
+              If bPBParams_Valid = 5
+                DisableGadget(#Button_0, #True)
+                DisableGadget(#Button_11, #False)
+              EndIf
+              bWinPBParams_Opened = #False
             ;}
           EndSelect
         ;}

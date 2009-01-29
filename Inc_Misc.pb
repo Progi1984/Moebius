@@ -64,7 +64,7 @@ ProcedureDLL Log_Add(Content.s, NumTab.l = 0)
     CompilerEndIf
   EndIf
   CompilerIf Defined(Moebius_App, #PB_Constant) = #True
-    AddGadgetItem(18, -1, Space(NumTab) + Content)
+    AddGadgetItem(#Editor_0, -1, Space(NumTab) + Content)
   CompilerEndIf
 EndProcedure
 ProcedureDLL Log_End()

@@ -21,6 +21,5 @@ XIncludeFile "Moebius_MainThread.pb"
 CompilerIf Defined(Moebius_App, #PB_Constant) = #False
   Moebius_ReadParameters()
   Moebius_ReadPrefs()
-  ;CreateThread(@Moebius_MainThread(),0)
   Moebius_MainThread(0)
 CompilerEndIf
