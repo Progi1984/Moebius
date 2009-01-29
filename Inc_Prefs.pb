@@ -16,24 +16,24 @@ ProcedureDLL Moebius_ReadPrefs()
   If gConf_Ini_Project <> "" And FileSize(gConf_Ini_Project) > 0
     If OpenPreferences(gConf_Ini_Project) <> 0
       PreferenceGroup(UCase(#System_OS))
-      gProject\LibName = ReadPreferenceString("LibName", "")
-      gProject\FileName = ReadPreferenceString("FileName", "")
-      gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
-      gConf_ProjectDir = gConf_SourceDir + gProject\LibName + #System_Separator
-      gProject\FileAsm  = gConf_ProjectDir + "ASM" + #System_Separator +"Moebius_" + gProject\LibName + ".asm"
-      gProject\FileDesc = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName+".desc"      
-      gProject\DirObj   = gConf_ProjectDir + "OBJ" + #System_Separator
-      gProject\FileLib  = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName + #System_ExtLib
-      gProject\FileCHM  = gProject\LibName + #System_ExtHelp
+        gProject\LibName = ReadPreferenceString("LibName", "")
+        gProject\FileName = ReadPreferenceString("FileName", "")
+        gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
+        gConf_ProjectDir = gConf_SourceDir + gProject\LibName + #System_Separator
+        gProject\FileAsm  = gConf_ProjectDir + "ASM" + #System_Separator +"Moebius_" + gProject\LibName + ".asm"
+        gProject\FileDesc = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName+".desc"      
+        gProject\DirObj   = gConf_ProjectDir + "OBJ" + #System_Separator
+        gProject\FileLib  = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName + #System_ExtLib
+        gProject\FileCHM  = gProject\LibName + #System_ExtHelp
       
       PreferenceGroup("PROJECT")
-      gProject\sFileOutput  = ReadPreferenceString("Output",gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))-1))
-      gProject\bDontBuildLib  = ReadPreferenceLong("DontBuildLib", #False)
-      gProject\bDontKeepSrcFiles  = ReadPreferenceLong("DontKeepSrcFiles", #False)
-      gProject\bUnicode = ReadPreferenceLong("Unicode", #False)
-      gProject\bThreadSafe = ReadPreferenceLong("ThreadSafe", #False)
-      gProject\bBatFile  = ReadPreferenceLong("BatFile", #False)
-      gProject\bLogFile  = ReadPreferenceLong("LogFile", #False)
+        gProject\sFileOutput  = ReadPreferenceString("Output",gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))-1))
+        gProject\bDontBuildLib  = ReadPreferenceLong("DontBuildLib", #False)
+        gProject\bDontKeepSrcFiles  = ReadPreferenceLong("DontKeepSrcFiles", #False)
+        gProject\bUnicode = ReadPreferenceLong("Unicode", #False)
+        gProject\bThreadSafe = ReadPreferenceLong("ThreadSafe", #False)
+        gProject\bBatFile  = ReadPreferenceLong("BatFile", #False)
+        gProject\bLogFile  = ReadPreferenceLong("LogFile", #False)
       ClosePreferences()
     EndIf
   EndIf

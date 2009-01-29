@@ -3,7 +3,7 @@ DeclareDLL PBParams_Open()
 
 ;@desc Opens the main window for Moebius
 ProcedureDLL Main_Open()
-  If OpenWindow(#Window_0, 353, 5, 600, 503, "Moebius",  #PB_Window_SystemMenu | #PB_Window_SizeGadget | #PB_Window_TitleBar | #PB_Window_WindowCentered )
+  If OpenWindow(#Window_0, 353, 5, 600, 503, "Moebius",  #PB_Window_SystemMenu | #PB_Window_TitleBar | #PB_Window_ScreenCentered)
     Frame3DGadget(#Frame3D_0, 10, 10, 580, 70, "Etape 1 : Purebasic")
       TextGadget(#Text_0, 80, 40, 40, 20, "Etat : ")
       ButtonGadget(#Button_0, 450, 30, 130, 40, "Configurer")
@@ -40,7 +40,7 @@ ProcedureDLL Main_Open()
 EndProcedure
 ;@desc Set Purebasic params
 ProcedureDLL PBParams_Open()
-  If OpenWindow(#Window_1, 488, 98, 520, 200, "Moebius : PureBasic",  #PB_Window_SystemMenu | #PB_Window_SizeGadget | #PB_Window_TitleBar | #PB_Window_ScreenCentered )
+  If OpenWindow(#Window_1, 488, 98, 520, 200, "Moebius : PureBasic",  #PB_Window_SystemMenu | #PB_Window_TitleBar | #PB_Window_ScreenCentered )
     TextGadget(#Text_6, 10, 10, 110, 20, "Dossier Purebasic :", #PB_Text_Center)
     StringGadget(#String_3, 130, 10, 260, 20, "")
     ButtonGadget(#Button_4, 400, 10, 80, 20, "Parcourir")

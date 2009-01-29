@@ -1,11 +1,11 @@
 #Moebius_App = #True
 
-IncludePath "../../"
-  XIncludeFile "Moebius_Main.pb"
-
 IncludePath "./"
   XIncludeFile "MGUI_Inc_Var.pb"
   XIncludeFile "MGUI_Inc_Func.pb"
+
+IncludePath "../../"
+  XIncludeFile "Moebius_Main.pb"
 
 ; Open the main window
 Main_Open()
@@ -44,12 +44,14 @@ Repeat
               PBParams_Open()
             ;}
             Case #Button_1 ;{ Source File
-              sRetString = OpenFileRequester("Source File", "", "Fichiers d'aide|*"+#System_ExtHelp+"|Tous les fichiers (*.*)|*.*",0)
+              sRetString = OpenFileRequester("Source File", "", "Fichiers Purebasic|*.pb|Tous les fichiers (*.*)|*.*",0)
               If sRetString
                 gProject\FileName = sRetString
                 SetGadgetText(#String_1, gProject\FileName)
                 gProject\LibName  = Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))-1)
                 SetGadgetText(#String_0, gProject\LibName)
+                gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
+                gConf_ProjectDir = gConf_SourceDir + gProject\LibName + #System_Separator
               EndIf
             ;}
             Case #Button_2 ;{ Help File
@@ -58,6 +60,9 @@ Repeat
                 gProject\FileCHM = sRetString
                 SetGadgetText(#String_2, gProject\FileCHM)
               EndIf
+            ;}
+            Case #Button_3 ;{ Compile
+              Moebius_MainThread(0)
             ;}
           EndSelect
         ;}
@@ -98,8 +103,15 @@ Repeat
                 SetGadgetText(#String_6, gConf_Path_OBJ2LIB)
               EndIf
             ;}
-            Case #Button_8 ;{ LibMaker
-              sRetString = OpenFileRequester("Library Maker", gConf_PureBasic_Path+"compilers"+#System_Separator, "LibMaker|pblibrarymaker"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
+            Case #Button_8 ;{ LibMaker 
+              CompilerSelect #PB_Compiler_OS
+                CompilerCase #PB_OS_Linux ;{
+                  sRetString = OpenFileRequester("Library Maker", gConf_PureBasic_Path+"compilers"+#System_Separator, "LibMaker|pblibrarymaker"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
+                ;}
+                CompilerCase #PB_OS_Windows ;{
+                  sRetString = OpenFileRequester("Library Maker", gConf_PureBasic_Path+"compilers"+#System_Separator, "LibMaker|LibraryMaker"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
+                ;}
+              CompilerEndSelect
               If sRetString
                 gConf_Path_PBLIBMAKER = sRetString
                 SetGadgetText(#String_7, gConf_Path_PBLIBMAKER)
@@ -107,7 +119,7 @@ Repeat
             ;}
             Case #Button_9 ;{ Validate Purebasic paths
               bPBParams_Valid = #False
-              SetGadgetText((#Text_1, "NOK")
+              SetGadgetText(#Text_1, "NOK")
               SetGadgetColor(#Text_1, #PB_Gadget_FrontColor, RGB(255, 0, 0))
               If gConf_PureBasic_Path <> ""
                 If FileSize(gConf_PureBasic_Path) = -2
@@ -154,13 +166,13 @@ Repeat
                 EndIf
               EndIf
               If gConf_Path_PBLIBMAKER <> ""
-                If LCase(GetFilePart(gConf_Path_PBLIBMAKER)) = "pblibrarymakker"+#System_ExtExec
+                If LCase(GetFilePart(gConf_Path_PBLIBMAKER)) = "pblibrarymakker" Or LCase(GetFilePart(gConf_Path_PBLIBMAKER)) = "librarymaker.exe"
                   SetGadgetColor(#Text_15, #PB_Gadget_BackColor, RGB(0,255,0))
                   bPBParams_Valid +1
                 EndIf
               EndIf
               If bPBParams_Valid = 5
-                SetGadgetText((#Text_1, "OK")
+                SetGadgetText(#Text_1, "OK")
                 SetGadgetColor(#Text_1, #PB_Gadget_FrontColor, RGB(0, 255, 0))
                 MessageRequester("Purebasic Paths", "Les chemins sont valides.")
               EndIf
