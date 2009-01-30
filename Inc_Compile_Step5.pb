@@ -7,11 +7,13 @@ ProcedureDLL Moebius_Compile_Step5()
     Log_Add(#DQuote+gConf_Path_PBLIBMAKER+#DQuote+" "+#DQuote+gProject\FileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, 2)
     Batch_Add(#DQuote+gConf_Path_PBLIBMAKER+#DQuote+" "+#DQuote+gProject\FileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning)
     If FileSize(DirUserLibrary+gProject\LibName)>0
-      If gProject\LibName <> gProject\sFileOutput
-        If RenameFile(DirUserLibrary+gProject\LibName, DirUserLibrary+gProject\sFileOutput)
-          Log_Add("Rename the userlib DONE : OLD >"+#DQuote+gProject\LibName+#DQuote+" ; NEW >"+#DQuote+gProject\sFileOutput+#DQuote, 2)
-        Else
-          Log_Add("Rename the userlib NOT DONE : OLD >"+#DQuote+gProject\LibName+#DQuote+" ; NEW >"+#DQuote+gProject\sFileOutput+#DQuote, 2)
+      If gProject\sFileOutput <> ""
+        If gProject\LibName <> gProject\sFileOutput
+          If RenameFile(DirUserLibrary+gProject\LibName, DirUserLibrary+gProject\sFileOutput)
+            Log_Add("Rename the userlib DONE : OLD >"+#DQuote+gProject\LibName+#DQuote+" ; NEW >"+#DQuote+gProject\sFileOutput+#DQuote, 2)
+          Else
+            Log_Add("Rename the userlib NOT DONE : OLD >"+#DQuote+gProject\LibName+#DQuote+" ; NEW >"+#DQuote+gProject\sFileOutput+#DQuote, 2)
+          EndIf
         EndIf
       EndIf
       If PB_Connect() = #True
