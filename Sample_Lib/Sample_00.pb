@@ -15,3 +15,7 @@ ProcedureDLL S00_FunctionTrisQuad(MyParam.l)
   Protected Val.l = S00_FunctionTestPriv(MyParam) * 2
   ProcedureReturn Val
 EndProcedure
+
+ProcedureDLL S00_FunctionTris_Five(*ParamTestc)
+	ProcedureReturn *ParamTestc
+EndProcedure

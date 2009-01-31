@@ -8,6 +8,7 @@ Structure S_Project
   FileCHM.s
   sFileOutput.s
   sSubsystem.s
+  sFileLog.s
   
   bUnicode.b
   bThreadSafe.b

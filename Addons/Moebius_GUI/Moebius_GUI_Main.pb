@@ -18,6 +18,9 @@ IncludePath "../../"
 
 ; Open the main window
 Main_Open()
+; Load Ini File with PB Paths
+PBParams_LoadIni()
+PBParams_Validate(#False)
 Repeat
   Evt_System = WaitWindowEvent()
   Evt_Window = EventWindow()
@@ -45,7 +48,7 @@ Repeat
               gProject\bDontBuildLib = GetGadgetState(#CheckBox_4)
             ;}
             Case #CheckBox_5 ;{ Don't Keep Src Files
-              gProject\bDontKeepSrcFiles = GetGadgetState(#CheckBox_5)
+              gProject\bDontKeepSrcFiles = 1-GetGadgetState(#CheckBox_5)
             ;}
           
             Case #Button_0 ;{ Browse "PureBasic Params"
@@ -143,7 +146,7 @@ Repeat
             Case #Button_7 ;{ Obj2Lib
               CompilerSelect #PB_Compiler_OS
                 CompilerCase #PB_OS_Linux ;{
-                  sRetString = OpenFileRequester("ar", "/usr/bin/", "ar|ar|Tous les fichiers (*.*)|*.*",0)
+                  sRetString = OpenFileRequester("ar", "/usr/bin/ar", "ar|ar|Tous les fichiers (*.*)|*.*",0)
                 ;}
                 CompilerCase #PB_OS_Windows ;{
                   sRetString = OpenFileRequester("Polib", gConf_PureBasic_Path+"compilers\", "Polib |polib.exe|Tous les fichiers (*.*)|*.*",0)
@@ -169,64 +172,7 @@ Repeat
               EndIf
             ;}
             Case #Button_9 ;{ Validate Purebasic paths
-              bPBParams_Valid = #False
-              SetGadgetText(#Text_1, "NOK")
-              SetGadgetColor(#Text_1, #PB_Gadget_FrontColor, RGB(255, 0, 0))
-              If gConf_PureBasic_Path <> ""
-                If FileSize(gConf_PureBasic_Path) = -2
-                  SetGadgetColor(#Text_7, #PB_Gadget_BackColor, RGB(0,255,0))
-                  bPBParams_Valid +1
-                  ; SubSystems if the path is valid
-                  If ExamineDirectory(0, gConf_PureBasic_Path+"subsystems"+#System_Separator, "*.*")  
-                    ClearGadgetItems(#Combo_0)
-                    While NextDirectoryEntry(0)
-                      If DirectoryEntryType(0) = #PB_DirectoryEntry_Directory 
-                        If DirectoryEntryName(0) <> "." And DirectoryEntryName(0) <> ".."
-                          AddGadgetItem(#Combo_0, -1, "subsystems"+#System_Separator+DirectoryEntryName(0) +#System_Separator)
-                        EndIf
-                      EndIf
-                    Wend
-                    FinishDirectory(0)
-                  EndIf
-                EndIf
-              EndIf
-              If gConf_Path_PBCOMPILER <> ""
-                If LCase(GetFilePart(gConf_Path_PBCOMPILER)) = "pbcompiler"+#System_ExtExec
-                  SetGadgetColor(#Text_9, #PB_Gadget_BackColor, RGB(0,255,0))
-                  bPBParams_Valid +1
-                EndIf
-              EndIf
-              If gConf_Path_FASM <> ""
-                If LCase(GetFilePart(gConf_Path_FASM)) = "fasm"+#System_ExtExec
-                  SetGadgetColor(#Text_11, #PB_Gadget_BackColor, RGB(0,255,0))
-                  bPBParams_Valid +1
-                EndIf
-              EndIf
-              If gConf_Path_OBJ2LIB <> ""
-                CompilerSelect #PB_Compiler_OS
-                  CompilerCase #PB_OS_Linux;{
-                    If LCase(GetFilePart(gConf_Path_OBJ2LIB)) = "ar"
-                  ;}
-                  CompilerCase #PB_OS_Windows;{
-                    If LCase(GetFilePart(gConf_Path_OBJ2LIB)) = "polib.exe"
-                  ;}
-                ;}
-                CompilerEndSelect
-                  SetGadgetColor(#Text_13, #PB_Gadget_BackColor, RGB(0,255,0))
-                  bPBParams_Valid +1
-                EndIf
-              EndIf
-              If gConf_Path_PBLIBMAKER <> ""
-                If LCase(GetFilePart(gConf_Path_PBLIBMAKER)) = "pblibrarymaker" Or LCase(GetFilePart(gConf_Path_PBLIBMAKER)) = "librarymaker.exe"
-                  SetGadgetColor(#Text_15, #PB_Gadget_BackColor, RGB(0,255,0))
-                  bPBParams_Valid +1
-                EndIf
-              EndIf
-              If bPBParams_Valid = 5
-                SetGadgetText(#Text_1, "OK")
-                SetGadgetColor(#Text_1, #PB_Gadget_FrontColor, RGB(0, 255, 0))
-                MessageRequester("Purebasic Paths", "Les chemins sont valides.")
-              EndIf
+              PBParams_Validate(#True)
             ;}
             Case #Button_10 ;{ Fermer
               CloseWindow(#Window_1)
@@ -235,6 +181,56 @@ Repeat
                 DisableGadget(#Button_11, #False)
               EndIf
               bWinPBParams_Opened = #False
+            ;}
+            Case #Button_12 ;{ Sauver
+              PBParams_SaveIni()
+            ;}
+            
+            Case #String_3 ;{ PureBasic path
+              sRetString = GetGadgetText(#String_3)
+              If sRetString And FileSize(sRetString) = -2
+                gConf_PureBasic_Path = sRetString
+                gConf_Path_PBCOMPILER = gConf_PureBasic_Path+"compilers"+#System_Separator+"pbcompiler"+#System_ExtExec
+                gConf_Path_FASM = gConf_PureBasic_Path+"compilers"+#System_Separator+"fasm"+#System_ExtExec
+                CompilerSelect #PB_Compiler_OS
+                  CompilerCase #PB_OS_Windows;{
+                    gConf_Path_OBJ2LIB = gConf_PureBasic_Path+"compilers"+#System_Separator+"polib"+#System_ExtExec
+                    gConf_Path_PBLIBMAKER = gConf_PureBasic_Path+"SDK"+#System_Separator+"LibraryMaker"+#System_ExtExec
+                  ;}
+                  CompilerCase #PB_OS_Linux;{
+                    gConf_Path_OBJ2LIB = "/usr/bin/ar"
+                    gConf_Path_PBLIBMAKER = gConf_PureBasic_Path+"compilers"+#System_Separator+"pblibrarymaker"+#System_ExtExec
+                  ;}
+                CompilerEndSelect
+                SetGadgetText(#String_4, gConf_Path_PBCOMPILER)
+                SetGadgetText(#String_5, gConf_Path_FASM)
+                SetGadgetText(#String_6, gConf_Path_OBJ2LIB)
+                SetGadgetText(#String_7, gConf_Path_PBLIBMAKER)
+              EndIf
+            ;}
+            Case #String_4 ;{ PbCompiler
+              sRetString = GetGadgetText(#String_4)
+              If sRetString
+                gConf_Path_PBCOMPILER = sRetString
+              EndIf
+            ;}
+            Case #String_5 ;{ Fasm
+              sRetString = GetGadgetText(#String_5)
+              If sRetString
+                gConf_Path_FASM = sRetString
+              EndIf
+            ;}
+            Case #String_6 ;{ OBJ2LIB
+              sRetString = GetGadgetText(#String_6)
+              If sRetString
+                gConf_Path_OBJ2LIB = sRetString
+              EndIf
+            ;}
+            Case #String_7 ;{ PBLibMaker
+              sRetString = GetGadgetText(#String_7)
+              If sRetString
+                gConf_Path_PBLIBMAKER = sRetString
+              EndIf
             ;}
           EndSelect
         ;}

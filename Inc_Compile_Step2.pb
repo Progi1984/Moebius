@@ -198,21 +198,31 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
                     LL_DLLFunctions()\ParamsClean + ", "+sIsParameterDefautValueStart+Trim(Right(sParamItem, Len(sParamItem) - Len(StringField(sParamItem, 1, " "))))+sIsParameterDefautValueEnd
                   EndIf
                 Else
-                  Select Right(sParamItem, 1)
-                    Case "b"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Byte"+sIsParameterDefautValueEnd
-                    Case "c"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Character"+sIsParameterDefautValueEnd
-                    Case "d"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Double"+sIsParameterDefautValueEnd
-                    Case "f"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Float"+sIsParameterDefautValueEnd
-                    Case "q"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Quad"+sIsParameterDefautValueEnd
-                    Case "s"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"String"+sIsParameterDefautValueEnd
-                    Case "w"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Word"+sIsParameterDefautValueEnd
-                    CompilerIf #PB_Compiler_Version < 430 ; 420 and inferior
-                      Default  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Long"+sIsParameterDefautValueEnd
-                    CompilerElse ; 430
-                      Case "l"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Long"+sIsParameterDefautValueEnd
-                      Default  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Long"+sIsParameterDefautValueEnd
-                    CompilerEndIf
-                  EndSelect
+                  ; Get the last character of the param
+                  If Left(Trim(sParamItem), 1) = "."
+                    sReturnValField = Mid(Trim(sParamItem), 2, 1)
+                  Else
+                    sReturnValField = ""
+                  EndIf
+                  If sReturnValField <> ""
+                    Select Right(sParamItem, 1)
+                      Case "b"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Byte"+sIsParameterDefautValueEnd
+                      Case "c"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Character"+sIsParameterDefautValueEnd
+                      Case "d"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Double"+sIsParameterDefautValueEnd
+                      Case "f"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Float"+sIsParameterDefautValueEnd
+                      Case "q"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Quad"+sIsParameterDefautValueEnd
+                      Case "s"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"String"+sIsParameterDefautValueEnd
+                      Case "w"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Word"+sIsParameterDefautValueEnd
+                      CompilerIf #PB_Compiler_Version < 430 ; 420 and inferior
+                        Default  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Long"+sIsParameterDefautValueEnd
+                      CompilerElse ; 430
+                        Case "l"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Long"+sIsParameterDefautValueEnd
+                        Default  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Long"+sIsParameterDefautValueEnd
+                      CompilerEndIf
+                    EndSelect
+                  Else
+                    LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Long"+sIsParameterDefautValueEnd
+                  EndIf
                   If LL_DLLFunctions()\ParamsClean =""
                     LL_DLLFunctions()\ParamsClean = sIsParameterDefautValueStart+sParamItem+sIsParameterDefautValueEnd
                   Else
@@ -268,8 +278,7 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
       EndIf
     Else
       Select Trim(StringField(TrCodeField, 1, " "))
-        Case "extrn"
-        ;{ Extracts extrn functions
+        Case "extrn" ;{ Extracts extrn functions
           Protected Function.s = StringField(TrCodeField, 2, " ")
           Protected Pos.l = FindString(Function, "_", 2)
           Protected LibName.s
@@ -304,8 +313,7 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
             EndIf
           EndIf
         ;}
-        Case "public"
-        ;{
+        Case "public" ;{
           If bNotCapture = 0
             Select StringField(TrCodeField, 2, " ")
               Case "main"
@@ -314,8 +322,7 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
             EndSelect
           EndIf
         ;}
-        Case "macro"     
-        ;{
+        Case "macro" ;{
           bNotCapture = 0
           sNameOfFunction = StringField(CodeContent, Inc, #System_EOL)
           sNameOfFunction = ReplaceString(sNameOfFunction, Chr(13), "")
@@ -336,12 +343,10 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
             EndIf
           Next
         ;}
-        Case "main:"
-        ;{
+        Case "main:" ;{
           bNotCapture = 1
         ;}
-        Case "JMP"
-        ;{
+        Case "JMP" ;{
           If bNotCapture = 1
             bNotCapture = 0
           Else
@@ -350,8 +355,7 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
             EndIf
           EndIf
         ;}
-        Case "section"
-        ;{
+        Case "section" ;{
           If StringField(TrCodeField, 2, " ") = "'.text'"
           ElseIf StringField(TrCodeField, 2, " ") = "'.data'"
             Moebius_Compile_Step2_sCodeShared + TrCodeField + #System_EOL
@@ -365,34 +369,28 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
             bInBSSSection = #True  
           EndIf
         ;}
-        Case "}"
-        ;{
+        Case "}" ;{
           If bInFunction = #True
             bInFunction = #False
           EndIf
         ;}
-        Case "_SYS_StaticStringStart:"
-        ;{
+        Case "_SYS_StaticStringStart:" ;{
           bInSharedCode = #True
           Moebius_Compile_Step2_sCodeShared + TrCodeField + #System_EOL
         ;}
-        Case "_SYS_StaticStringEnd:"
-        ;{
+        Case "_SYS_StaticStringEnd:" ;{
           bInSharedCode = #False
           Moebius_Compile_Step2_sCodeShared + TrCodeField + #System_EOL
         ;}
-        Case "I_BSSEnd:"
-        ;{
+        Case "I_BSSEnd:" ;{
           bInBSSSection = #False
         ;}
-        Case "pb_public"
-        ;{
+        Case "pb_public" ;{
           If bInSharedCode = #True
             ; Don't write PB_NullString in sSharedCode
           EndIf
         ;}
-        Case "RET"
-        ;{
+        Case "RET" ;{
           If bNotCapture = 0 And bInFunction = #True
             LL_DLLFunctions()\Code + TrCodeField
             If LL_DLLFunctions()\IsDLLFunction = #True 
@@ -405,8 +403,7 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
             LL_DLLFunctions()\Code + #System_EOL
           EndIf
         ;}
-        Case ";"
-        ;{
+        Case ";" ;{
           If StringField(TrCodeField, 2, " ") = ":System"
             bInSystemLib = #True
             bInImportLib = #False
@@ -441,8 +438,7 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
             EndIf
           EndIf
         ;}
-        Default
-        ;{
+        Default ;{
           If bNotCapture = 0
             ; In the function, getting the code
             If bInFunction = #True 
@@ -525,6 +521,39 @@ ProcedureDLL.s Moebius_Compile_Step2_WriteASMForArrays(lFile.l)
   EndIf 
   ProcedureReturn sReturnDataSection
 EndProcedure
+ProcedureDLL Moebius_Compile_Step2_AddExtrn(Part.s)
+  Protected TrCodeField.s
+  Protected bFound.b
+  If CreateRegularExpression(0, "e[a-z]x")
+    If CreateRegularExpression(1, "e[a-z]p")
+      If CreateRegularExpression(2, "[[:digit:]]")
+        If MatchRegularExpression(0, Part) = #False
+          If MatchRegularExpression(1, Part) = #False
+            If MatchRegularExpression(2, Part) = #False
+              If FindString(TrCodeField, "+", 1) > 0
+                TrCodeField = StringField(Part, 1, "+")
+              EndIf
+              bFound = #False
+              ForEach LL_ASM_extrn()
+                If LL_ASM_extrn() = TrCodeField
+                  bFound = #True
+                  Break
+                EndIf
+              Next
+              If bFound = #False
+                If AddElement(LL_ASM_extrn())
+                  LL_ASM_extrn() = TrCodeField
+                EndIf
+                ProcedureReturn #True
+              EndIf
+            EndIf
+          EndIf
+        EndIf
+      EndIf
+    EndIf
+  EndIf
+  ProcedureReturn #False
+EndProcedure
 ProcedureDLL Moebius_Compile_Step2()
   ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
   Protected CodeContent.s, CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned.s, sDataSectionForArray.s
@@ -598,47 +627,14 @@ ProcedureDLL Moebius_Compile_Step2()
           CodeField = ReplaceString(CodeField, Chr(10), "")
           Select LCase(StringField(CodeField, 1, " "))
             Case "call";{
-              bFound = #False
-              ForEach LL_ASM_extrn()
-                If LL_ASM_extrn() = StringField(CodeField, CountString(CodeField, " ")+1, " ")
-                  bFound = #True
-                  Break
-                EndIf
-              Next
-              If bFound = #False
-                If AddElement(LL_ASM_extrn())
-                  LL_ASM_extrn() = StringField(CodeField, CountString(CodeField, " ")+1, " ")
-                EndIf
-              EndIf
+              Moebius_Compile_Step2_AddExtrn(StringField(CodeField, CountString(CodeField, " ")+1, " "))
             ;}
             Default;{
               ; If the cleaned line contained a call which didn't contain any registry
               If FindString(CodeField, "[", 0) > 0 And FindString(CodeField, "]", 0) > 0
-                TrCodeField = Mid(CodeField, FindString(CodeField, "[", 0)+1, FindString(CodeField, "]", 0) - FindString(CodeField, "[", 0) -1)
+                TrCodeField = Trim(Mid(CodeField, FindString(CodeField, "[", 0)+1, FindString(CodeField, "]", 0) - FindString(CodeField, "[", 0) -1))
                 If TrCodeField <> ""
-                  If CreateRegularExpression(0, "e[a-z]x")
-                    If CreateRegularExpression(1, "e[a-z]p")
-                      If MatchRegularExpression(0, TrCodeField) = #False
-                        If MatchRegularExpression(1, TrCodeField) = #False
-                          If FindString(TrCodeField, "+", 1) > 0
-                            TrCodeField = StringField(TrCodeField, 1, "+")
-                          EndIf
-                          bFound = #False
-                          ForEach LL_ASM_extrn()
-                            If LL_ASM_extrn() = TrCodeField
-                              bFound = #True
-                              Break
-                            EndIf
-                          Next
-                          If bFound = #False
-                            If AddElement(LL_ASM_extrn())
-                              LL_ASM_extrn() = TrCodeField
-                            EndIf
-                          EndIf
-                        EndIf
-                      EndIf
-                    EndIf
-                  EndIf
+                  Moebius_Compile_Step2_AddExtrn(TrCodeField)
                 EndIf
               Else
                 Protected lPos.l
@@ -654,18 +650,17 @@ ProcedureDLL Moebius_Compile_Step2()
                     If lPos > 0
                       TrCodeField = Left(TrCodeField, lPos-1)
                     EndIf 
-                    bFound = #False
-                    ForEach LL_ASM_extrn()
-                      If LL_ASM_extrn() = TrCodeField
-                        bFound = #True
-                        Break
-                      EndIf
-                    Next
-                    If bFound = #False
-                      If AddElement(LL_ASM_extrn())
-                        LL_ASM_extrn() = TrCodeField
-                      EndIf
-                    EndIf
+                    Moebius_Compile_Step2_AddExtrn(TrCodeField)
+                  EndIf
+                  ; Looking for "what ?"
+                  lPos = FindString(TrCodeField, "l__", 1)
+                  If lPos > 0
+                    TrCodeField = Right(TrCodeField, Len(TrCodeField) - lPos +1)
+                    lPos = FindString(TrCodeField, " ", 1)
+                    If lPos > 0
+                      TrCodeField = Left(TrCodeField, lPos-1)
+                    EndIf 
+                    Moebius_Compile_Step2_AddExtrn(TrCodeField)
                   EndIf
                 EndIf
               EndIf

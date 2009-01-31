@@ -25,6 +25,7 @@ ProcedureDLL Moebius_ReadPrefs()
         gProject\DirObj   = gConf_ProjectDir + "OBJ" + #System_Separator
         gProject\FileLib  = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName + #System_ExtLib
         gProject\FileCHM  = gProject\LibName + #System_ExtHelp
+        gProject\sFileLog  = gConf_ProjectDir+"LOGS"+#System_Separator+"Log_"+FormatDate("%yyyy_%mm_%dd_%hh_%ii_%ss", Date())+".log"
       
       PreferenceGroup("PROJECT")
         gProject\sFileOutput  = ReadPreferenceString("Output",gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))-1))
@@ -66,6 +67,7 @@ ProcedureDLL Moebius_ReadParameters()
   gProject\DirObj   = gConf_ProjectDir + "OBJ" + #System_Separator
   gProject\FileLib  = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName + #System_ExtLib
   gProject\FileCHM  = gProject\LibName + #System_ExtHelp
+  gProject\sFileLog  = gConf_ProjectDir+"LOGS"+#System_Separator+"Log_"+FormatDate("%yyyy_%mm_%dd_%hh_%ii_%ss", Date())+".log"
   gProject\bDontBuildLib = #False
   gProject\bDontKeepSrcFiles  = #True
   gProject\bLogFile  = #False
@@ -136,6 +138,10 @@ ProcedureDLL Moebius_ReadParameters()
         ;}
         Case #Switch_Param_Subsytem_s, #Switch_Param_Subsytem_sl;{
           gProject\sSubsystem = ProgramParameter(IncA + 1)
+          IncA = IncA + 1
+        ;}
+        Case #Switch_Param_LogFileName_s, #Switch_Param_LogFileName_sl;{
+          gProject\sFileLog = ProgramParameter(IncA + 1)
           IncA = IncA + 1
         ;}
         Default:

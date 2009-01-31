@@ -31,7 +31,7 @@ EndProcedure
 
 ProcedureDLL Log_Init()
   If gProject\bLogFile = #True
-    hFileLog = OpenFile(#PB_Any, gConf_ProjectDir+"LOGS"+#System_Separator+"Log_"+FormatDate("%yyyy_%mm_%dd_%hh_%ii_%ss", Date())+".log")
+    hFileLog = OpenFile(#PB_Any, gProject\sFileLog)
     WriteStringN(hFileLog, "PARAM > gProject\FileName = "+gProject\FileName)
     WriteStringN(hFileLog, "PARAM > gProject\LibName = "+gProject\LibName)
     WriteStringN(hFileLog, "PARAM > gProject\FileAsm = "+gProject\FileAsm)
@@ -41,6 +41,7 @@ ProcedureDLL Log_Init()
     WriteStringN(hFileLog, "PARAM > gProject\FileCHM = "+gProject\FileCHM)
     WriteStringN(hFileLog, "PARAM > gProject\sFileOutput = "+gProject\sFileOutput)
     WriteStringN(hFileLog, "PARAM > gProject\sSubsystem = "+gProject\sSubsystem)
+    WriteStringN(hFileLog, "PARAM > gProject\sFileLog = "+gProject\sFileLog)
     WriteStringN(hFileLog, "PARAM > gProject\bDontBuildLib = "+Str(gProject\bDontBuildLib))
     WriteStringN(hFileLog, "PARAM > gProject\bDontKeepSrcFiles = "+Str(gProject\bDontKeepSrcFiles))
     WriteStringN(hFileLog, "PARAM > gProject\bLogFile = "+Str(gProject\bLogFile))
