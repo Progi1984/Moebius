@@ -524,27 +524,32 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step2_AddExtrn(Part.s)
   Protected TrCodeField.s
   Protected bFound.b
-  If CreateRegularExpression(0, "e[a-z]x")
-    If CreateRegularExpression(1, "e[a-z]p")
-      If CreateRegularExpression(2, "[[:digit:]]")
-        If MatchRegularExpression(0, Part) = #False
-          If MatchRegularExpression(1, Part) = #False
-            If MatchRegularExpression(2, Part) = #False
-              If FindString(TrCodeField, "+", 1) > 0
-                TrCodeField = StringField(Part, 1, "+")
-              EndIf
-              bFound = #False
-              ForEach LL_ASM_extrn()
-                If LL_ASM_extrn() = TrCodeField
-                  bFound = #True
-                  Break
+  If CreateRegularExpression(0, "^e[a-z]{1}x")
+    If CreateRegularExpression(1, "^e[a-z]{1}p")
+      If MatchRegularExpression(0, Part) = #False
+        If MatchRegularExpression(1, Part) = #False
+          
+          If IsNumeric(Part) = #False
+            If FindString(Part, "+", 1) > 0
+              TrCodeField = StringField(Part, 1, "+")
+            Else
+              TrCodeField = Part
+            EndIf
+            If TrCodeField <> ""
+              If IsNumeric(TrCodeField) = #False
+                bFound = #False
+                ForEach LL_ASM_extrn()
+                  If LL_ASM_extrn() = TrCodeField
+                    bFound = #True
+                    Break
+                  EndIf
+                Next
+                If bFound = #False
+                  If AddElement(LL_ASM_extrn())
+                    LL_ASM_extrn() = TrCodeField
+                  EndIf
+                  ProcedureReturn #True
                 EndIf
-              Next
-              If bFound = #False
-                If AddElement(LL_ASM_extrn())
-                  LL_ASM_extrn() = TrCodeField
-                EndIf
-                ProcedureReturn #True
               EndIf
             EndIf
           EndIf
@@ -627,7 +632,15 @@ ProcedureDLL Moebius_Compile_Step2()
           CodeField = ReplaceString(CodeField, Chr(10), "")
           Select LCase(StringField(CodeField, 1, " "))
             Case "call";{
-              Moebius_Compile_Step2_AddExtrn(StringField(CodeField, CountString(CodeField, " ")+1, " "))
+              TrCodeField = StringField(CodeField, CountString(CodeField, " ")+1, " ")
+              If FindString(TrCodeField, "[", 0) > 0 And FindString(TrCodeField, "]", 0) > 0
+                sTmpString = Trim(Mid(TrCodeField, FindString(TrCodeField, "[", 0)+1, FindString(TrCodeField, "]", 0) - FindString(TrCodeField, "[", 0) -1))
+                If sTmpString <> ""
+                  Moebius_Compile_Step2_AddExtrn(sTmpString)
+                EndIf
+              Else
+                Moebius_Compile_Step2_AddExtrn(TrCodeField)
+              EndIf
             ;}
             Default;{
               ; If the cleaned line contained a call which didn't contain any registry
@@ -653,7 +666,7 @@ ProcedureDLL Moebius_Compile_Step2()
                     Moebius_Compile_Step2_AddExtrn(TrCodeField)
                   EndIf
                   ; Looking for "what ?"
-                  lPos = FindString(TrCodeField, "l__", 1)
+                  lPos = FindString(TrCodeField, "l_", 1)
                   If lPos > 0
                     TrCodeField = Right(TrCodeField, Len(TrCodeField) - lPos +1)
                     lPos = FindString(TrCodeField, " ", 1)

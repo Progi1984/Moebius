@@ -100,3 +100,17 @@ ProcedureDLL Batch_End()
     EndIf
   EndIf
 EndProcedure
+;@desc Permits to know if a string is a numeric
+;@returnvalue : #true if it's a numeric, else #false
+Procedure.l IsNumeric(String.s)
+  Protected Numeric.l, *String.Character
+  If String
+    Numeric = #True
+    *String = @String
+    While Numeric And *String\c
+      Numeric = IsDigit(*String\c)
+      *String + SizeOf(Character)
+    Wend
+  EndIf
+  ProcedureReturn Numeric
+EndProcedure

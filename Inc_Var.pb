@@ -77,5 +77,8 @@ Macro M_SetConstantPrefs(Name, ValL, ValS, ValSl)
   #Name#_s = ValS
   #Name#_sl = ValSl
 EndMacro
+Macro IsDigit(c)
+  ((c >= '0') And (c <= '9'))
+EndMacro 
 
 Global Dim D_Parameters.s(9)
