@@ -19,3 +19,6 @@ EndProcedure
 ProcedureDLL S00_FunctionTris_Five(*ParamTestc)
 	ProcedureReturn *ParamTestc
 EndProcedure
+ProcedureDLL.s S00_FunctionTris_Six(ParamTest1$, ParamTest2.s, ParamTest3.l)
+	ProcedureReturn ParamTest1$
+EndProcedure

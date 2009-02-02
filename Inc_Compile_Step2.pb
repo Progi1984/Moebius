@@ -1,5 +1,5 @@
 ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
-  Protected Inc.l, IncA.l
+  Protected Inc.l, IncA.l, lPos.l
   Protected CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned2.s, sFuncName.s, sFuncNameCleared.s, sReturnValField.s, sParamItem.s
   Protected sIsParameterDefautValueStart.s, sIsParameterDefautValueEnd.s, sCallingConvention.s
   Protected bFunctionEverAdded.b, bFunctionEverAdded_NbParams.b, bHasNumberInLastPlace.b
@@ -139,7 +139,7 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
             LL_DLLFunctions()\FuncName = Trim(Right(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName) - FindString(LL_DLLFunctions()\FuncName, " ", 1)))
             Log_Add("LL_DLLFunctions()\FuncName Light> "+LL_DLLFunctions()\FuncName, 4)
             
-            ; Type of the Return Value
+            ;{ Type of the Return Value
             If sReturnValField <> ""
               Select sReturnValField
                 Case "b"  : LL_DLLFunctions()\FuncRetType = "Byte"
@@ -164,14 +164,14 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
               CompilerEndIf
             EndIf
             Log_Add("LL_DLLFunctions()\FuncRetType > "+LL_DLLFunctions()\FuncRetType, 4)
-            
-            ; Number of Params
+            ;}
+            ;{ Number of Params
             If Trim(LL_DLLFunctions()\Params) <> ""
               LL_DLLFunctions()\ParamsNumber = CountString(LL_DLLFunctions()\Params, ",")+1
             Else
               LL_DLLFunctions()\ParamsNumber = 0
             EndIf
-            
+            ;}
             ; Type of Parameters
             If Trim(LL_DLLFunctions()\Params) <> ""
               For IncA = 1 To LL_DLLFunctions()\ParamsNumber
@@ -198,14 +198,22 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
                     LL_DLLFunctions()\ParamsClean + ", "+sIsParameterDefautValueStart+Trim(Right(sParamItem, Len(sParamItem) - Len(StringField(sParamItem, 1, " "))))+sIsParameterDefautValueEnd
                   EndIf
                 Else
+                  Debug sParamItem
                   ; Get the last character of the param
-                  If Left(Trim(sParamItem), 1) = "."
-                    sReturnValField = Mid(Trim(sParamItem), 2, 1)
+                  lPos = FindString(sParamItem, ".", 1)
+                  If lPos > 0
+                    sReturnValField = Mid(sParamItem, lPos+1, Len(sParamItem) - lPos+1)
                   Else
-                    sReturnValField = ""
+                    If Right(sParamItem, 1) = "$"
+                      sReturnValField = "s"
+                    Else  
+                      sReturnValField = ""
+                    EndIf
                   EndIf
+                  Debug sReturnValField
+                  
                   If sReturnValField <> ""
-                    Select Right(sParamItem, 1)
+                    Select sReturnValField
                       Case "b"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Byte"+sIsParameterDefautValueEnd
                       Case "c"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Character"+sIsParameterDefautValueEnd
                       Case "d"  : LL_DLLFunctions()\ParamsRetType + ", "+sIsParameterDefautValueStart+"Double"+sIsParameterDefautValueEnd
@@ -526,29 +534,32 @@ ProcedureDLL Moebius_Compile_Step2_AddExtrn(Part.s)
   Protected bFound.b
   If CreateRegularExpression(0, "^e[a-z]{1}x")
     If CreateRegularExpression(1, "^e[a-z]{1}p")
-      If MatchRegularExpression(0, Part) = #False
-        If MatchRegularExpression(1, Part) = #False
-          
-          If IsNumeric(Part) = #False
-            If FindString(Part, "+", 1) > 0
-              TrCodeField = StringField(Part, 1, "+")
-            Else
-              TrCodeField = Part
-            EndIf
-            If TrCodeField <> ""
-              If IsNumeric(TrCodeField) = #False
-                bFound = #False
-                ForEach LL_ASM_extrn()
-                  If LL_ASM_extrn() = TrCodeField
-                    bFound = #True
-                    Break
+      If CreateRegularExpression(2, "^e[a-z]{1}i")
+        If MatchRegularExpression(0, Part) = #False
+          If MatchRegularExpression(1, Part) = #False
+            If MatchRegularExpression(2, Part) = #False
+              If IsNumeric(Part) = #False
+                If FindString(Part, "+", 1) > 0
+                  TrCodeField = StringField(Part, 1, "+")
+                Else
+                  TrCodeField = Part
+                EndIf
+                If TrCodeField <> ""
+                  If IsNumeric(TrCodeField) = #False
+                    bFound = #False
+                    ForEach LL_ASM_extrn()
+                      If LL_ASM_extrn() = TrCodeField
+                        bFound = #True
+                        Break
+                      EndIf
+                    Next
+                    If bFound = #False
+                      If AddElement(LL_ASM_extrn())
+                        LL_ASM_extrn() = TrCodeField
+                      EndIf
+                      ProcedureReturn #True
+                    EndIf
                   EndIf
-                Next
-                If bFound = #False
-                  If AddElement(LL_ASM_extrn())
-                    LL_ASM_extrn() = TrCodeField
-                  EndIf
-                  ProcedureReturn #True
                 EndIf
               EndIf
             EndIf
@@ -631,7 +642,7 @@ ProcedureDLL Moebius_Compile_Step2()
           CodeField = ReplaceString(CodeField, Chr(13), "")
           CodeField = ReplaceString(CodeField, Chr(10), "")
           Select LCase(StringField(CodeField, 1, " "))
-            Case "call";{
+            Case "call", "push";{
               TrCodeField = StringField(CodeField, CountString(CodeField, " ")+1, " ")
               If FindString(TrCodeField, "[", 0) > 0 And FindString(TrCodeField, "]", 0) > 0
                 sTmpString = Trim(Mid(TrCodeField, FindString(TrCodeField, "[", 0)+1, FindString(TrCodeField, "]", 0) - FindString(TrCodeField, "[", 0) -1))

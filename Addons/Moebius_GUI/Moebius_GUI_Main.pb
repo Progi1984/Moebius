@@ -36,7 +36,7 @@ Repeat
               gProject\bUnicode = GetGadgetState(#CheckBox_0)
             ;}
             Case #CheckBox_1 ;{ Threadsafe
-              gProject\bUnicode = GetGadgetState(#CheckBox_1)
+              gProject\bThreadSafe = GetGadgetState(#CheckBox_1)
             ;}
             Case #CheckBox_2 ;{ Batch
               gProject\bBatFile = GetGadgetState(#CheckBox_2)
@@ -60,8 +60,10 @@ Repeat
               If sRetString
                 gProject\FileName = sRetString
                 SetGadgetText(#String_1, gProject\FileName)
-                gProject\LibName  = Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))-1)
-                SetGadgetText(#String_0, gProject\LibName)
+                If GetGadgetText(#String_0) <> ""
+                  gProject\LibName  = Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))-1)
+                  SetGadgetText(#String_0, gProject\LibName)
+                EndIf 
                 gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
                 gConf_ProjectDir = gConf_SourceDir + gProject\LibName + #System_Separator
                 gProject\FileAsm  = gConf_ProjectDir + "ASM" + #System_Separator +"Moebius_" + gProject\LibName + ".asm"
@@ -116,6 +118,13 @@ Repeat
                 EndIf
               Else
                 MessageRequester("Moebius", "But How do you come here ?")
+              EndIf
+            ;}
+            
+            Case #String_0 ;{ LibName
+              sRetString = GetGadgetText(#String_0)
+              If sRetString 
+                gProject\LibName  = Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))-1)
               EndIf
             ;}
           EndSelect

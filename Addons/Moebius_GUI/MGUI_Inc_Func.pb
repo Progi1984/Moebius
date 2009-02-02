@@ -18,6 +18,7 @@ ProcedureDLL Main_Open()
       CheckBoxGadget(#CheckBox_3, 330, 140, 250, 20, "Générer un fichier Log")
       CheckBoxGadget(#CheckBox_4, 30, 170, 290, 20, "Ne pas compiler la librairie, seulement les fichiers sources")
       CheckBoxGadget(#CheckBox_5, 330, 170, 250, 20, "Effacer les fichiers sources aprés compilation")
+        gProject\bDontKeepSrcFiles = #True
       
       TextGadget(#Text_2, 30, 200, 120, 20, "Nom de la librairie")
       StringGadget(#String_0, 160, 200, 330, 20, "")
@@ -112,7 +113,7 @@ ProcedureDLL PBParams_Validate(InWindow.b)
     EndIf
   EndIf
   If gConf_Path_PBCOMPILER <> ""
-    If LCase(GetFilePart(gConf_Path_PBCOMPILER)) = "pbcompiler"+#System_ExtExec
+    If LCase(GetFilePart(gConf_Path_PBCOMPILER)) = "pbcompiler"+#System_ExtExec And FileSize(gConf_Path_PBCOMPILER) > 0
       If InWindow = #True
         SetGadgetColor(#Text_9, #PB_Gadget_BackColor, RGB(0,255,0))
       EndIf
@@ -120,14 +121,14 @@ ProcedureDLL PBParams_Validate(InWindow.b)
     EndIf
   EndIf
   If gConf_Path_FASM <> ""
-    If LCase(GetFilePart(gConf_Path_FASM)) = "fasm"+#System_ExtExec
+    If LCase(GetFilePart(gConf_Path_FASM)) = "fasm"+#System_ExtExec And FileSize(gConf_Path_FASM) > 0
       If InWindow = #True
         SetGadgetColor(#Text_11, #PB_Gadget_BackColor, RGB(0,255,0))
       EndIf
       bPBParams_Valid +1
     EndIf
   EndIf
-  If gConf_Path_OBJ2LIB <> ""
+  If gConf_Path_OBJ2LIB <> "" And FileSize(gConf_Path_OBJ2LIB) > 0
     CompilerSelect #PB_Compiler_OS
       CompilerCase #PB_OS_Linux;{
         If LCase(GetFilePart(gConf_Path_OBJ2LIB)) = "ar"
@@ -143,7 +144,7 @@ ProcedureDLL PBParams_Validate(InWindow.b)
       bPBParams_Valid +1
     EndIf
   EndIf
-  If gConf_Path_PBLIBMAKER <> ""
+  If gConf_Path_PBLIBMAKER <> "" And FileSize(gConf_Path_PBLIBMAKER) > 0
     If LCase(GetFilePart(gConf_Path_PBLIBMAKER)) = "pblibrarymaker" Or LCase(GetFilePart(gConf_Path_PBLIBMAKER)) = "librarymaker.exe"
       If InWindow = #True
         SetGadgetColor(#Text_15, #PB_Gadget_BackColor, RGB(0,255,0))

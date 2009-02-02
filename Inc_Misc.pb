@@ -105,6 +105,10 @@ EndProcedure
 Procedure.l IsNumeric(String.s)
   Protected Numeric.l, *String.Character
   If String
+    String = Trim(String)
+    If Left(String, 1) = "-"
+      String =  Right(String, Len(String) -1)
+    EndIf
     Numeric = #True
     *String = @String
     While Numeric And *String\c
