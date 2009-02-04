@@ -549,13 +549,18 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
     sCodeField = ReplaceString(sCodeField, Chr(10), "")
     sCodeField = Trim(sCodeField)
     If StringField(sCodeField, 1, " ") = "section"
-      ; we are at the start of the code
+      ; we verify if we are at the start of code
       If bInSharedCode = - 1
-        sTmp = StringField(CodeContent, lInc+3, #System_EOL)
+        CompilerSelect #PB_Compiler_OS
+          CompilerCase #PB_OS_Windows : sTmp = StringField(CodeContent, lInc+4, #System_EOL)
+          CompilerCase #PB_OS_Linux   : sTmp = StringField(CodeContent, lInc+3, #System_EOL)
+        CompilerEndSelect
         sTmp = ReplaceString(sTmp, Chr(13), "")
         sTmp = ReplaceString(sTmp, Chr(10), "")
         sTmp = Trim(sTmp)
-        If sTmp = "public main"
+        ; "public main" for Linux
+        ; "PureBasicStart:" for Windows
+        If sTmp = "public main" Or sTmp = "PureBasicStart:"
           bInSharedCode = #False
         EndIf
       ElseIf bInSharedCode = #False ; we start the shared code
@@ -580,7 +585,7 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
       Default
         ; we are not adding these lines
         If Left(StringField(sCodeField, 1, " "), 2) = "PB"
-        
+        ElseIf StringField(sCodeField, 1, ":") = "_PB_ExecutableType"
         Else
           sCodeShared + sCodeField + #System_EOL
         EndIf
@@ -601,6 +606,10 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
               Moebius_Compile_Step2_AddExtrn(StringField(sCodeField, 1, ":"))
             EndIf
           EndIf
+        EndIf
+      Else
+        If Left(StringField(sCodeField, 1, " "), 2) = "v_" And FindString(sCodeField, "rd",0) > 0
+          Moebius_Compile_Step2_AddExtrn(StringField(sCodeField, 1, " "))
         EndIf
       EndIf
     Next
@@ -643,7 +652,7 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step2()
   ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
   Protected CodeContent.s, CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned.s, sDataSectionForArray.s
-  Protected IncA.l, IncB.l
+  Protected IncA.l, IncB.l, lPos.l, lPosLast.l, lFile.l
   Protected bFound.b, bLastIsLabel.b, bIsDLLFunction.b
   If ReadFile(0, gConf_ProjectDir+"purebasic.asm")
     CodeContent = Space(Lof(0)+1)
@@ -656,19 +665,50 @@ ProcedureDLL Moebius_Compile_Step2()
   Moebius_Compile_Step2_ModifyASM(CodeContent)
   Log_Add("Create ASM Files", 2)
   ;{ Create ASM Files
-    Protected lFile.l
     ; private functions
     For IncA = 0 To ListSize(LL_DLLFunctions())-1
+      Debug "---------------------------------------------------"
       SelectElement(LL_DLLFunctions(), IncA)
       CodeField     = LL_DLLFunctions()\FuncName         ; Function Name
       TrCodeField   = LL_DLLFunctions()\Win_ASMNameFunc  ; ASM Function Name
       bIsDLLFunction= LL_DLLFunctions()\IsDLLFunction
+      
+;       Debug "FIND > "+CodeField
+;       Debug "FIND > "+TrCodeField
+;       Debug "---------"
       ForEach LL_DLLFunctions()
         If LL_DLLFunctions()\FuncName <> CodeField 
+;           lPos          = 1
+;           sTmpString    = LL_DLLFunctions()\Code
+;           LL_DLLFunctions()\Code = ""
+;           For IncB = 0 To CountString(sTmpString, TrCodeField)
+;             lPosLast  = lPos
+;             lPos      = FindString(sTmpString, TrCodeField, lPos+1)
+;             If lPos <> 0
+;               LL_DLLFunctions()\Code  + Mid(sTmpString, lPosLast, lPos - lPosLast) + TrCodeField
+;               lPos      + Len(TrCodeField)
+;             Else
+;               LL_DLLFunctions()\Code  + Right(sTmpString, Len(sTmpString) - lPosLast + 1)
+;             EndIf
+;           Next
+;           lPos = FindString(LL_DLLFunctions()\Code, TrCodeField,1)
+;           ;Debug Mid(LL_DLLFunctions()\Code, lPos, 20)
+;           If IsNumeric(Mid(LL_DLLFunctions()\Code, lPos+Len(TrCodeField)+1,1)) = #False
+;             If bIsDLLFunction = #False
+;               LL_DLLFunctions()\Code = ReplaceString(LL_DLLFunctions()\Code, TrCodeField, ReplaceString(gProject\LibName, " ", "_")+"_"+CodeField)
+;             Else
+;               LL_DLLFunctions()\Code = ReplaceString(LL_DLLFunctions()\Code, TrCodeField, "PB_"+CodeField)
+;             EndIf
+;           EndIf
           If bIsDLLFunction = #False
-            LL_DLLFunctions()\Code = ReplaceString(LL_DLLFunctions()\Code, TrCodeField, ReplaceString(gProject\LibName, " ", "_")+"_"+CodeField)
+            sTmpString = ReplaceString(gProject\LibName, " ", "_")+"_"+CodeField+#System_EOL
           Else
-            LL_DLLFunctions()\Code = ReplaceString(LL_DLLFunctions()\Code, TrCodeField, "PB_"+CodeField)
+            sTmpString ="PB_"+CodeField+#System_EOL
+          EndIf
+          If CreateRegularExpression(0, TrCodeField+"[^0-9]", #PB_RegularExpression_AnyNewLine)
+            LL_DLLFunctions()\Code  = ReplaceRegularExpression(0, LL_DLLFunctions()\Code, sTmpString)
+          Else
+            Debug RegularExpressionError()
           EndIf
         EndIf
       Next  
@@ -725,36 +765,38 @@ ProcedureDLL Moebius_Compile_Step2()
             ;}
             Default;{
               ; If the cleaned line contained a call which didn't contain any registry
-              If FindString(CodeField, "[", 0) > 0 And FindString(CodeField, "]", 0) > 0
-                TrCodeField = Trim(Mid(CodeField, FindString(CodeField, "[", 0)+1, FindString(CodeField, "]", 0) - FindString(CodeField, "[", 0) -1))
-                If TrCodeField <> ""
-                  Moebius_Compile_Step2_AddExtrn(TrCodeField)
-                EndIf
-              Else
-                Protected lPos.l
-                ; If the cleaned line contained a string call
-                TrCodeField = Trim(CodeField)
-                ; It's not a comment or a label
-                If Left(TrCodeField, 1) <> ";" And Right(TrCodeField, 1) <> ":"
-                  ; Looking for strings
-                  lPos = FindString(TrCodeField, "_S", 1)
-                  If lPos > 0
-                    TrCodeField = Right(TrCodeField, Len(TrCodeField) - lPos +1)
-                    lPos = FindString(TrCodeField, " ", 1)
-                    If lPos > 0
-                      TrCodeField = Left(TrCodeField, lPos-1)
-                    EndIf 
+              If Left(CodeField, 1) <> ";"
+                If FindString(CodeField, "[", 0) > 0 And FindString(CodeField, "]", 0) > 0
+                  TrCodeField = Trim(Mid(CodeField, FindString(CodeField, "[", 0)+1, FindString(CodeField, "]", 0) - FindString(CodeField, "[", 0) -1))
+                  If TrCodeField <> ""
                     Moebius_Compile_Step2_AddExtrn(TrCodeField)
                   EndIf
-                  ; Looking for "what ?"
-                  lPos = FindString(TrCodeField, "l_", 1)
-                  If lPos > 0
-                    TrCodeField = Right(TrCodeField, Len(TrCodeField) - lPos +1)
-                    lPos = FindString(TrCodeField, " ", 1)
+                Else
+
+                  ; If the cleaned line contained a string call
+                  TrCodeField = Trim(CodeField)
+                  ; It's not a comment or a label
+                  If Left(TrCodeField, 1) <> ";" And Right(TrCodeField, 1) <> ":"
+                    ; Looking for strings
+                    lPos = FindString(TrCodeField, "_S", 1)
                     If lPos > 0
-                      TrCodeField = Left(TrCodeField, lPos-1)
-                    EndIf 
-                    Moebius_Compile_Step2_AddExtrn(TrCodeField)
+                      TrCodeField = Right(TrCodeField, Len(TrCodeField) - lPos +1)
+                      lPos = FindString(TrCodeField, " ", 1)
+                      If lPos > 0
+                        TrCodeField = Left(TrCodeField, lPos-1)
+                      EndIf 
+                      Moebius_Compile_Step2_AddExtrn(TrCodeField)
+                    EndIf
+                    ; Looking for "what ?"
+                    lPos = FindString(TrCodeField, "l_", 1)
+                    If lPos > 0
+                      TrCodeField = Right(TrCodeField, Len(TrCodeField) - lPos +1)
+                      lPos = FindString(TrCodeField, " ", 1)
+                      If lPos > 0
+                        TrCodeField = Left(TrCodeField, lPos-1)
+                      EndIf 
+                      Moebius_Compile_Step2_AddExtrn(TrCodeField)
+                    EndIf
                   EndIf
                 EndIf
               EndIf
