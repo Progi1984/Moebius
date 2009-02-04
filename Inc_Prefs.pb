@@ -41,6 +41,7 @@ ProcedureDLL Moebius_ReadPrefs()
 EndProcedure
 ProcedureDLL Moebius_ReadParameters()
   Protected IncA.l, lLastParam.l
+  Protected bDecl_Switch_Param_LogFileName.b, bDecl_Switch_Param_OutputLib.b, bDecl_Switch_Param_Help.b
   ; Default informations
   gProject\FileName = Trim(ProgramParameter(CountProgramParameters()-1))
   CompilerSelect #PB_Compiler_OS
@@ -80,6 +81,7 @@ ProcedureDLL Moebius_ReadParameters()
       Select ProgramParameter(IncA)
         Case #Switch_Param_Help_s, #Switch_Param_Help_sl  ;{
           gProject\FileCHM = ProgramParameter(IncA + 1)
+          bDecl_Switch_Param_Help = #True
           IncA = IncA + 1
         ;}
         Case #Switch_Param_DontBuildLib_s, #Switch_Param_DontBuildLib_sl  ;{
@@ -90,6 +92,21 @@ ProcedureDLL Moebius_ReadParameters()
         ;}
         Case #Switch_Param_LibName_s, #Switch_Param_LibName_sl  ;{
           gProject\LibName = ProgramParameter(IncA + 1)
+          gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
+          gConf_ProjectDir = gConf_SourceDir + gProject\LibName + #System_Separator
+          gProject\FileAsm  = gConf_ProjectDir + "ASM" + #System_Separator +"Moebius_" + gProject\LibName + ".asm"
+          gProject\FileDesc = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName+".desc"      
+          gProject\DirObj   = gConf_ProjectDir + "OBJ" + #System_Separator
+          gProject\FileLib  = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName + #System_ExtLib
+          If bDecl_Switch_Param_Help = #False
+            gProject\FileCHM  = gProject\LibName + #System_ExtHelp
+          EndIf
+          If bDecl_Switch_Param_LogFileName = #False
+            gProject\sFileLog  = gConf_ProjectDir+"LOGS"+#System_Separator+"Log_"+FormatDate("%yyyy_%mm_%dd_%hh_%ii_%ss", Date())+".log"
+          EndIf
+          If bDecl_Switch_Param_OutputLib = #False
+            gProject\sFileOutput  = gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))-1)
+          EndIf
           IncA = IncA + 1
         ;}
         Case #Switch_Param_LogFile_s, #Switch_Param_LogFile_sl  ;{
@@ -97,6 +114,7 @@ ProcedureDLL Moebius_ReadParameters()
         ;}
         Case #Switch_Param_OutputLib_s, #Switch_Param_OutputLib_sl  ;{
           gProject\sFileOutput = ProgramParameter(IncA + 1)
+          bDecl_Switch_Param_OutputLib = #True
           IncA = IncA + 1
         ;}
         Case #Switch_Param_Unicode_s, #Switch_Param_Unicode_sl  ;{
@@ -142,6 +160,7 @@ ProcedureDLL Moebius_ReadParameters()
         ;}
         Case #Switch_Param_LogFileName_s, #Switch_Param_LogFileName_sl;{
           gProject\sFileLog = ProgramParameter(IncA + 1)
+          bDecl_Switch_Param_LogFileName = #True
           IncA = IncA + 1
         ;}
         Default:
