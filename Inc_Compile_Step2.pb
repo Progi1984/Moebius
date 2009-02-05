@@ -628,25 +628,6 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
     WriteStringN(lFile, sCodeShared)
     CloseFile(lFile)
   EndIf
-;     
-;     
-;      For IncA = 0 To CountString(Moebius_Compile_Step2_sCodeShared, #System_EOL)
-;       CodeField = Trim(StringField(Moebius_Compile_Step2_sCodeShared, IncA, #System_EOL))
-;       CodeField = ReplaceString(CodeField, Chr(13), "")
-;       CodeField = ReplaceString(CodeField, Chr(10), "")
-;       CodeField = Trim(CodeField)
-;       If FindString(CodeField, ":", 0) > 0 And FindString(CodeField, "SYS", 0) = 0 And StringField(CodeField, 1, " ") <> "file"
-;         WriteStringN(lFile, "public "+StringField(CodeField, 1, ":"))
-;         ;CallDebugger
-;       ElseIf FindString(CodeField, " rd ", 0) > 0
-;         WriteStringN(lFile, "public "+StringField(CodeField, 1, " "))
-;         ;CallDebugger
-;       EndIf
-;     Next
-;     WriteStringN(lFile, "")
-;     WriteStringN(lFile, LL_DLLFunctions()\Code)
-;     
-;   EndIf
 EndProcedure
 
 ProcedureDLL Moebius_Compile_Step2()
@@ -667,48 +648,21 @@ ProcedureDLL Moebius_Compile_Step2()
   ;{ Create ASM Files
     ; private functions
     For IncA = 0 To ListSize(LL_DLLFunctions())-1
-      Debug "---------------------------------------------------"
       SelectElement(LL_DLLFunctions(), IncA)
       CodeField     = LL_DLLFunctions()\FuncName         ; Function Name
       TrCodeField   = LL_DLLFunctions()\Win_ASMNameFunc  ; ASM Function Name
       bIsDLLFunction= LL_DLLFunctions()\IsDLLFunction
-      
-;       Debug "FIND > "+CodeField
-;       Debug "FIND > "+TrCodeField
-;       Debug "---------"
       ForEach LL_DLLFunctions()
         If LL_DLLFunctions()\FuncName <> CodeField 
-;           lPos          = 1
-;           sTmpString    = LL_DLLFunctions()\Code
-;           LL_DLLFunctions()\Code = ""
-;           For IncB = 0 To CountString(sTmpString, TrCodeField)
-;             lPosLast  = lPos
-;             lPos      = FindString(sTmpString, TrCodeField, lPos+1)
-;             If lPos <> 0
-;               LL_DLLFunctions()\Code  + Mid(sTmpString, lPosLast, lPos - lPosLast) + TrCodeField
-;               lPos      + Len(TrCodeField)
-;             Else
-;               LL_DLLFunctions()\Code  + Right(sTmpString, Len(sTmpString) - lPosLast + 1)
-;             EndIf
-;           Next
-;           lPos = FindString(LL_DLLFunctions()\Code, TrCodeField,1)
-;           ;Debug Mid(LL_DLLFunctions()\Code, lPos, 20)
-;           If IsNumeric(Mid(LL_DLLFunctions()\Code, lPos+Len(TrCodeField)+1,1)) = #False
-;             If bIsDLLFunction = #False
-;               LL_DLLFunctions()\Code = ReplaceString(LL_DLLFunctions()\Code, TrCodeField, ReplaceString(gProject\LibName, " ", "_")+"_"+CodeField)
-;             Else
-;               LL_DLLFunctions()\Code = ReplaceString(LL_DLLFunctions()\Code, TrCodeField, "PB_"+CodeField)
-;             EndIf
-;           EndIf
           If bIsDLLFunction = #False
-            sTmpString = ReplaceString(gProject\LibName, " ", "_")+"_"+CodeField+#System_EOL
+            sTmpString = ReplaceString(gProject\LibName, " ", "_")+"_"+CodeField
           Else
-            sTmpString ="PB_"+CodeField+#System_EOL
+            sTmpString ="PB_"+CodeField
           EndIf
-          If CreateRegularExpression(0, TrCodeField+"[^0-9]", #PB_RegularExpression_AnyNewLine)
+          If CreateRegularExpression(0, TrCodeField+"(?=\s|])")
             LL_DLLFunctions()\Code  = ReplaceRegularExpression(0, LL_DLLFunctions()\Code, sTmpString)
           Else
-            Debug RegularExpressionError()
+            Log_Add("ERREUR Regex > "+RegularExpressionError(),4)
           EndIf
         EndIf
       Next  
