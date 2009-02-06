@@ -32,16 +32,17 @@ EndProcedure
 ProcedureDLL Log_Init()
   If gProject\bLogFile = #True
     hFileLog = OpenFile(#PB_Any, gProject\sFileLog)
-    WriteStringN(hFileLog, "PARAM > gProject\FileName = "+gProject\FileName)
-    WriteStringN(hFileLog, "PARAM > gProject\LibName = "+gProject\LibName)
-    WriteStringN(hFileLog, "PARAM > gProject\FileAsm = "+gProject\FileAsm)
-    WriteStringN(hFileLog, "PARAM > gProject\FileDesc = "+gProject\FileDesc)
-    WriteStringN(hFileLog, "PARAM > gProject\DirObj = "+gProject\DirObj)
-    WriteStringN(hFileLog, "PARAM > gProject\FileLib = "+gProject\FileLib)
-    WriteStringN(hFileLog, "PARAM > gProject\FileCHM = "+gProject\FileCHM)
+    WriteStringN(hFileLog, "PARAM > gProject\sFileName = "+gProject\sFileName)
+    WriteStringN(hFileLog, "PARAM > gProject\sLibName = "+gProject\sLibName)
+    WriteStringN(hFileLog, "PARAM > gProject\sDirAsm = "+gProject\sDirAsm)
+    WriteStringN(hFileLog, "PARAM > gProject\sFileDesc = "+gProject\sFileDesc)
+    WriteStringN(hFileLog, "PARAM > gProject\sDirObj = "+gProject\sDirObj)
+    WriteStringN(hFileLog, "PARAM > gProject\sDirLib = "+gProject\sDirLib)
+    WriteStringN(hFileLog, "PARAM > gProject\sFileCHM = "+gProject\sFileCHM)
     WriteStringN(hFileLog, "PARAM > gProject\sFileOutput = "+gProject\sFileOutput)
     WriteStringN(hFileLog, "PARAM > gProject\sSubsystem = "+gProject\sSubsystem)
     WriteStringN(hFileLog, "PARAM > gProject\sFileLog = "+gProject\sFileLog)
+    WriteStringN(hFileLog, "PARAM > gProject\sDirProject = "+gProject\sDirProject)
     WriteStringN(hFileLog, "PARAM > gProject\bDontBuildLib = "+Str(gProject\bDontBuildLib))
     WriteStringN(hFileLog, "PARAM > gProject\bDontKeepSrcFiles = "+Str(gProject\bDontKeepSrcFiles))
     WriteStringN(hFileLog, "PARAM > gProject\bLogFile = "+Str(gProject\bLogFile))
@@ -49,7 +50,6 @@ ProcedureDLL Log_Init()
     WriteStringN(hFileLog, "PARAM > gProject\bThreadSafe = "+Str(gProject\bThreadSafe))
     WriteStringN(hFileLog, "PARAM > gProject\bBatFile = "+Str(gProject\bBatFile))
     WriteStringN(hFileLog, "PARAM > gConf_SourceDir = "+gConf_SourceDir)
-    WriteStringN(hFileLog, "PARAM > gConf_ProjectDir = "+gConf_ProjectDir)
     WriteStringN(hFileLog, "PARAM > gConf_Ini_Purebasic = "+gConf_Ini_Purebasic)
     WriteStringN(hFileLog, "PARAM > gConf_Ini_Project = "+gConf_Ini_Project)
     WriteStringN(hFileLog, "")
@@ -79,7 +79,7 @@ ProcedureDLL Log_End()
 EndProcedure
 ProcedureDLL Batch_Init()
   If gProject\bBatFile = #True
-    hFileBatch = OpenFile(#PB_Any, gConf_ProjectDir+"BAT"+#System_Separator+"Script"+#System_ExtBatch)
+    hFileBatch = OpenFile(#PB_Any, gProject\sDirProject+"BAT"+#System_Separator+"Script"+#System_ExtBatch)
   EndIf
 EndProcedure
 ProcedureDLL Batch_Add(Content.s)
@@ -114,7 +114,7 @@ Procedure.l IsNumeric(String.s)
     Numeric = #True
     *String = @String
     While Numeric And *String\c
-      Numeric = IsDigit(*String\c)
+      Numeric = M_IsDigit(*String\c)
       *String + SizeOf(Character)
     Wend
   EndIf

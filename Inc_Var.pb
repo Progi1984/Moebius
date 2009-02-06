@@ -1,14 +1,19 @@
 Structure S_Project
-  FileName.s
-  LibName.s
-  FileAsm.s
-  FileDesc.s
-  DirObj.s
-  FileLib.s
-  FileCHM.s
-  sFileOutput.s
-  sSubsystem.s
+  sFileName.s           ; PB Filename for compiling
+  sFileDesc.s           ; Desc File
+  sFileCHM.s
+  sFileOutput.s         ; filename (without path) of the library
   sFileLog.s
+  
+  sLibName.s            ; library name
+  sSubsystem.s
+  
+  sDirProject.s         ; Dir > Temp for compiling
+  sDirAsm.s             ; Dir > containing asm files
+  sDirObj.s             ; Dir > containing objects
+  sDirLib.s             ; Dir > containing lib & desc
+  sDirBat.s             ; Dir > containing Bat or SH
+  sDirLogs.s            ; Dir > containing logs by default
   
   bUnicode.b
   bThreadSafe.b
@@ -57,7 +62,7 @@ Global gConf_Path_FASM.s
 Global gConf_Path_OBJ2LIB.s
 Global gConf_Path_PBLIBMAKER.s
 Global gConf_SourceDir.s
-Global gConf_ProjectDir.s
+;Global gConf_ProjectDir.s
 Global gConf_Ini_Purebasic.s
 Global gConf_Ini_Project.s
 
@@ -77,8 +82,28 @@ Macro M_SetConstantPrefs(Name, ValL, ValS, ValSl)
   #Name#_s = ValS
   #Name#_sl = ValSl
 EndMacro
-Macro IsDigit(c)
+Macro M_IsDigit(c)
   ((c >= '0') And (c <= '9'))
 EndMacro 
+Macro M_Moebius_InitDir(isCHM = #False, isLog = #False, isOutput = #False)
+  gProject\sDirBat  = gProject\sDirProject + "BAT" + #System_Separator
+  gProject\sDirLogs = gProject\sDirProject + "LOGS"+ #System_Separator
+  gProject\sDirAsm  = gProject\sDirProject + "ASM" + #System_Separator
+  gProject\sDirObj  = gProject\sDirProject + "OBJ" + #System_Separator
+  gProject\sDirLib  = gProject\sDirProject + "LIB" + #System_Separator
+    gProject\sFileDesc = gProject\sDirLib + gProject\sLibName+".desc"      
+  If isCHM = #False
+    gProject\sFileCHM  = gProject\sLibName + #System_ExtHelp
+  EndIf
+  If isLog = #False
+    gProject\sFileLog  = gProject\sDirProject+"LOGS"+#System_Separator+"Log_"+FormatDate("%yyyy_%mm_%dd_%hh_%ii_%ss", Date())+".log"
+  EndIf
+  If isOutput = #False
+    gProject\sFileOutput  = gProject\sLibName
+  EndIf
+EndMacro
+Macro M_LibName_Clean(name)
+  ReplaceString(gProject\sLibName, " ", "_")
+EndMacro
 
 Global Dim D_Parameters.s(9)

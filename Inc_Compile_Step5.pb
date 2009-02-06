@@ -3,16 +3,16 @@ ProcedureDLL Moebius_Compile_Step5()
   ; 5. LibraryMaker creates userlibrary from the LIB file
   Protected DirUserLibrary.s = gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator
   If gProject\bDontBuildLib = #False  
-    RunProgram(gConf_Path_PBLIBMAKER, " "+#DQuote+gProject\FileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, gConf_ProjectDir, #PB_Program_Wait|#PB_Program_Hide)
-    Log_Add(#DQuote+gConf_Path_PBLIBMAKER+#DQuote+" "+#DQuote+gProject\FileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, 2)
-    Batch_Add(#DQuote+gConf_Path_PBLIBMAKER+#DQuote+" "+#DQuote+gProject\FileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning)
-    If FileSize(DirUserLibrary+gProject\LibName)>0
+    RunProgram(gConf_Path_PBLIBMAKER, " "+#DQuote+gProject\sFileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, gProject\sDirProject, #PB_Program_Wait|#PB_Program_Hide)
+    Log_Add(#DQuote+gConf_Path_PBLIBMAKER+#DQuote+" "+#DQuote+gProject\sFileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, 2)
+    Batch_Add(#DQuote+gConf_Path_PBLIBMAKER+#DQuote+" "+#DQuote+gProject\sFileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning)
+    If FileSize(DirUserLibrary+gProject\sLibName)>0
       If gProject\sFileOutput <> ""
-        If gProject\LibName <> gProject\sFileOutput
-          If RenameFile(DirUserLibrary+gProject\LibName, DirUserLibrary+gProject\sFileOutput)
-            Log_Add("Rename the userlib DONE : OLD >"+#DQuote+gProject\LibName+#DQuote+" ; NEW >"+#DQuote+gProject\sFileOutput+#DQuote, 2)
+        If gProject\sLibName <> gProject\sFileOutput
+          If RenameFile(DirUserLibrary+gProject\sLibName, DirUserLibrary+gProject\sFileOutput)
+            Log_Add("Rename the userlib DONE : OLD >"+#DQuote+gProject\sLibName+#DQuote+" ; NEW >"+#DQuote+gProject\sFileOutput+#DQuote, 2)
           Else
-            Log_Add("Rename the userlib NOT DONE : OLD >"+#DQuote+gProject\LibName+#DQuote+" ; NEW >"+#DQuote+gProject\sFileOutput+#DQuote, 2)
+            Log_Add("Rename the userlib NOT DONE : OLD >"+#DQuote+gProject\sLibName+#DQuote+" ; NEW >"+#DQuote+gProject\sFileOutput+#DQuote, 2)
           EndIf
         EndIf
       EndIf

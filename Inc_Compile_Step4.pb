@@ -4,7 +4,7 @@ ProcedureDLL Moebius_Compile_Step4()
   ; 4. POLIB creates the LIB library from the *.OBJ files
   ; Creating descriptor file
   Log_Add("Creating descriptor file", 2)
-  hDescFile = CreateFile(#PB_Any, gProject\FileDesc)
+  hDescFile = CreateFile(#PB_Any, gProject\sFileDesc)
   If hDescFile
     ;{ Langage used to code the library
     WriteStringN(hDescFile,"; Langage used to code the library") 
@@ -60,8 +60,8 @@ ProcedureDLL Moebius_Compile_Step4()
     ;{ Help directory name
     WriteStringN(hDescFile,"; Help directory name")
     Log_Add("; Help directory name", 4)
-    WriteStringN(hDescFile, gProject\FileCHM)
-    Log_Add(gProject\FileCHM, 4)
+    WriteStringN(hDescFile, gProject\sFileCHM)
+    Log_Add(gProject\sFileCHM, 4)
     WriteStringN(hDescFile, ""):Log_Add("", 4)
     ;}
     ;{ Library functions
@@ -95,9 +95,9 @@ ProcedureDLL Moebius_Compile_Step4()
   ; Working on Import .lib/.a
   Log_Add("Working on Import", 2)
   ForEach LL_ImportUsed()
-    CopyFile(LL_ImportUsed(), gProject\DirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed()))
+    CopyFile(LL_ImportUsed(), gProject\sDirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed()))
     Log_Add("IN  > "+LL_ImportUsed(), 4)
-    LL_ImportUsed() = gProject\DirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed())
+    LL_ImportUsed() = gProject\sDirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed())
     Log_Add("OUT > "+LL_ImportUsed(), 4)
   Next
   ; Creating archive
@@ -105,20 +105,20 @@ ProcedureDLL Moebius_Compile_Step4()
   ; Generates a file which contains all objects files
   CompilerSelect #PB_Compiler_OS
     CompilerCase #PB_OS_Windows;{
-      Protected hObjFile.l = CreateFile(#PB_Any, gProject\DirObj+"ObjList.txt")
+      Protected hObjFile.l = CreateFile(#PB_Any, gProject\sDirObj+"ObjList.txt")
       Protected Pgm_Polib.l
       If hObjFile
         ForEach LL_DLLFunctions()
-          WriteStringN(hObjFile, #DQuote+gProject\DirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote)
+          WriteStringN(hObjFile, #DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote)
         Next
         ForEach LL_ImportUsed()
           WriteStringN(hObjFile, #DQuote+LL_ImportUsed()+#DQuote)
         Next
         CloseFile(hObjFile)
       EndIf
-      Pgm_Polib = RunProgram(gConf_Path_OBJ2LIB, "/out:"+#DQuote+gProject\FileLib+#DQuote+" @"+#DQuote+gProject\DirObj+"ObjList.txt"+#DQuote, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
-      Log_Add(#DQuote+gConf_Path_OBJ2LIB+#DQuote+" /out:"+#DQuote+gProject\FileLib+#DQuote+" @"+#DQuote+gProject\DirObj+"ObjList.txt"+#DQuote, 2)
-      Batch_Add(#DQuote+gConf_Path_OBJ2LIB+#DQuote+" /out:"+#DQuote+gProject\FileLib+#DQuote+" @"+#DQuote+gProject\DirObj+"ObjList.txt"+#DQuote)
+      Pgm_Polib = RunProgram(gConf_Path_OBJ2LIB, "/out:"+#DQuote+gProject\sDirLib+M_LibName_Clean(gProject\sLibName)+".lib"+#DQuote+" @"+#DQuote+gProject\sDirObj+"ObjList.txt"+#DQuote, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+      Log_Add(#DQuote+gConf_Path_OBJ2LIB+#DQuote+" /out:"+#DQuote+gProject\sDirLib+M_LibName_Clean(gProject\sLibName)+".lib"+#DQuote+" @"+#DQuote+gProject\sDirObj+"ObjList.txt"+#DQuote, 2)
+      Batch_Add(#DQuote+gConf_Path_OBJ2LIB+#DQuote+" /out:"+#DQuote+gProject\sDirLib+M_LibName_Clean(gProject\sLibName)+".lib"+#DQuote+" @"+#DQuote+gProject\sDirObj+"ObjList.txt"+#DQuote)
       If Pgm_Polib
         While ProgramRunning(Pgm_Polib)
           Log_Add(ReadProgramString(Pgm_Polib),2)
@@ -130,7 +130,7 @@ ProcedureDLL Moebius_Compile_Step4()
     ;}
     CompilerCase #PB_OS_Linux;{
       StringTmp = "ar rvs "
-      StringTmp + #DQuote+gProject\FileLib+#DQuote+" "
+      StringTmp + #DQuote+gProject\sDirLib+#DQuote+" "
       StringTmp + gProject\DirObj + "*"
       Log_Add(StringTmp, 2)
       Batch_Add(StringTmp)

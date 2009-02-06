@@ -13,61 +13,61 @@
 ProcedureDLL Moebius_Compile_Step0()
   ; 0. Cleaning & Preparing
   ;Cleans the old userlib
-  If FileSize(gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\LibName) > 0
-    If DeleteFile(gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\LibName) = 0
-      Log_Add(gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\LibName, 2)
+  If FileSize(gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\sLibName) > 0
+    If DeleteFile(gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\sLibName) = 0
+      Log_Add(gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\sLibName, 2)
       ProcedureReturn #False
     EndIf
   EndIf
   ;Prepares the location For Moebius
-  If FileSize(gConf_ProjectDir+"ASM"+#System_Separator) = -2
-    If DeleteDirectory(gConf_ProjectDir+"ASM"+#System_Separator, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
-      Log_Add(gConf_ProjectDir+"ASM"+#System_Separator, 2)
+  If FileSize(gProject\sDirAsm) = -2
+    If DeleteDirectory(gProject\sDirAsm, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
+      Log_Add(gProject\sDirAsm, 2)
       ProcedureReturn #False -6
     EndIf
   EndIf
-  If FileSize(gConf_ProjectDir+"BAT"+#System_Separator) = -2
-    If DeleteDirectory(gConf_ProjectDir+"BAT"+#System_Separator, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
-      Log_Add(gConf_ProjectDir+"BAT"+#System_Separator, 2)
+  If FileSize(gProject\sDirBat) = -2
+    If DeleteDirectory(gProject\sDirBat, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
+      Log_Add(gProject\sDirBat, 2)
       ProcedureReturn #False -10
     EndIf
   EndIf
-  If FileSize(gConf_ProjectDir+"LIB"+#System_Separator) = -2
-    If DeleteDirectory(gConf_ProjectDir+"LIB"+#System_Separator, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
-      Log_Add(gConf_ProjectDir+"LIB"+#System_Separator, 2)
+  If FileSize(gProject\sDirLib) = -2
+    If DeleteDirectory(gProject\sDirLib, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
+      Log_Add(gProject\sDirLib, 2)
       ProcedureReturn #False -7
     EndIf
   EndIf
-  If FileSize(gConf_ProjectDir+"OBJ"+#System_Separator) = -2
-    If DeleteDirectory(gConf_ProjectDir+"OBJ"+#System_Separator, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
-      Log_Add(gConf_ProjectDir+"OBJ"+#System_Separator, 2)
+  If FileSize(gProject\sDirObj) = -2
+    If DeleteDirectory(gProject\sDirObj, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
+      Log_Add(gProject\sDirObj, 2)
       ProcedureReturn #False -8
     EndIf
   EndIf
-  If CreateDirectoryEx(gConf_ProjectDir) = #False
-    Log_Add(gConf_ProjectDir, 2)
+  If CreateDirectoryEx(gProject\sDirProject) = #False
+    Log_Add(gProject\sDirProject, 2)
     ProcedureReturn #False -1
   EndIf
-  If CreateDirectoryEx(gConf_ProjectDir+"BAT"+#System_Separator)= #False
-    Log_Add(gConf_ProjectDir+"BAT"+#System_Separator, 2)
+  If CreateDirectoryEx(gProject\sDirBat)= #False
+    Log_Add(gProject\sDirBat, 2)
     ProcedureReturn #False -9
   EndIf
   Batch_Init()
-  If CreateDirectoryEx(gConf_ProjectDir+"ASM"+#System_Separator)= #False
-    Log_Add(gConf_ProjectDir+"ASM"+#System_Separator, 2)
+  If CreateDirectoryEx(gProject\sDirAsm)= #False
+    Log_Add(gProject\sDirAsm, 2)
     ProcedureReturn #False -2
   EndIf
-  If CreateDirectoryEx(gConf_ProjectDir+"LOGS"+#System_Separator)= #False
-    Log_Add(gConf_ProjectDir+"LOGS"+#System_Separator, 2)
+  If CreateDirectoryEx(gProject\sDirLogs)= #False
+    Log_Add(gProject\sDirLogs, 2)
     ProcedureReturn #False -3
   EndIf
   Log_Init()
-  If CreateDirectoryEx(gConf_ProjectDir+"LIB"+#System_Separator)= #False
-    Log_Add(gConf_ProjectDir+"LIB"+#System_Separator, 2)
+  If CreateDirectoryEx(gProject\sDirLib)= #False
+    Log_Add(gProject\sDirLib, 2)
     ProcedureReturn #False -4
   EndIf
-  If CreateDirectoryEx(gConf_ProjectDir+"OBJ"+#System_Separator)= #False
-    Log_Add(gConf_ProjectDir+"OBJ"+#System_Separator, 2)
+  If CreateDirectoryEx(gProject\sDirObj)= #False
+    Log_Add(gProject\sDirObj, 2)
     ProcedureReturn #False -5
   EndIf
   ProcedureReturn #True

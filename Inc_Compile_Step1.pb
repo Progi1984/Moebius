@@ -20,18 +20,18 @@ ProcedureDLL Moebius_Compile_Step1()
   ; on teste si le fichier se fini par "pb ou pbi"
   ; si oui on continue sinon on retourrne #False
   
-  Select LCase(GetExtensionPart(gProject\FileName))
+  Select LCase(GetExtensionPart(gProject\sFileName))
     Case "pb" ; we define the name of executable file
-      FichierExe = gConf_ProjectDir + Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName)) -1) + #System_ExtExec
+      FichierExe = gProject\sDirProject + Left(GetFilePart(gProject\sFileName), Len(GetFilePart(gProject\sFileName)) - Len(GetExtensionPart(gProject\sFileName)) -1) + #System_ExtExec
     Case "pbi" ; we define the name of executable file
-      FichierExe = gConf_ProjectDir + Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName)) -1) + #System_ExtExec
+      FichierExe = gProject\sDirProject + Left(GetFilePart(gProject\sFileName), Len(GetFilePart(gProject\sFileName)) - Len(GetExtensionPart(gProject\sFileName)) -1) + #System_ExtExec
     Default ; it's not a purebasic file
       ProcedureReturn #False
   EndSelect
   
   ; we delete the last asm created
-  SetFileAttributes(gConf_ProjectDir + "PureBasic.asm", #PB_FileSystem_Normal)
-  DeleteFile(gConf_ProjectDir + "PureBasic.asm")
+  SetFileAttributes(gProject\sDirProject + "PureBasic.asm", #PB_FileSystem_Normal)
+  DeleteFile(gProject\sDirProject + "PureBasic.asm")
   Param = #Switch_InlineASM+" "
   Param + #Switch_Commented+" "
   If gProject\bUnicode
@@ -44,8 +44,8 @@ ProcedureDLL Moebius_Compile_Step1()
     Param + #Switch_SubSystem + #DQuote + gProject\sSubSystem + #DQuote
   EndIf
   Param +#Switch_Executable+" "+#DQuote+FichierExe+#DQuote
-  Compilateur = RunProgram(gConf_Path_PBCOMPILER, #DQuote+gProject\FileName+#DQuote+" "+Param, gConf_ProjectDir, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
-  Log_Add(#DQuote+gConf_Path_PBCOMPILER+#DQuote+" " + #DQuote+gProject\FileName+#DQuote+" "+Param)
+  Compilateur = RunProgram(gConf_Path_PBCOMPILER, #DQuote+gProject\sFileName+#DQuote+" "+Param, gProject\sDirProject, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+  Log_Add(#DQuote+gConf_Path_PBCOMPILER+#DQuote+" " + #DQuote+gProject\sFileName+#DQuote+" "+Param)
   If Compilateur
     While ProgramRunning(Compilateur)
       Sortie + ReadProgramString(Compilateur) + Chr(13)

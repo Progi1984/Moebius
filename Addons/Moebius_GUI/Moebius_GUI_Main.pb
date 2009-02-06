@@ -61,27 +61,27 @@ Repeat
             Case #Button_1 ;{ Source File
               sRetString = OpenFileRequester("Source File", "", "Fichiers Purebasic|*.pb|Tous les fichiers (*.*)|*.*",0)
               If sRetString
-                gProject\FileName = sRetString
-                SetGadgetText(#String_1, gProject\FileName)
+                gProject\sFileName = sRetString
+                SetGadgetText(#String_1, gProject\sFileName)
                 If GetGadgetText(#String_0) <> ""
-                  gProject\LibName  = Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))-1)
-                  SetGadgetText(#String_0, gProject\LibName)
-                  gProject\sFileOutput  = Project\LibName
+                  gProject\sLibName  = Left(GetFilePart(gProject\sFileName), Len(GetFilePart(gProject\sFileName)) - Len(GetExtensionPart(gProject\sFileName))-1)
+                  SetGadgetText(#String_0, gProject\sLibName)
+                  gProject\sFileOutput  = gProject\sLibName
                 EndIf 
                 gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
-                gConf_ProjectDir = gConf_SourceDir + gProject\LibName + #System_Separator
-                gProject\FileAsm  = gConf_ProjectDir + "ASM" + #System_Separator +"Moebius_" + gProject\LibName + ".asm"
-                gProject\FileDesc = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName+".desc"      
-                gProject\DirObj   = gConf_ProjectDir + "OBJ" + #System_Separator
-                gProject\FileLib  = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName + #System_ExtLib
-                gProject\FileCHM  = gProject\LibName + #System_ExtHelp
+                gProject\sDirProject = gConf_SourceDir + gProject\sLibName + #System_Separator
+                gProject\sFileAsm  = gProject\sDirProject + "ASM" + #System_Separator +"Moebius_" + gProject\sLibName + ".asm"
+                gProject\sFileDesc = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName+".desc"      
+                gProject\sDirObj   = gProject\sDirProject + "OBJ" + #System_Separator
+                gProject\sDirLib   = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName + #System_ExtLib
+                gProject\sFileCHM  = gProject\sLibName + #System_ExtHelp
               EndIf
             ;}
             Case #Button_2 ;{ Help File
               sRetString = OpenFileRequester("Source File", "", "Fichiers d'aide|*"+#System_ExtHelp+"|Tous les fichiers (*.*)|*.*",0)
               If sRetString
-                gProject\FileCHM = sRetString
-                SetGadgetText(#String_2, gProject\FileCHM)
+                gProject\sFileCHM = sRetString
+                SetGadgetText(#String_2, gProject\sFileCHM)
               EndIf
             ;}
             Case #Button_3 ;{ Compile
@@ -103,18 +103,18 @@ Repeat
             ;}
             Case #Button_11 ;{ Validate before compilation
               If bPBParams_Valid = 5
-                If gProject\FileName <> "" And FileSize(gProject\FileName) > 0
-                  If gProject\LibName = ""
-                    gProject\LibName = Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))-1)
+                If gProject\sFileName <> "" And FileSize(gProject\sFileName) > 0
+                  If gProject\sLibName = ""
+                    gProject\sLibName = Left(GetFilePart(gProject\sFileName), Len(GetFilePart(gProject\sFileName)) - Len(GetExtensionPart(gProject\sFileName))-1)
                     gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
-                    gConf_ProjectDir = gConf_SourceDir + gProject\LibName + #System_Separator
-                    gProject\FileAsm  = gConf_ProjectDir + "ASM" + #System_Separator +"Moebius_" + gProject\LibName + ".asm"
-                    gProject\FileDesc = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName+".desc"      
-                    gProject\DirObj   = gConf_ProjectDir + "OBJ" + #System_Separator
-                    gProject\FileLib  = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName + #System_ExtLib
+                    gProject\sDirProject = gConf_SourceDir + gProject\sLibName + #System_Separator
+                    gProject\sFileAsm  = gProject\sDirProject + "ASM" + #System_Separator +"Moebius_" + gProject\sLibName + ".asm"
+                    gProject\sFileDesc = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName+".desc"      
+                    gProject\sDirObj   = gProject\sDirProject + "OBJ" + #System_Separator
+                    gProject\sDirLib  = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName + #System_ExtLib
                     If GetGadgetText(#String_2) = ""
-                      gProject\FileCHM  = gProject\LibName + #System_ExtHelp
-                      SetGadgetText(#String_2, gProject\FileCHM)
+                      gProject\sFileCHM  = gProject\sLibName + #System_ExtHelp
+                      SetGadgetText(#String_2, gProject\sFileCHM)
                     EndIf
                   EndIf
                   DisableGadget(#Button_3, #False)
@@ -133,14 +133,14 @@ Repeat
               sRetString = PathRequester("Purebasic path", "")
               If sRetString
                 gConf_SourceDir = sRetString
-                gConf_ProjectDir = gConf_SourceDir + gProject\LibName + #System_Separator
-                gProject\FileAsm  = gConf_ProjectDir + "ASM" + #System_Separator +"Moebius_" + gProject\LibName + ".asm"
-                gProject\FileDesc = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName+".desc"      
-                gProject\DirObj   = gConf_ProjectDir + "OBJ" + #System_Separator
-                gProject\FileLib  = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName + #System_ExtLib
+                gProject\sDirProject = gConf_SourceDir + gProject\sLibName + #System_Separator
+                gProject\sFileAsm  = gProject\sDirProject + "ASM" + #System_Separator +"Moebius_" + gProject\sLibName + ".asm"
+                gProject\sFileDesc = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName+".desc"      
+                gProject\sDirObj   = gProject\sDirProject + "OBJ" + #System_Separator
+                gProject\sDirLib  = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName + #System_ExtLib
                 If GetGadgetText(#String_2) = ""
-                  gProject\FileCHM  = gProject\LibName + #System_ExtHelp
-                  SetGadgetText(#String_2, gProject\FileCHM)
+                  gProject\sFileCHM  = gProject\sLibName + #System_ExtHelp
+                  SetGadgetText(#String_2, gProject\sFileCHM)
                 EndIf
                 SetGadgetText(#String_8, gConf_SourceDir)
               EndIf            
@@ -149,7 +149,7 @@ Repeat
             Case #String_0 ;{ LibName
               sRetString = GetGadgetText(#String_0)
               If sRetString 
-                gProject\LibName  = Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))-1)
+                gProject\sLibName  = Left(GetFilePart(gProject\sFileName), Len(GetFilePart(gProject\sFileName)) - Len(GetExtensionPart(gProject\sFileName))-1)
               EndIf
             ;}
           EndSelect

@@ -532,7 +532,7 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
   Protected bInSharedCode.b = #False - 1
   ;{ Adding function in LL_DLLFunctions()
     If AddElement(LL_DLLFunctions())
-      LL_DLLFunctions()\FuncName = ReplaceString(gProject\LibName, " ", "_")+"_Shared" 
+      LL_DLLFunctions()\FuncName = ReplaceString(gProject\sLibName, " ", "_")+"_Shared" 
       LL_DLLFunctions()\FuncRetType = "SharedCode"
       LL_DLLFunctions()\FuncDesc = ""
       LL_DLLFunctions()\Params = ""
@@ -615,7 +615,7 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
     Next
   ;}
   ; Begin to write the SharedFunction in file
-  lFile = CreateFile(#PB_Any, gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
+  lFile = CreateFile(#PB_Any, gProject\sDirProject+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
   If lFile
     WriteStringN(lFile, "format "+#System_LibFormat)
     WriteStringN(lFile, "")
@@ -635,7 +635,7 @@ ProcedureDLL Moebius_Compile_Step2()
   Protected CodeContent.s, CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned.s, sDataSectionForArray.s
   Protected IncA.l, IncB.l, lPos.l, lPosLast.l, lFile.l
   Protected bFound.b, bLastIsLabel.b, bIsDLLFunction.b
-  If ReadFile(0, gConf_ProjectDir+"purebasic.asm")
+  If ReadFile(0, gProject\sDirProject+"purebasic.asm")
     CodeContent = Space(Lof(0)+1)
     ReadData(0,@CodeContent, Lof(0))
     CloseFile(0)
@@ -655,7 +655,7 @@ ProcedureDLL Moebius_Compile_Step2()
       ForEach LL_DLLFunctions()
         If LL_DLLFunctions()\FuncName <> CodeField 
           If bIsDLLFunction = #False
-            sTmpString = ReplaceString(gProject\LibName, " ", "_")+"_"+CodeField
+            sTmpString = ReplaceString(gProject\sLibName, " ", "_")+"_"+CodeField
           Else
             sTmpString ="PB_"+CodeField
           EndIf
@@ -670,7 +670,7 @@ ProcedureDLL Moebius_Compile_Step2()
     
     ForEach LL_DLLFunctions()
       ClearList(LL_ASM_extrn())
-      lFile = CreateFile(#PB_Any, gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
+      lFile = CreateFile(#PB_Any, gProject\sDirProject+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
       If UCase(Right(LL_DLLFunctions()\FuncName,5)) = "_INIT"
         LL_DLLFunctions()\FuncRetType = "InitFunction"
       EndIf
@@ -697,7 +697,7 @@ ProcedureDLL Moebius_Compile_Step2()
             ;}
           CompilerEndSelect
         Else
-          WriteStringN(lFile, "public "+ReplaceString(gProject\LibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
+          WriteStringN(lFile, "public "+ReplaceString(gProject\sLibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
         EndIf;}
         WriteStringN(lFile, "")
         ;{ extrn
@@ -797,15 +797,15 @@ ProcedureDLL Moebius_Compile_Step2()
           CodeField + Right(LL_DLLFunctions()\Code, Len(LL_DLLFunctions()\Code) - Len(StringField(LL_DLLFunctions()\Code, 1, #System_EOL)))
           TrCodeField = CodeField
         Else
-          CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName, ReplaceString(gProject\LibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
+          CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName, ReplaceString(gProject\sLibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
           If Right(Trim(StringField(CodeField, 1, #System_EOL)), 1) = ":" ; declaration de la function
             CompilerSelect #PB_Compiler_OS
               CompilerCase #PB_OS_Windows ;{
                 TrCodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
-                TrCodeField + ReplaceString(gProject\LibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
+                TrCodeField + ReplaceString(gProject\sLibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
               ;}
               CompilerCase #PB_OS_Linux;{
-                TrCodeField = ReplaceString(gProject\LibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
+                TrCodeField = ReplaceString(gProject\sLibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
               ;}
             CompilerEndSelect
             TrCodeField + Right(CodeField, Len(CodeField) - Len(StringField(CodeField, 1, #System_EOL)))
@@ -848,7 +848,7 @@ ProcedureDLL Moebius_Compile_Step2()
     ; The Init Function doesn't exist
     If bFound = #False
       If AddElement(LL_DLLFunctions())
-        LL_DLLFunctions()\FuncName = ReplaceString(gProject\LibName, " ", "_")+"_Init" 
+        LL_DLLFunctions()\FuncName = ReplaceString(gProject\sLibName, " ", "_")+"_Init" 
         LL_DLLFunctions()\FuncRetType = "InitFunction"
         LL_DLLFunctions()\CallingConvention = "StdCall"
         LL_DLLFunctions()\FuncDesc = ""
@@ -861,9 +861,9 @@ ProcedureDLL Moebius_Compile_Step2()
           CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "extrn SYS_InitString" + #System_EOL
         CompilerEndSelect
         LL_DLLFunctions()\Code + "" + #System_EOL
-        LL_DLLFunctions()\Code + "public PB_"+ReplaceString(gProject\LibName, " ", "_")+"_Init"  + #System_EOL
+        LL_DLLFunctions()\Code + "public PB_"+ReplaceString(gProject\sLibName, " ", "_")+"_Init"  + #System_EOL
         LL_DLLFunctions()\Code + "" + #System_EOL
-        LL_DLLFunctions()\Code + "PB_"+ReplaceString(gProject\LibName, " ", "_")+"_Init:" + #System_EOL
+        LL_DLLFunctions()\Code + "PB_"+ReplaceString(gProject\sLibName, " ", "_")+"_Init:" + #System_EOL
         CompilerSelect #PB_Compiler_OS 
           CompilerCase #PB_OS_Windows : LL_DLLFunctions()\Code + "CALL _SYS_InitString@0" + #System_EOL
           CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "CALL SYS_InitString" + #System_EOL
@@ -872,7 +872,7 @@ ProcedureDLL Moebius_Compile_Step2()
         LL_DLLFunctions()\IsDLLFunction = #True
         LL_DLLFunctions()\InDescFile = #True
       EndIf
-      lFile = CreateFile(#PB_Any, gConf_ProjectDir+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
+      lFile = CreateFile(#PB_Any, gProject\sDirProject+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
       If lFile
         WriteStringN(lFile, LL_DLLFunctions()\Code)
         CloseFile(lFile)
