@@ -13,6 +13,7 @@
     #Button_10
     #Button_11
     #Button_12
+    #Button_13
     #Combo_0
     #CheckBox_0
     #CheckBox_1
@@ -20,6 +21,7 @@
     #CheckBox_3
     #CheckBox_4
     #CheckBox_5
+    #CheckBox_6
     #Editor_0
     #Frame3D_0
     #Frame3D_1
@@ -32,6 +34,7 @@
     #String_5
     #String_6
     #String_7
+    #String_8
     #Text_0
     #Text_1
     #Text_2
@@ -48,6 +51,7 @@
     #Text_13
     #Text_14
     #Text_15
+    #Text_16
     #Window_0
     #Window_1
   EndEnumeration
@@ -64,3 +68,4 @@
   Global bWinPBParams_Opened.b
   Global sRetString.s
   Global bPBParams_Valid.b = #False
+  Global bEnableLogEditor.b = #False

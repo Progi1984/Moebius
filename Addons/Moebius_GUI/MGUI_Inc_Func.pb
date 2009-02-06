@@ -3,7 +3,7 @@ DeclareDLL PBParams_Open()
 
 ;@desc Opens the main window for Moebius
 ProcedureDLL Main_Open()
-  If OpenWindow(#Window_0, 353, 5, 600, 503, "Moebius",  #PB_Window_SystemMenu | #PB_Window_TitleBar | #PB_Window_ScreenCentered)
+  If OpenWindow(#Window_0, 353, 5, 600, 533, "Moebius",  #PB_Window_SystemMenu | #PB_Window_TitleBar | #PB_Window_ScreenCentered)
     Frame3DGadget(#Frame3D_0, 10, 10, 580, 70, "Etape 1 : Purebasic")
       TextGadget(#Text_0, 80, 40, 40, 20, "Etat : ")
       ButtonGadget(#Button_0, 450, 30, 130, 40, "Configurer")
@@ -36,10 +36,16 @@ ProcedureDLL Main_Open()
       ButtonGadget(#Button_11, 500, 286, 80, 28, "Valider")
         DisableGadget(#Button_11, #True)
 
-    Frame3DGadget(#Frame3D_2, 10, 340, 580, 150, "Etape 3 : Compilation du projet")
-      EditorGadget(#Editor_0, 20, 390, 560, 90, #PB_Editor_ReadOnly)
-      ButtonGadget(#Button_3, 20, 356, 110, 28, "Compiler")
+      TextGadget(#Text_16, 30, 260, 120, 20, "Dossier Travail :")
+      StringGadget(#String_8, 160, 260, 330, 20, "")
+      ButtonGadget(#Button_13, 500, 256, 80, 28, "Parcourir")
+      
+    Frame3DGadget(#Frame3D_2, 10, 310, 580, 150, "Etape 3 : Compilation du projet")
+      EditorGadget(#Editor_0, 20, 360, 560, 90, #PB_Editor_ReadOnly)
+      ButtonGadget(#Button_3, 20, 386, 110, 28, "Compiler")
         DisableGadget(#Button_3, #True)
+      CheckBoxGadget(#CheckBox_6, 140, 386, 110, 28, "Activer le log")
+        DisableGadget(#CheckBox_6, #True)
   EndIf
 EndProcedure
 ;@desc Set Purebasic params
@@ -160,6 +166,7 @@ ProcedureDLL PBParams_Validate(InWindow.b)
     Else
       DisableGadget(#Button_0, #True)
       DisableGadget(#Button_11, #False)
+      DisableGadget(#CheckBox_6, #False)
     EndIf
   EndIf
 EndProcedure

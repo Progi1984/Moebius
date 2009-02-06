@@ -50,6 +50,9 @@ Repeat
             Case #CheckBox_5 ;{ Don't Keep Src Files
               gProject\bDontKeepSrcFiles = 1-GetGadgetState(#CheckBox_5)
             ;}
+            Case #CheckBox_6 ;{ Enable Logging
+              bEnableLogEditor = GetGadgetState(#CheckBox_6)
+            ;}
           
             Case #Button_0 ;{ Browse "PureBasic Params"
               bWinPBParams_Opened = #True
@@ -63,6 +66,7 @@ Repeat
                 If GetGadgetText(#String_0) <> ""
                   gProject\LibName  = Left(GetFilePart(gProject\FileName), Len(GetFilePart(gProject\FileName)) - Len(GetExtensionPart(gProject\FileName))-1)
                   SetGadgetText(#String_0, gProject\LibName)
+                  gProject\sFileOutput  = Project\LibName
                 EndIf 
                 gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
                 gConf_ProjectDir = gConf_SourceDir + gProject\LibName + #System_Separator
@@ -108,17 +112,38 @@ Repeat
                     gProject\FileDesc = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName+".desc"      
                     gProject\DirObj   = gConf_ProjectDir + "OBJ" + #System_Separator
                     gProject\FileLib  = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName + #System_ExtLib
-                    gProject\FileCHM  = gProject\LibName + #System_ExtHelp
+                    If GetGadgetText(#String_2) = ""
+                      gProject\FileCHM  = gProject\LibName + #System_ExtHelp
+                      SetGadgetText(#String_2, gProject\FileCHM)
+                    EndIf
                   EndIf
                   DisableGadget(#Button_3, #False)
+                  DisableGadget(#CheckBox_6, #False)
                   MessageRequester("Moebius", "Ready to Compile :)")
                 Else
                   DisableGadget(#Button_3, #True)
+                  DisableGadget(#CheckBox_6, #True)
                   MessageRequester("Moebius", "Need a real purebasic source file for compiling")
                 EndIf
               Else
                 MessageRequester("Moebius", "But How do you come here ?")
               EndIf
+            ;}
+            Case #Button_13 ;{ 
+              sRetString = PathRequester("Purebasic path", "")
+              If sRetString
+                gConf_SourceDir = sRetString
+                gConf_ProjectDir = gConf_SourceDir + gProject\LibName + #System_Separator
+                gProject\FileAsm  = gConf_ProjectDir + "ASM" + #System_Separator +"Moebius_" + gProject\LibName + ".asm"
+                gProject\FileDesc = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName+".desc"      
+                gProject\DirObj   = gConf_ProjectDir + "OBJ" + #System_Separator
+                gProject\FileLib  = gConf_ProjectDir + "LIB" + #System_Separator + gProject\LibName + #System_ExtLib
+                If GetGadgetText(#String_2) = ""
+                  gProject\FileCHM  = gProject\LibName + #System_ExtHelp
+                  SetGadgetText(#String_2, gProject\FileCHM)
+                EndIf
+                SetGadgetText(#String_8, gConf_SourceDir)
+              EndIf            
             ;}
             
             Case #String_0 ;{ LibName
