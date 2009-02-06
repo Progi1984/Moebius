@@ -197,15 +197,12 @@ Procedure.s PB_GetPBFolder()
       Res=-1
       Select OSVersion()
         Case #PB_OS_Windows_95, #PB_OS_Windows_98, #PB_OS_Windows_ME;{
-          Debug "Detected OS : Windows 95/98/ME"
           Res=RegOpenKeyEx_(#HKEY_LOCAL_MACHINE, "Software\Classes\PureBasic.exe\shell\open\command", 0, #KEY_ALL_ACCESS, @hKey1)
         ;}
         Case #PB_OS_Windows_NT3_51, #PB_OS_Windows_NT_4, #PB_OS_Windows_2000, #PB_OS_Windows_XP, #PB_OS_Windows_Server_2003;{
-          Debug "Detected OS : Windows NT/2000/XP"
           Res=RegOpenKeyEx_(#HKEY_CLASSES_ROOT, "Applications\PureBasic.exe\shell\open\command", 0, #KEY_ALL_ACCESS, @hKey1)
         ;}
         Default;{ Win Vista / Server 2008
-          Debug "Detected OS : Windows Vista/Server 2008"
           Res=RegOpenKeyEx_(#HKEY_CURRENT_USER, "Software\Classes\PureBasic.exe\shell\open\command", 0, #KEY_ALL_ACCESS , @hKey1)
         ;}
       EndSelect

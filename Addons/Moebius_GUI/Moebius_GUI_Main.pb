@@ -70,7 +70,7 @@ Repeat
                 EndIf 
                 gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
                 gProject\sDirProject = gConf_SourceDir + gProject\sLibName + #System_Separator
-                gProject\sFileAsm  = gProject\sDirProject + "ASM" + #System_Separator +"Moebius_" + gProject\sLibName + ".asm"
+                gProject\sDirAsm  = gProject\sDirProject + "ASM" + #System_Separator
                 gProject\sFileDesc = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName+".desc"      
                 gProject\sDirObj   = gProject\sDirProject + "OBJ" + #System_Separator
                 gProject\sDirLib   = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName + #System_ExtLib
@@ -108,7 +108,7 @@ Repeat
                     gProject\sLibName = Left(GetFilePart(gProject\sFileName), Len(GetFilePart(gProject\sFileName)) - Len(GetExtensionPart(gProject\sFileName))-1)
                     gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
                     gProject\sDirProject = gConf_SourceDir + gProject\sLibName + #System_Separator
-                    gProject\sFileAsm  = gProject\sDirProject + "ASM" + #System_Separator +"Moebius_" + gProject\sLibName + ".asm"
+                    gProject\sDirAsm  = gProject\sDirProject + "ASM" + #System_Separator
                     gProject\sFileDesc = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName+".desc"      
                     gProject\sDirObj   = gProject\sDirProject + "OBJ" + #System_Separator
                     gProject\sDirLib  = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName + #System_ExtLib
@@ -134,7 +134,7 @@ Repeat
               If sRetString
                 gConf_SourceDir = sRetString
                 gProject\sDirProject = gConf_SourceDir + gProject\sLibName + #System_Separator
-                gProject\sFileAsm  = gProject\sDirProject + "ASM" + #System_Separator +"Moebius_" + gProject\sLibName + ".asm"
+                gProject\sDirAsm  = gProject\sDirProject + "ASM" + #System_Separator
                 gProject\sFileDesc = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName+".desc"      
                 gProject\sDirObj   = gProject\sDirProject + "OBJ" + #System_Separator
                 gProject\sDirLib  = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName + #System_ExtLib
