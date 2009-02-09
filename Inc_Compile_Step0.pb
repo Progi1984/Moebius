@@ -51,8 +51,9 @@ ProcedureDLL Moebius_Compile_Step0()
   If CreateDirectoryEx(gProject\sDirBat)= #False
     Log_Add(gProject\sDirBat, 2)
     ProcedureReturn #False -9
+  Else
+    Batch_Init()
   EndIf
-  Batch_Init()
   If CreateDirectoryEx(gProject\sDirAsm)= #False
     Log_Add(gProject\sDirAsm, 2)
     ProcedureReturn #False -2
@@ -60,8 +61,9 @@ ProcedureDLL Moebius_Compile_Step0()
   If CreateDirectoryEx(gProject\sDirLogs)= #False
     Log_Add(gProject\sDirLogs, 2)
     ProcedureReturn #False -3
+  Else
+    Log_Init()
   EndIf
-  Log_Init()
   If CreateDirectoryEx(gProject\sDirLib)= #False
     Log_Add(gProject\sDirLib, 2)
     ProcedureReturn #False -4

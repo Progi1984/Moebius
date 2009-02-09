@@ -14,6 +14,7 @@ ProcedureDLL Moebius_MainThread(Param.l)
       Moebius_Compile_Step4()
       Log_Add("Moebius_Compile_Step5()")
       Moebius_Compile_Step5()
+      ; 6. Cleans the place
       Log_Add("Moebius_Compile_Step6()")
       Moebius_Compile_Step6()
     Else

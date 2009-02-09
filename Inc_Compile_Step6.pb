@@ -1,20 +1,21 @@
-
+;@desc : Cleans the place
 ProcedureDLL Moebius_Compile_Step6()
-  ; 6. Cleans the place
+  ; if we don't keep files, we delete directories and their contents
   If gProject\bDontKeepSrcFiles = #False
-    If FileSize(gProject\sDirProject+"ASM"+#System_Separator) = -2
-      DeleteDirectory(gProject\sDirProject+"ASM"+#System_Separator, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive)
+    If FileSize(gProject\sDirAsm) = -2
+      DeleteDirectory(gProject\sDirAsm, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive)
     EndIf
-    If FileSize(gProject\sDirProject+"BAT"+#System_Separator) = -2
-      DeleteDirectory(gProject\sDirProject+"BAT"+#System_Separator, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive)
+    If FileSize(gProject\sDirObj) = -2
+      DeleteDirectory(gProject\sDirObj, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive)
     EndIf
-    If FileSize(gProject\sDirProject+"LIB"+#System_Separator) = -2
-      DeleteDirectory(gProject\sDirProject+"LIB"+#System_Separator, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive)
+    If FileSize(gProject\sDirLib) = -2
+      DeleteDirectory(gProject\sDirLib, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive)
     EndIf
-    If FileSize(gProject\sDirProject+"OBJ"+#System_Separator) = -2
-      DeleteDirectory(gProject\sDirProject+"OBJ"+#System_Separator, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive)
+    If FileSize(gProject\sDirBat) = -2
+      DeleteDirectory(gProject\sDirBat, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive)
     EndIf
   EndIf
+  ; we close logs & batchs
   Log_End()
   Batch_End()
 EndProcedure

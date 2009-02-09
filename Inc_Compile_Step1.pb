@@ -1,4 +1,3 @@
-
 ;@returnvalue : 1  > Success
 ;@returnvalue : 0  > Error : Not a purebasic file
 ;@returnvalue : -1 > Error : Program not launched

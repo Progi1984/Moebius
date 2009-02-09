@@ -70,11 +70,7 @@ ProcedureDLL Moebius_Compile_Step4()
     ForEach LL_DLLFunctions()
       If LL_DLLFunctions()\InDescFile = #True
         If LL_DLLFunctions()\IsDLLFunction = #True
-          ;If LL_DLLFunctions()\FuncRetType = "InitFunction"
-          ;  StringTmp = LL_DLLFunctions()\FuncName+LL_DLLFunctions()\ParamsRetType
-          ;Else
-            StringTmp = LL_DLLFunctions()\FuncName+LL_DLLFunctions()\ParamsRetType+", ("+LL_DLLFunctions()\ParamsClean+")"
-          ;EndIf
+          StringTmp = LL_DLLFunctions()\FuncName+LL_DLLFunctions()\ParamsRetType+", ("+LL_DLLFunctions()\ParamsClean+")"
           If LL_DLLFunctions()\FuncDesc <> ""
             StringTmp + " - "+LL_DLLFunctions()\FuncDesc
           EndIf

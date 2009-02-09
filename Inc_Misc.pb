@@ -58,7 +58,7 @@ EndProcedure
 ProcedureDLL Log_Add(Content.s, NumTab.l = 0)
   If gProject\bLogFile = #True
     If hFileLog
-      WriteStringN(hFileLog, Space(NumTab) + Content)
+      WriteStringN(hFileLog, FormatDate("%hh:%ii:%ss", Date())+"  "+Space(NumTab) + Content)
     EndIf
     CompilerIf #PB_Compiler_Debugger = #True
       Debug "LOG > "+Space(NumTab) + Content
@@ -66,7 +66,7 @@ ProcedureDLL Log_Add(Content.s, NumTab.l = 0)
   EndIf
   CompilerIf Defined(Moebius_App, #PB_Constant) = #True
     If bEnableLogEditor = #True
-      AddGadgetItem(#Editor_0, -1, Space(NumTab) + Content)
+      AddGadgetItem(#Editor_0, -1, FormatDate("%hh:%ii:%ss", Date())+Space(NumTab) + Content)
     EndIf
   CompilerEndIf
 EndProcedure

@@ -528,8 +528,9 @@ EndProcedure
 
 ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
   Protected sCodeShared.s, sCodeField.s, sTmp.s
-  Protected lFile.l, lInc.l
+  Protected lFile.l, lInc.l, lNbLines.l
   Protected bInSharedCode.b = #False - 1
+  Log_Add("Adding function in LL_DLLFunctions()", 6)
   ;{ Adding function in LL_DLLFunctions()
     If AddElement(LL_DLLFunctions())
       LL_DLLFunctions()\FuncName = ReplaceString(gProject\sLibName, " ", "_")+"_Shared" 
@@ -542,8 +543,10 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
       LL_DLLFunctions()\InDescFile = #False
     EndIf
   ;}
+  Log_Add("Extracting SharedCode from MainFile", 6)
   ;{ Extracting SharedCode from MainFile
-  For lInc = 0 To CountString(CodeContent, #System_EOL)
+  lNbLines = CountString(CodeContent, #System_EOL)
+  For lInc = 0 To lNbLines
     sCodeField = StringField(CodeContent, lInc+1, #System_EOL)
     sCodeField = ReplaceString(sCodeField, Chr(13), "")
     sCodeField = ReplaceString(sCodeField, Chr(10), "")
@@ -572,10 +575,12 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
     EndIf
   Next
   ;}
+  Log_Add("Deleting unuseful code ", 6)
   ;{ Deleting unuseful code 
   CodeContent = sCodeShared
   sCodeShared = ""
-  For lInc = 0 To CountString(CodeContent, #System_EOL)
+  lNbLines = CountString(CodeContent, #System_EOL)
+  For lInc = 0 To lNbLines
     sCodeField = StringField(CodeContent, lInc+1, #System_EOL)
     sCodeField = ReplaceString(sCodeField, Chr(13), "")
     sCodeField = ReplaceString(sCodeField, Chr(10), "")
@@ -592,9 +597,11 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
     EndSelect
   Next
   ;}
+  Log_Add("Search extrn", 6)
   ;{ Search extrn
     ClearList(LL_ASM_extrn())
-    For lInc = 0 To CountString(sCodeShared, #System_EOL)
+    lNbLines = CountString(sCodeShared, #System_EOL)
+    For lInc = 0 To lNbLines
       sCodeField = StringField(sCodeShared, lInc+1, #System_EOL)
       sCodeField = ReplaceString(sCodeField, Chr(13), "")
       sCodeField = ReplaceString(sCodeField, Chr(10), "")
@@ -614,6 +621,7 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
       EndIf
     Next
   ;}
+  Log_Add("Begin to write the SharedFunction in file", 6)
   ; Begin to write the SharedFunction in file
   lFile = CreateFile(#PB_Any, gProject\sDirProject+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
   If lFile
@@ -628,6 +636,7 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
     WriteStringN(lFile, sCodeShared)
     CloseFile(lFile)
   EndIf
+  Log_Add("Finish to write the SharedFunction in file", 6)
 EndProcedure
 
 ProcedureDLL Moebius_Compile_Step2()
@@ -879,6 +888,7 @@ ProcedureDLL Moebius_Compile_Step2()
       EndIf
     EndIf
   ;}
+  Log_Add("Shared Code", 4)
   ;{ Shared Code
     Moebius_Compile_Step2_SharedFunction(CodeContent.s)
   ;}
