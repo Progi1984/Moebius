@@ -59,22 +59,26 @@ Repeat
               PBParams_Open()
             ;}
             Case #Button_1 ;{ Source File
-              sRetString = OpenFileRequester("Source File", "", "Fichiers Purebasic|*.pb|Tous les fichiers (*.*)|*.*",0)
+              Define.b bIsCHM, bIsOutput
+              sRetString = OpenFileRequester("Source File", "", "Fichiers Purebasic|*.pb;*.pbi|Tous les fichiers (*.*)|*.*",0)
               If sRetString
                 gProject\sFileName = sRetString
                 SetGadgetText(#String_1, gProject\sFileName)
-                If GetGadgetText(#String_0) <> ""
+                ; we define the name of projet if inexistant
+                If GetGadgetText(#String_0) = ""
                   gProject\sLibName  = Left(GetFilePart(gProject\sFileName), Len(GetFilePart(gProject\sFileName)) - Len(GetExtensionPart(gProject\sFileName))-1)
                   SetGadgetText(#String_0, gProject\sLibName)
-                  gProject\sFileOutput  = gProject\sLibName
-                EndIf 
+                  bIsOutput = #False
+                EndIf
+                ; we define the name of CHM if inexistant
+                If GetGadgetText(#string_2) = ""
+                  bIsCHM = #False
+                Else
+                  bIsCHM = #True
+                EndIf
                 gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
                 gProject\sDirProject = gConf_SourceDir + gProject\sLibName + #System_Separator
-                gProject\sDirAsm  = gProject\sDirProject + "ASM" + #System_Separator
-                gProject\sFileDesc = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName+".desc"      
-                gProject\sDirObj   = gProject\sDirProject + "OBJ" + #System_Separator
-                gProject\sDirLib   = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName + #System_ExtLib
-                gProject\sFileCHM  = gProject\sLibName + #System_ExtHelp
+                M_Moebius_InitDir(bIsCHM, #False, bIsOutput)
               EndIf
             ;}
             Case #Button_2 ;{ Help File
@@ -108,10 +112,7 @@ Repeat
                     gProject\sLibName = Left(GetFilePart(gProject\sFileName), Len(GetFilePart(gProject\sFileName)) - Len(GetExtensionPart(gProject\sFileName))-1)
                     gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
                     gProject\sDirProject = gConf_SourceDir + gProject\sLibName + #System_Separator
-                    gProject\sDirAsm  = gProject\sDirProject + "ASM" + #System_Separator
-                    gProject\sFileDesc = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName+".desc"      
-                    gProject\sDirObj   = gProject\sDirProject + "OBJ" + #System_Separator
-                    gProject\sDirLib  = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName + #System_ExtLib
+                    M_Moebius_InitDir(#True, #False, #True)
                     If GetGadgetText(#String_2) = ""
                       gProject\sFileCHM  = gProject\sLibName + #System_ExtHelp
                       SetGadgetText(#String_2, gProject\sFileCHM)
@@ -134,10 +135,7 @@ Repeat
               If sRetString
                 gConf_SourceDir = sRetString
                 gProject\sDirProject = gConf_SourceDir + gProject\sLibName + #System_Separator
-                gProject\sDirAsm  = gProject\sDirProject + "ASM" + #System_Separator
-                gProject\sFileDesc = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName+".desc"      
-                gProject\sDirObj   = gProject\sDirProject + "OBJ" + #System_Separator
-                gProject\sDirLib  = gProject\sDirProject + "LIB" + #System_Separator + gProject\sLibName + #System_ExtLib
+                M_Moebius_InitDir(#True, #False, #True)
                 If GetGadgetText(#String_2) = ""
                   gProject\sFileCHM  = gProject\sLibName + #System_ExtHelp
                   SetGadgetText(#String_2, gProject\sFileCHM)

@@ -94,6 +94,9 @@ Macro M_Moebius_InitDir(isCHM = #False, isLog = #False, isOutput = #False)
     gProject\sFileDesc = gProject\sDirLib + gProject\sLibName+".desc"      
   If isCHM = #False
     gProject\sFileCHM  = gProject\sLibName + #System_ExtHelp
+    CompilerIf Defined(Moebius_App, #PB_Constant) = #True
+      SetGadgetText(#String_2, gProject\sFileCHM)
+    CompilerEndIf
   EndIf
   If isLog = #False
     gProject\sFileLog  = gProject\sDirProject+"LOGS"+#System_Separator+"Log_"+FormatDate("%yyyy_%mm_%dd_%hh_%ii_%ss", Date())+".log"
