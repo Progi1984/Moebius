@@ -1,9 +1,9 @@
 ProcedureDLL Moebius_Compile_Step4()
-  Protected StringTmp.s, sDescContent.s, sProgRequest.s
+  Protected StringTmp.s, sDescContent.s, sProgRequest.s, sProgReturn.s
   Protected hDescFile.l, lNbImportLib.l
   ; 4. POLIB creates the LIB library from the *.OBJ files
   ;{ Creating descriptor file
-    Log_Add("Creating descriptor file", 2)
+    Output_Add("Creating descriptor file", #Output_Log, 2)
     ;{ Langage used to code the library
       sDescContent = "; Langage used to code the library" + #System_EOL
       sDescContent + "ASM" + #System_EOL
@@ -59,7 +59,6 @@ ProcedureDLL Moebius_Compile_Step4()
         EndIf
       Next
     ;}
-    
     hDescFile = CreateFile(#PB_Any, gProject\sFileDesc)
     If hDescFile
       WriteString(hDescFile, sDescContent)
@@ -67,21 +66,22 @@ ProcedureDLL Moebius_Compile_Step4()
     EndIf
   ;}
   ;{ Working on Import .lib/.a
-    Log_Add("Working on Import", 2)
+    Output_Add("Working on Import", #Output_Log, 2)
     ForEach LL_ImportUsed()
       CopyFile(LL_ImportUsed(), gProject\sDirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed()))
-      Log_Add("IN  > "+LL_ImportUsed(), 4)
+      Output_Add("IN  > "+LL_ImportUsed(), #Output_Log, 4)
       LL_ImportUsed() = gProject\sDirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed())
-      Log_Add("OUT > "+LL_ImportUsed(), 4)
+      Output_Add("OUT > "+LL_ImportUsed(), #Output_Log, 4)
     Next
   ;}
   ; Creating archive
-  Log_Add("Creating archive", 2)
+  Output_Add("Creating archive", #Output_Log, 2)
   ;{ Generates a file which contains all objects files
   CompilerSelect #PB_Compiler_OS
     CompilerCase #PB_OS_Windows;{
       Protected hObjFile.l = CreateFile(#PB_Any, gProject\sDirObj+"ObjList.txt")
       Protected hPgm_Polib.l
+      
       If hObjFile
         ForEach LL_DLLFunctions()
           WriteStringN(hObjFile, #DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote)
@@ -96,21 +96,21 @@ ProcedureDLL Moebius_Compile_Step4()
       hPgm_Polib = RunProgram(gConf_Path_OBJ2LIB, sProgRequest, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
       If hPgm_Polib
         While ProgramRunning(hPgm_Polib)
-          Log_Add(ReadProgramString(hPgm_Polib),2)
+          sProgReturn + ReadProgramString(hPgm_Polib) + #System_EOL
         Wend
       Else
-        Log_Add("Error in RunProgram", 2)
+        sProgReturn = "Error in RunProgram"
       EndIf
       CloseProgram(hPgm_Polib)
     ;}
     CompilerCase #PB_OS_Linux;{
       sProgRequest = "ar rvs "
       sProgRequest + #DQuote+gProject\sDirLib+#DQuote+" "
-      sProgRequest + gProject\DirObj + "*"
-      system_(@sProgRequest)
+      sProgRequest + gProject\sDirObj + "*"
+      sProgReturn = Str(system_(@sProgRequest))
     ;}
   CompilerEndSelect
-  Log_Add(sProgRequest, 2)
-  Batch_Add(sProgRequest)
+  Output_Add(sProgRequest, #Output_Log | #Output_Bat, 2)
+  Output_Add(sProgReturn, #Output_Log, 2)
   ;}
 EndProcedure

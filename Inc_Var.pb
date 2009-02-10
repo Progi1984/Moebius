@@ -76,6 +76,8 @@ Global NewList LL_ASM_extrn.s()
 
 
 #DQuote = Chr(34)
+#Output_Log = $001
+#Output_Bat = $002
 
 Macro M_SetConstantPrefs(Name, ValL, ValS, ValSl)
   #Name#_l = ValL

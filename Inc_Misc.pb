@@ -29,7 +29,27 @@ ProcedureDLL.l CreateDirectoryEx(FolderPath.s)
  EndIf
 EndProcedure 
 
-ProcedureDLL Log_Init()
+;@desc Permits to know if a string is a numeric
+;@returnvalue : #true if it's a numeric, else #false
+ProcedureDLL.l IsNumeric(String.s)
+  Protected Numeric.l, *String.Character
+  If String
+    String = Trim(String)
+    If Left(String, 1) = "-"
+      String =  Right(String, Len(String) -1)
+    EndIf
+    Numeric = #True
+    *String = @String
+    While Numeric And *String\c
+      Numeric = M_IsDigit(*String\c)
+      *String + SizeOf(Character)
+    Wend
+  EndIf
+  ProcedureReturn Numeric
+EndProcedure
+
+ProcedureDLL Output_Init()
+  ; Log
   If gProject\bLogFile = #True
     hFileLog = OpenFile(#PB_Any, gProject\sFileLog)
     WriteStringN(hFileLog, "PARAM > gProject\sFileName = "+gProject\sFileName)
@@ -54,69 +74,57 @@ ProcedureDLL Log_Init()
     WriteStringN(hFileLog, "PARAM > gConf_Ini_Project = "+gConf_Ini_Project)
     WriteStringN(hFileLog, "")
   EndIf
-EndProcedure
-ProcedureDLL Log_Add(Content.s, NumTab.l = 0)
-  If gProject\bLogFile = #True
-    If hFileLog
-      WriteStringN(hFileLog, FormatDate("%hh:%ii:%ss", Date())+"  "+Space(NumTab) + Content)
-    EndIf
-    CompilerIf #PB_Compiler_Debugger = #True
-      Debug "LOG > "+Space(NumTab) + Content
-    CompilerEndIf
+  ; Batch
+  If gProject\bBatFile = #True
+    hFileBatch = OpenFile(#PB_Any, gProject\sDirProject+"BAT"+#System_Separator+"Script"+#System_ExtBatch)
   EndIf
-  CompilerIf Defined(Moebius_App, #PB_Constant) = #True
-    If bEnableLogEditor = #True
-      AddGadgetItem(#Editor_0, -1, FormatDate("%hh:%ii:%ss", Date())+Space(NumTab) + Content)
-    EndIf
-  CompilerEndIf
 EndProcedure
-ProcedureDLL Log_End()
+ProcedureDLL Output_End()
+  ; Log
   If gProject\bLogFile = #True
     If hFileLog
       CloseFile(hFileLog)
     EndIf
   EndIf
-EndProcedure
-ProcedureDLL Batch_Init()
-  If gProject\bBatFile = #True
-    hFileBatch = OpenFile(#PB_Any, gProject\sDirProject+"BAT"+#System_Separator+"Script"+#System_ExtBatch)
-  EndIf
-EndProcedure
-ProcedureDLL Batch_Add(Content.s)
-  If gProject\bBatFile = #True
-    If hFileBatch
-      WriteStringN(hFileBatch, Content)
-    EndIf
-    CompilerIf #PB_Compiler_Debugger = #True
-      Debug "BATCH > "+Content
-    CompilerEndIf
-  EndIf
-EndProcedure
-ProcedureDLL Batch_End()
+  ; Batch
   If gProject\bBatFile = #True
     If hFileBatch
       CloseFile(hFileBatch)
       CompilerSelect #PB_Compiler_OS
-        CompilerCase #PB_OS_Linux : RunProgram("chmod", "+x "+"Script"+#System_ExtBatch,gConf_ProjectDir+"BAT"+#System_Separator)
+        CompilerCase #PB_OS_Linux : RunProgram("chmod", "+x "+"Script"+#System_ExtBatch,gProject\sDirBat)
       CompilerEndSelect
     EndIf
   EndIf
 EndProcedure
-;@desc Permits to know if a string is a numeric
-;@returnvalue : #true if it's a numeric, else #false
-Procedure.l IsNumeric(String.s)
-  Protected Numeric.l, *String.Character
-  If String
-    String = Trim(String)
-    If Left(String, 1) = "-"
-      String =  Right(String, Len(String) -1)
+ProcedureDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
+  Protected sLogContent.s = FormatDate("%hh:%ii:%ss", Date())+"  "+Space(lNumTabs) + sContent
+  Protected sBatContent.s = sContent
+  ; Log
+  If gProject\bLogFile = #True
+    If lFlags & #Output_Log
+      If hFileLog
+        WriteStringN(hFileLog, sLogContent)
+        CompilerIf #PB_Compiler_Debugger = #True
+          Debug "LOG > "+sLogContent
+        CompilerEndIf
+      EndIf
     EndIf
-    Numeric = #True
-    *String = @String
-    While Numeric And *String\c
-      Numeric = M_IsDigit(*String\c)
-      *String + SizeOf(Character)
-    Wend
   EndIf
-  ProcedureReturn Numeric
+  ; Log InApp
+  CompilerIf Defined(Moebius_App, #PB_Constant) = #True
+    If bEnableLogEditor = #True
+      AddGadgetItem(#Editor_0, -1, sLogContent)
+    EndIf
+  CompilerEndIf
+  ; Batch
+  If gProject\bBatFile = #True
+    If lFlags & #Output_Bat
+      If hFileBatch
+        WriteStringN(hFileBatch, sBatContent)
+        CompilerIf #PB_Compiler_Debugger = #True
+          Debug "BATCH > "+sBatContent
+        CompilerEndIf
+      EndIf
+    EndIf
+  EndIf
 EndProcedure

@@ -41,8 +41,8 @@ ProcedureDLL Moebius_ReadParameters()
   gProject\sFileName = Trim(ProgramParameter(CountProgramParameters()-1))
   CompilerSelect #PB_Compiler_OS
     CompilerCase #PB_OS_Linux;{
-      If Left(gProject\FileName,1) <> #System_Separator
-        gProject\FileName = GetCurrentDirectory()+gProject\FileName
+      If Left(gProject\sFileName,1) <> #System_Separator
+        gProject\sFileName = GetCurrentDirectory()+gProject\sFileName
       EndIf
     ;}
     CompilerCase #PB_OS_Windows;{

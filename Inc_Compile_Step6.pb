@@ -16,6 +16,5 @@ ProcedureDLL Moebius_Compile_Step6()
     EndIf
   EndIf
   ; we close logs & batchs
-  Log_End()
-  Batch_End()
+  Output_End()
 EndProcedure

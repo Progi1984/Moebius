@@ -28,30 +28,30 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
             sCallingConvention = "CDecl"
           EndIf
           ;{ Clears the line for extracting informations
-          TrCodeField = ReplaceString(TrCodeField, "proceduredll", "", #PB_String_NoCase)
-          TrCodeField = ReplaceString(TrCodeField, "procedurecdll", "", #PB_String_NoCase)
-          TrCodeField = ReplaceString(TrCodeField, "procedure", "", #PB_String_NoCase)
-          TrCodeField = ReplaceString(TrCodeField, "procedurec", "", #PB_String_NoCase)
-          TrCodeField = Trim(TrCodeField)
-          TrCodeField = ReplaceString(TrCodeField, "  ", " ")
-          TrCodeField = ReplaceString(TrCodeField, " .", ".")
-          TrCodeField = ReplaceString(TrCodeField, " ,", ",")
-          TrCodeField = ReplaceString(TrCodeField, ", ", ",")
-          TrCodeField = ReplaceString(TrCodeField, " (", "(")
+            TrCodeField = ReplaceString(TrCodeField, "proceduredll", "", #PB_String_NoCase)
+            TrCodeField = ReplaceString(TrCodeField, "procedurecdll", "", #PB_String_NoCase)
+            TrCodeField = ReplaceString(TrCodeField, "procedure", "", #PB_String_NoCase)
+            TrCodeField = ReplaceString(TrCodeField, "procedurec", "", #PB_String_NoCase)
+            TrCodeField = Trim(TrCodeField)
+            TrCodeField = ReplaceString(TrCodeField, "  ", " ")
+            TrCodeField = ReplaceString(TrCodeField, " .", ".")
+            TrCodeField = ReplaceString(TrCodeField, " ,", ",")
+            TrCodeField = ReplaceString(TrCodeField, ", ", ",")
+            TrCodeField = ReplaceString(TrCodeField, " (", "(")
           ;}
           sFuncName = TrCodeField
           ;{ we cleared the name of the function
-          If FindString(sFuncName, "(", 0) > 0
-            sFuncNameCleared = Mid(sFuncName, 1, FindString(sFuncName, "(", 0)-1)
-          EndIf
-          sFuncNameCleared = ReplaceString(sFuncNameCleared, "_DEBUG", "", #PB_String_NoCase)
-          sFuncNameCleared = ReplaceString(sFuncNameCleared, "_MMX", "", #PB_String_NoCase)
-          sFuncNameCleared = ReplaceString(sFuncNameCleared, "_SSE2", "", #PB_String_NoCase)
-          sFuncNameCleared = ReplaceString(sFuncNameCleared, "_SSE", "", #PB_String_NoCase)
-          sFuncNameCleared = ReplaceString(sFuncNameCleared, "_3DNOW", "", #PB_String_NoCase)
-          sFuncNameCleared = ReplaceString(sFuncNameCleared, "_THREAD", "", #PB_String_NoCase)
-          sFuncNameCleared = ReplaceString(sFuncNameCleared, "_UNICODE", "", #PB_String_NoCase)
-          sFuncNameCleared = Trim(sFuncNameCleared)
+            If FindString(sFuncName, "(", 0) > 0
+              sFuncNameCleared = Mid(sFuncName, 1, FindString(sFuncName, "(", 0)-1)
+            EndIf
+            sFuncNameCleared = ReplaceString(sFuncNameCleared, "_DEBUG", "", #PB_String_NoCase)
+            sFuncNameCleared = ReplaceString(sFuncNameCleared, "_MMX", "", #PB_String_NoCase)
+            sFuncNameCleared = ReplaceString(sFuncNameCleared, "_SSE2", "", #PB_String_NoCase)
+            sFuncNameCleared = ReplaceString(sFuncNameCleared, "_SSE", "", #PB_String_NoCase)
+            sFuncNameCleared = ReplaceString(sFuncNameCleared, "_3DNOW", "", #PB_String_NoCase)
+            sFuncNameCleared = ReplaceString(sFuncNameCleared, "_THREAD", "", #PB_String_NoCase)
+            sFuncNameCleared = ReplaceString(sFuncNameCleared, "_UNICODE", "", #PB_String_NoCase)
+            sFuncNameCleared = Trim(sFuncNameCleared)
           ;}
           If Left(sFuncNameCleared, 1) = "."
             sFuncNameCleared = Trim(Right(sFuncNameCleared, Len(sFuncNameCleared) - FindString(sFuncNameCleared, " ", 1)))
@@ -65,7 +65,7 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
               EndIf
             Next
           Until bHasNumberInLastPlace = #False
-          Log_Add("LL_DLLFunctions()\sFuncNameCleared > "+sFuncNameCleared, 4)
+          Output_Add("LL_DLLFunctions()\sFuncNameCleared > "+sFuncNameCleared, #Output_Log, 4)
           ;{ we looked if the function already exists
           bFunctionEverAdded = -1
           ForEach LL_DLLFunctions()
@@ -111,18 +111,18 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
             Else
               LL_DLLFunctions()\IsDLLFunction = #False
             EndIf
-            Log_Add("LL_DLLFunctions()\FuncName Full> "+LL_DLLFunctions()\FuncName, 4)
+            Output_Add("LL_DLLFunctions()\FuncName Full> "+LL_DLLFunctions()\FuncName, #Output_Log, 4)
             ;}
             ;{ Calling Convention
-            LL_DLLFunctions()\CallingConvention = sCallingConvention
-            Log_Add("LL_DLLFunctions()\CallingConvention > "+sCallingConvention, 4)
+              LL_DLLFunctions()\CallingConvention = sCallingConvention
+              Output_Add("LL_DLLFunctions()\CallingConvention > "+sCallingConvention, #Output_Log, 4)
             ;}
             ;{ Description
-            If FindString(sFuncName, ";",1) > 0
-              LL_DLLFunctions()\FuncDesc = Right(sFuncName, Len(sFuncName) - FindString(sFuncName, ";",1))
-              sFuncName = Trim(Left(sFuncName, Len(sFuncName) - Len(LL_DLLFunctions()\FuncDesc)-1))
-            EndIf
-            Log_Add("LL_DLLFunctions()\FuncDesc > "+LL_DLLFunctions()\FuncDesc, 4)
+              If FindString(sFuncName, ";",1) > 0
+                LL_DLLFunctions()\FuncDesc = Right(sFuncName, Len(sFuncName) - FindString(sFuncName, ";",1))
+                sFuncName = Trim(Left(sFuncName, Len(sFuncName) - Len(LL_DLLFunctions()\FuncDesc)-1))
+              EndIf
+              Output_Add("LL_DLLFunctions()\FuncDesc > "+LL_DLLFunctions()\FuncDesc, #Output_Log, 4)
             ;}
             
             LL_DLLFunctions()\Params = Right(sFuncName, Len(sFuncName)-(FindString(sFuncName, "(", 1)))
@@ -136,7 +136,7 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
               Next
               LL_DLLFunctions()\Params = Left(LL_DLLFunctions()\Params, IncA-1)
             EndIf
-            Log_Add("LL_DLLFunctions()\Params > "+LL_DLLFunctions()\Params, 4)
+            Output_Add("LL_DLLFunctions()\Params > "+LL_DLLFunctions()\Params, #Output_Log, 4)
             
             If Left(Trim(LL_DLLFunctions()\FuncName), 1) = "."
               sReturnValField = Mid(Trim(LL_DLLFunctions()\FuncName), 2, 1)
@@ -145,7 +145,7 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
             EndIf
             LL_DLLFunctions()\FuncName = Trim(Left(sFuncName, FindString(sFuncName, "(", 1)-1))
             LL_DLLFunctions()\FuncName = Trim(Right(LL_DLLFunctions()\FuncName, Len(LL_DLLFunctions()\FuncName) - FindString(LL_DLLFunctions()\FuncName, " ", 1)))
-            Log_Add("LL_DLLFunctions()\FuncName Light> "+LL_DLLFunctions()\FuncName, 4)
+            Output_Add("LL_DLLFunctions()\FuncName Light> "+LL_DLLFunctions()\FuncName, #Output_Log, 4)
             
             ;{ Type of the Return Value
             If sReturnValField <> ""
@@ -171,7 +171,7 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
                 LL_DLLFunctions()\FuncRetType = "Long"
               CompilerEndIf
             EndIf
-            Log_Add("LL_DLLFunctions()\FuncRetType > "+LL_DLLFunctions()\FuncRetType, 4)
+            Output_Add("LL_DLLFunctions()\FuncRetType > "+LL_DLLFunctions()\FuncRetType, #Output_Log, 4)
             ;}
             ;{ Number of Params
             If Trim(LL_DLLFunctions()\Params) <> ""
@@ -249,8 +249,8 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
               LL_DLLFunctions()\ParamsRetType = ""
               LL_DLLFunctions()\ParamsClean = ""
             EndIf
-            Log_Add("LL_DLLFunctions()\ParamsRetType > "+LL_DLLFunctions()\ParamsRetType, 4)
-            Log_Add("LL_DLLFunctions()\ParamsClean > "+LL_DLLFunctions()\ParamsClean, 4)
+            Output_Add("LL_DLLFunctions()\ParamsRetType > "+LL_DLLFunctions()\ParamsRetType, #Output_Log, 4)
+            Output_Add("LL_DLLFunctions()\ParamsClean > "+LL_DLLFunctions()\ParamsClean, #Output_Log, 4)
             ;}
             If bFunctionEverAdded > -1
               LL_DLLFunctions()\InDescFile = #False
@@ -264,8 +264,8 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
               LL_DLLFunctions()\InDescFile = #True
               bFunctionEverAdded = #False
             EndIf
-            Log_Add("LL_DLLFunctions()\InDescFile > "+Str(LL_DLLFunctions()\InDescFile), 4)
-            Log_Add("", 4)
+            Output_Add("LL_DLLFunctions()\InDescFile > "+Str(LL_DLLFunctions()\InDescFile), #Output_Log, 4)
+            Output_Add("", #Output_Log, 4)
           EndIf
         EndIf
       EndIf
@@ -410,15 +410,15 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
               If bInSystemLib = #True And StringField(TrCodeField, 2, " ") <> ""
                 AddElement(LL_DLLUsed())
                 LL_DLLUsed() = StringField(TrCodeField, 2, " ")
-                Log_Add("LL_DLLUsed() > "+LL_DLLUsed(), 4)
+                Output_Add("LL_DLLUsed() > "+LL_DLLUsed(), #Output_Log, 4)
               ElseIf bInImportLib = #True And StringField(TrCodeField, 2, " ") <> ""
                 AddElement(LL_ImportUsed())
                 LL_ImportUsed() = Trim(RemoveString(TrCodeField, ";"))
-                Log_Add("LL_ImportUsed() > "+LL_ImportUsed(), 4)
+                Output_Add("LL_ImportUsed() > "+LL_ImportUsed(), #Output_Log, 4)
               ElseIf bInPBLib = #True And StringField(TrCodeField, 2, " ") <> ""
                 AddElement(LL_LibUsed())
                 LL_LibUsed() = Trim(LCase(RemoveString(TrCodeField, ";")))
-                Log_Add("LL_LibUsed() > "+LL_LibUsed(), 4)
+                Output_Add("LL_LibUsed() > "+LL_LibUsed(), #Output_Log, 4)
               EndIf
             EndIf
           EndIf
@@ -533,7 +533,7 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
   Protected sCodeShared.s, sCodeField.s, sTmp.s
   Protected lFile.l, lInc.l, lNbLines.l
   Protected bInSharedCode.b = #False - 1
-  Log_Add("Adding function in LL_DLLFunctions()", 6)
+  Output_Add("Adding function in LL_DLLFunctions()", #Output_Log, 6)
   ;{ Adding function in LL_DLLFunctions()
     If AddElement(LL_DLLFunctions())
       LL_DLLFunctions()\FuncName = ReplaceString(gProject\sLibName, " ", "_")+"_Shared" 
@@ -546,7 +546,7 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
       LL_DLLFunctions()\InDescFile = #False
     EndIf
   ;}
-  Log_Add("Extracting SharedCode from MainFile", 6)
+  Output_Add("Extracting SharedCode from MainFile", #Output_Log, 6)
   ;{ Extracting SharedCode from MainFile
   lNbLines = CountString(CodeContent, #System_EOL)
   For lInc = 0 To lNbLines
@@ -578,7 +578,7 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
     EndIf
   Next
   ;}
-  Log_Add("Deleting unuseful code ", 6)
+  Output_Add("Deleting unuseful code ", #Output_Log, 6)
   ;{ Deleting unuseful code 
   CodeContent = sCodeShared
   sCodeShared = ""
@@ -600,7 +600,7 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
     EndSelect
   Next
   ;}
-  Log_Add("Search extrn", 6)
+  Output_Add("Search extrn", #Output_Log, 6)
   ;{ Search extrn
     ClearList(LL_ASM_extrn())
     lNbLines = CountString(sCodeShared, #System_EOL)
@@ -624,7 +624,7 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
       EndIf
     Next
   ;}
-  Log_Add("Begin to write the SharedFunction in file", 6)
+  Output_Add("Begin to write the SharedFunction in file", #Output_Log, 6)
   ; Begin to write the SharedFunction in file
   lFile = CreateFile(#PB_Any, gProject\sDirProject+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
   If lFile
@@ -639,7 +639,7 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
     WriteStringN(lFile, sCodeShared)
     CloseFile(lFile)
   EndIf
-  Log_Add("Finish to write the SharedFunction in file", 6)
+  Output_Add("Finish to write the SharedFunction in file", #Output_Log, 6)
 EndProcedure
 
 ProcedureDLL Moebius_Compile_Step2()
@@ -652,11 +652,11 @@ ProcedureDLL Moebius_Compile_Step2()
     ReadData(0,@CodeContent, Lof(0))
     CloseFile(0)
   EndIf
-  Log_Add("Extracts information for the future creation of the DESC File", 2)
+  Output_Add("Extracts information for the future creation of the DESC File", #Output_Log, 2)
   Moebius_Compile_Step2_ExtractMainInformations(CodeContent)
-  Log_Add("Remove some ASM code", 2)
+  Output_Add("Remove some ASM code", #Output_Log, 2)
   Moebius_Compile_Step2_ModifyASM(CodeContent)
-  Log_Add("Create ASM Files", 2)
+  Output_Add("Create ASM Files", #Output_Log, 2)
   ;{ Create ASM Files
     ; private functions
     For IncA = 0 To ListSize(LL_DLLFunctions())-1
@@ -674,7 +674,7 @@ ProcedureDLL Moebius_Compile_Step2()
           If CreateRegularExpression(0, TrCodeField+"(?=\s|])")
             LL_DLLFunctions()\Code  = ReplaceRegularExpression(0, LL_DLLFunctions()\Code, sTmpString)
           Else
-            Log_Add("ERREUR Regex > "+RegularExpressionError(),4)
+            Output_Add("ERREUR Regex > "+RegularExpressionError(), #Output_Log, 4)
           EndIf
         EndIf
       Next  
@@ -837,7 +837,7 @@ ProcedureDLL Moebius_Compile_Step2()
               bLastIsLabel = #True
             Else
               If bLastIsLabel = #True
-                Log_Add("Moebius_Compile_Step2_WriteASMForArrays()", 2)
+                Output_Add("Moebius_Compile_Step2_WriteASMForArrays()", #Output_Log, 2)
                 sDataSectionForArray = Moebius_Compile_Step2_WriteASMForArrays(lFile)
                 bLastIsLabel = #False
               EndIf
@@ -893,9 +893,9 @@ ProcedureDLL Moebius_Compile_Step2()
       EndIf
     EndIf
   ;}
-  Log_Add("Shared Code", 4)
+  Output_Add("Shared Code", #Output_Log, 4)
   ;{ Shared Code
     Moebius_Compile_Step2_SharedFunction(CodeContent.s)
   ;}
-  Log_Add("Rewrite the new ASM Code", 2)
+  Output_Add("Rewrite the new ASM Code", #Output_Log, 2)
 EndProcedure

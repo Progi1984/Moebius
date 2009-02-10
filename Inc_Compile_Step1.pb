@@ -44,7 +44,9 @@ ProcedureDLL Moebius_Compile_Step1()
   EndIf
   Param +#Switch_Executable+" "+#DQuote+FichierExe+#DQuote
   Compilateur = RunProgram(gConf_Path_PBCOMPILER, #DQuote+gProject\sFileName+#DQuote+" "+Param, gProject\sDirProject, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
-  Log_Add(#DQuote+gConf_Path_PBCOMPILER+#DQuote+" " + #DQuote+gProject\sFileName+#DQuote+" "+Param)
+  
+  Output_Add(#DQuote+gConf_Path_PBCOMPILER+#DQuote+" " + #DQuote+gProject\sFileName+#DQuote+" "+Param, #Output_Log)
+  
   If Compilateur
     While ProgramRunning(Compilateur)
       Sortie + ReadProgramString(Compilateur) + Chr(13)
@@ -58,18 +60,18 @@ ProcedureDLL Moebius_Compile_Step1()
     ; Test if the result is true 
     ; The last returned ligne is "- Feel the ..PuRe.. Power -"
     If FindString(Sortie, "- Feel the ..PuRe.. Power -", 0)
-      Log_Add(Sortie)
+      Output_Add(Sortie, #Output_Log)
       ; we delete the last executable created
       DeleteFile(FichierExe)
       ProcedureReturn #True
     Else
-      Log_Add("Erreur de compilation > Le compilateur a retourné l'erreur suivante : -2" + Chr(10) + Sortie)
+      Output_Add("Erreur de compilation > Le compilateur a retourné l'erreur suivante : -2" + Chr(10) + Sortie, #Output_Log)
       ; we delete the last executable created
       DeleteFile(FichierExe)
       ProcedureReturn -2
     EndIf
   Else
-    Log_Add("Erreur de compilation > Le compilateur a retourné l'erreur suivante : -3" + Chr(10) + Sortie)
+    Output_Add("Erreur de compilation > Le compilateur a retourné l'erreur suivante : -3" + Chr(10) + Sortie, #Output_Log)
     ; we delete the last executable created
     DeleteFile(FichierExe)
     ProcedureReturn -3

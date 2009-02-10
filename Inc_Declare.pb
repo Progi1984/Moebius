@@ -4,12 +4,10 @@ DeclareDLL Moebius_ReadParameters()
 
 ; Inc_Misc.pb
 DeclareDLL.l CreateDirectoryEx(FolderPath.s)
-DeclareDLL Log_Init()
-DeclareDLL Log_Add(Content.s, NumTab.l = 0)
-DeclareDLL Log_End()
-DeclareDLL Batch_Init()
-DeclareDLL Batch_Add(Content.s)
-DeclareDLL Batch_End()
+DeclareDLL.l IsNumeric(String.s)
+DeclareDLL Output_Init()
+DeclareDLL Output_End()
+DeclareDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
 
 ; Inc_PB.pb
 Declare PB_GetInfoUserLib(LibFileName.s)
