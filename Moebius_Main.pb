@@ -13,7 +13,7 @@ XIncludeFile "Inc_Compile_Step0.pb"
 XIncludeFile "Inc_Compile_Step1.pb"
 XIncludeFile "Inc_Compile_Step2.pb"
 XIncludeFile "Inc_Compile_Step3.pb"
-XI;ncludeFile "Inc_Compile_Step4.pb"
+XIncludeFile "Inc_Compile_Step4.pb"
 XIncludeFile "Inc_Compile_Step5.pb"
 XIncludeFile "Inc_Compile_Step6.pb"
 XIncludeFile "Moebius_MainThread.pb"
@@ -23,27 +23,3 @@ CompilerIf Defined(Moebius_App, #PB_Constant) = #False
   Moebius_ReadPrefs()
   Moebius_MainThread(0)
 CompilerEndIf
-
-;-DONE : replace all countstring in for by a long which contains this value
-;-DONE : Improve log functions : combine batch and logs
-;-DONE : Log in streaming or log final (infos contained in linked lists)
-;-DONE : @desc for all functions
-
-;-TD : Step2 : TimeToWin : Listing LL_DLLUsed() & "Create ASM Files"
-;-TD : Step2 : TimeToWin : Shared Code "Extracting SharedCode from MainFile" > 10sec
-;-TD : Step2 : improve write asm code in files
-
-;-DONE : Step4 : Ecrire le fichier dans un string et l'écrire à la fichier du fichier
-
-;-TD : Step5 : Include Subsystems
-
-;-TD : Comment Step0
-;-TD : Comment Step1
-;-TD : Comment Step2
-;-TD : Comment Step3
-;-TD : Comment Step4
-;-TD : Comment Step5
-;-TD : Comment Step6
-
-;-TD : HowTo : Compile Moebius
-
