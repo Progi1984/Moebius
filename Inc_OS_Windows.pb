@@ -42,4 +42,3 @@ M_SetConstantPrefs(Switch_Param_LogFileName, 17, "/log", "/LOGFILENAME")
 M_SetConstantPrefs(Switch_Param_ProjectDir, 18, "/d", "/PROJECTDIR")
 M_SetConstantPrefs(Switch_Param_LogFileInStream, 19, "/fs", "/LOGFILEINSTREAM")
 M_SetConstantPrefs(Switch_Param_Last, 20, "", "")
-

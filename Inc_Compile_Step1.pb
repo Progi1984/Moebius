@@ -1,8 +1,9 @@
-;@returnvalue : 1  > Success
-;@returnvalue : 0  > Error : Not a purebasic file
-;@returnvalue : -1 > Error : Program not launched
-;@returnvalue : -2 > Error : Compiler Error
-;@returnvalue : -3 > Error : Compiler Exit Code Error
+;@desc Compile the program file for extracting all ASM files
+;@returnvalue 1  > Success
+;@returnvalue 0  > Error : Not a purebasic file
+;@returnvalue -1 > Error : Program not launched
+;@returnvalue -2 > Error : Compiler Error
+;@returnvalue -3 > Error : Compiler Exit Code Error
 ProcedureDLL Moebius_Compile_Step1()
   ; 1. PBCOMPILER creates the EXE (using POLINK) that we don't need, but also the ASM file (/COMMENTED)
  

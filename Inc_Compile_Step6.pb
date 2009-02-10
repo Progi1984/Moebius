@@ -1,4 +1,4 @@
-;@desc : Cleans the place
+;@desc Cleans the place
 ProcedureDLL Moebius_Compile_Step6()
   ; if we don't keep files, we delete directories and their contents
   If gProject\bDontKeepSrcFiles = #False

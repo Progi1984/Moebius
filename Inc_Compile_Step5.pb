@@ -1,5 +1,5 @@
+;@desc LibraryMaker creates userlibrary from the LIB file
 ProcedureDLL Moebius_Compile_Step5()
-  ; 5. LibraryMaker creates userlibrary from the LIB file
   Protected DirUserLibrary.s = gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator
   If gProject\bDontBuildLib = #False
     RunProgram(gConf_Path_PBLIBMAKER, " "+#DQuote+gProject\sFileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, gProject\sDirProject, #PB_Program_Wait|#PB_Program_Hide)

@@ -1,3 +1,4 @@
+;- Structures
 Structure S_Project
   sFileName.s           ; PB Filename for compiling
   sFileDesc.s           ; Desc File
@@ -52,6 +53,20 @@ Structure S_Seeker
   EndStructureUnion
 EndStructure
 
+;- Linked lists
+Global NewList LL_DLLFunctions.S_DLLFunctions()
+Global NewList LL_PBFunctions.S_PBFunctionInfo()
+Global NewList LL_Functions.s()
+Global NewList LL_LibUsed.s()
+Global NewList LL_DLLUsed.s()
+Global NewList LL_ImportUsed.s()
+Global NewList LL_ASM_extrn.s()
+Global NewList LL_Logs.s()
+
+;- Arrays
+Global Dim D_Parameters.s(9)
+
+;- Globals
 Global gProject.S_Project
 Global hCompiler.l
 Global hFileLog.l
@@ -63,24 +78,15 @@ Global gConf_Path_FASM.s
 Global gConf_Path_OBJ2LIB.s
 Global gConf_Path_PBLIBMAKER.s
 Global gConf_SourceDir.s
-;Global gConf_ProjectDir.s
 Global gConf_Ini_Purebasic.s
 Global gConf_Ini_Project.s
 
-Global NewList LL_DLLFunctions.S_DLLFunctions()
-Global NewList LL_PBFunctions.S_PBFunctionInfo()
-Global NewList LL_Functions.s()
-Global NewList LL_LibUsed.s()
-Global NewList LL_DLLUsed.s()
-Global NewList LL_ImportUsed.s()
-Global NewList LL_ASM_extrn.s()
-Global NewList LL_Logs.s()
-
-
+;- Constants
 #DQuote = Chr(34)
 #Output_Log = $001
 #Output_Bat = $002
 
+;- Macros
 Macro M_SetConstantPrefs(Name, ValL, ValS, ValSl)
   #Name#_l = ValL
   #Name#_s = ValS
@@ -112,5 +118,3 @@ EndMacro
 Macro M_LibName_Clean(name)
   ReplaceString(gProject\sLibName, " ", "_")
 EndMacro
-
-Global Dim D_Parameters.s(9)

@@ -1,7 +1,7 @@
+;@desc POLIB or AR creates the LIB library from the *.OBJ files
 ProcedureDLL Moebius_Compile_Step4()
   Protected StringTmp.s, sDescContent.s, sProgRequest.s, sProgReturn.s
   Protected hDescFile.l, lNbImportLib.l
-  ; 4. POLIB creates the LIB library from the *.OBJ files
   ;{ Creating descriptor file
     Output_Add("Creating descriptor file", #Output_Log, 2)
     ;{ Langage used to code the library

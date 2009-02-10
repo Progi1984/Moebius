@@ -1,3 +1,4 @@
+;@desc Main thread of all compilations
 ProcedureDLL Moebius_MainThread(Param.l)
   Protected RetValue.l
   RetValue = Moebius_Compile_Step0()

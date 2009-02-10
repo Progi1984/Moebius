@@ -13,7 +13,7 @@ XIncludeFile "Inc_Compile_Step0.pb"
 XIncludeFile "Inc_Compile_Step1.pb"
 XIncludeFile "Inc_Compile_Step2.pb"
 XIncludeFile "Inc_Compile_Step3.pb"
-XIncludeFile "Inc_Compile_Step4.pb"
+XI;ncludeFile "Inc_Compile_Step4.pb"
 XIncludeFile "Inc_Compile_Step5.pb"
 XIncludeFile "Inc_Compile_Step6.pb"
 XIncludeFile "Moebius_MainThread.pb"
@@ -27,7 +27,7 @@ CompilerEndIf
 ;-DONE : replace all countstring in for by a long which contains this value
 ;-DONE : Improve log functions : combine batch and logs
 ;-DONE : Log in streaming or log final (infos contained in linked lists)
-;-TD : @desc for all functions
+;-DONE : @desc for all functions
 
 ;-TD : Step2 : TimeToWin : Listing LL_DLLUsed() & "Create ASM Files"
 ;-TD : Step2 : TimeToWin : Shared Code "Extracting SharedCode from MainFile" > 10sec

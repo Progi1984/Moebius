@@ -1,3 +1,4 @@
+;@desc Extracts information for the future creation of the DESC File
 ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
   Protected Inc.l, IncA.l, lPos.l, lNbLines.l
   Protected CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned2.s, sFuncName.s, sFuncNameCleared.s, sReturnValField.s, sParamItem.s
@@ -273,6 +274,7 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
   Next
   ;}
 EndProcedure
+;@desc Permits in functions of some code to extract, remove some code & informations
 ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
   Protected Inc.l, lNbLines.l
   Protected CodeField.s, TrCodeField.s, CodeCleaned.s, sNameOfFunction.s, sTmpString.s
@@ -436,6 +438,7 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
   Next
   ;}
 EndProcedure
+;@desc Write some asm code for arrays in asm code
 ProcedureDLL.s Moebius_Compile_Step2_WriteASMForArrays(lFile.l)
   Protected lIncA.l, lIncB.l, lOffset.l, lNbLines.l
   Protected sItemParam.s, sReturnDataSection.s
@@ -487,6 +490,7 @@ ProcedureDLL.s Moebius_Compile_Step2_WriteASMForArrays(lFile.l)
   EndIf 
   ProcedureReturn sReturnDataSection
 EndProcedure
+;@desc Adds some extern and verify some contrainsts
 ProcedureDLL Moebius_Compile_Step2_AddExtrn(Part.s)
   Protected TrCodeField.s
   Protected bFound.b
@@ -528,8 +532,8 @@ ProcedureDLL Moebius_Compile_Step2_AddExtrn(Part.s)
   EndIf
   ProcedureReturn #False
 EndProcedure
-
-ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
+;@desc Create Shared Code
+ProcedureDLL Moebius_Compile_Step2_CreateSharedFunction(CodeContent.s)
   Protected sCodeShared.s, sCodeField.s, sTmp.s
   Protected lFile.l, lInc.l, lNbLines.l
   Protected bInSharedCode.b = #False - 1
@@ -641,9 +645,8 @@ ProcedureDLL Moebius_Compile_Step2_SharedFunction(CodeContent.s)
   EndIf
   Output_Add("Finish to write the SharedFunction in file", #Output_Log, 6)
 EndProcedure
-
+;@desc This step grabs the ASM file, splits it, rewrites some parts
 ProcedureDLL Moebius_Compile_Step2()
-  ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
   Protected CodeContent.s, CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned.s, sDataSectionForArray.s
   Protected IncA.l, IncB.l, lPos.l, lPosLast.l, lFile.l,lNbLines.l
   Protected bFound.b, bLastIsLabel.b, bIsDLLFunction.b
@@ -895,7 +898,7 @@ ProcedureDLL Moebius_Compile_Step2()
   ;}
   Output_Add("Shared Code", #Output_Log, 4)
   ;{ Shared Code
-    Moebius_Compile_Step2_SharedFunction(CodeContent.s)
+    Moebius_Compile_Step2_CreateSharedFunction(CodeContent.s)
   ;}
   Output_Add("Rewrite the new ASM Code", #Output_Log, 2)
 EndProcedure

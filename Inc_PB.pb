@@ -1,3 +1,4 @@
+;@desc Extracts all informations from userlibs
 Procedure PB_GetInfoUserLib(LibFileName.s)
   Protected LibName.s = GetFilePart(LibFileName)
   Protected LibSize.l, hDLL.l, hPL.l, IncA.l, lTest.l
@@ -84,6 +85,7 @@ Procedure PB_GetInfoUserLib(LibFileName.s)
     EndIf
   EndIf
 EndProcedure
+;@desc Extracts function names and libs which are containing them
 Procedure PB_GetInfoLib(FileName.s)
   Protected LibName.s = GetFilePart(FileName)
   Protected hFile = ReadFile(#PB_Any, FileName)
@@ -106,13 +108,11 @@ Procedure PB_GetInfoLib(FileName.s)
         LL_PBFunctions()\LibContaining = LibName
         If (Loc(hFile)<(Lof(hFile)-2))
           FileSeek(hFile, Loc(hFile) + 2)
-        Else
-          ; erreur
+        Else ; erreur
           CloseFile(hFile)
           ProcedureReturn -1  ; erreur sur le déplacement dans le fichier
         EndIf
-      Else
-        ; erreur
+      Else ; erreur
         CloseFile(hFile)
         ProcedureReturn -1  ; erreur sur le déplacement dans le fichier
       EndIf
@@ -127,7 +127,7 @@ Procedure PB_GetInfoLib(FileName.s)
   EndIf
 EndProcedure
 
-;@desc : List all functions contained in purelibraries & {System}Libraries
+;@desc List all functions contained in purelibraries & {System}Libraries
 Procedure.s PB_ListFunctions(Function.s)
   Protected NextDir.l, lTest.l
   Protected NameOfLib.s, LibFileName.s, sTrFunction.s
@@ -182,8 +182,9 @@ Procedure.s PB_ListFunctions(Function.s)
     EndIf
   Next
 EndProcedure
-;@desc : Retrieves Purebasic folder [empty string if not installed]
-;@return : Purebasic Path
+
+;@desc Retrieves Purebasic folder [empty string if not installed]
+;@returnvalue Purebasic Path
 Procedure.s PB_GetPBFolder()
   CompilerSelect #PB_Compiler_OS
     CompilerCase #PB_OS_Windows
@@ -240,6 +241,7 @@ Procedure.s PB_GetPBFolder()
   CompilerEndSelect
 EndProcedure
 
+;@desc Connects to PBCompiler for restarting the compiler
 ProcedureDLL PB_Connect()
   Protected ReponseComp.s
   hCompiler = RunProgram(gConf_Path_PBCOMPILER, #Switch_StandBy, "", #PB_Program_Open|#PB_Program_Read|#PB_Program_Write|#PB_Program_Hide)
@@ -256,6 +258,7 @@ ProcedureDLL PB_Connect()
     Wend
   EndIf
 EndProcedure
+;@desc Disconnects to PBCompiler for restarting the compiler
 ProcedureDLL PB_DisConnect()
   WriteProgramStringN(hCompiler, "END")
   CloseProgram(hCompiler)

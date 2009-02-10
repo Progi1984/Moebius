@@ -1,3 +1,4 @@
+;@desc : Read preferences
 ProcedureDLL Moebius_ReadPrefs()
   ; ReadPreferences > Path
   If gConf_Ini_Purebasic <> "" And FileSize(gConf_Ini_Purebasic) > 0
@@ -34,6 +35,7 @@ ProcedureDLL Moebius_ReadPrefs()
     EndIf
   EndIf
 EndProcedure
+;@desc : Read parameters from command line
 ProcedureDLL Moebius_ReadParameters()
   Protected IncA.l, lLastParam.l
   Protected bDecl_Switch_Param_LogFileName.b, bDecl_Switch_Param_OutputLib.b, bDecl_Switch_Param_Help.b
@@ -67,6 +69,8 @@ ProcedureDLL Moebius_ReadParameters()
   gProject\bThreadSafe  = #False
   gProject\bBatFile  = #False
   gProject\sSubsystem  = ""
+  
+  ; now we read command line
   For IncA = 0 To CountProgramParameters()-1
       Select ProgramParameter(IncA)
         Case #Switch_Param_Help_s, #Switch_Param_Help_sl  ;{

@@ -1,14 +1,14 @@
-;@author : Le Soldat Inconnu
-;@desc : This code permits you to create a directory which parents directories doesn't exist.
-;@sample :
-; ; I wish create a directory "C:\Program files\truc\bidule"
-; ; Only the directory "C:\Program files\" exists
-; ; If I use CreateDirectory("C:\Program files\truc\bidule"), that doesn't work because the directory "C:\Program files\truc\" doesn't exist
-; ; If I use CreateDirectoryEx("C:\Program files\truc\bidule"), all these directories will be created :
-; - C:\Program files\
-; - C:\Program files\truc\
-; - C:\Program files\truc\bidule
-;@returns : 1 if the creation of the directory has a success
+;@author Le Soldat Inconnu
+;@desc This code permits you to create a directory which parents directories doesn't exist.
+;@sample
+;@+ ; I wish create a directory "C:\Program files\truc\bidule"
+;@+ ; Only the directory "C:\Program files\" exists
+;@+ ; If I use CreateDirectory("C:\Program files\truc\bidule"), that doesn't work because the directory "C:\Program files\truc\" doesn't exist
+;@+ ; If I use CreateDirectoryEx("C:\Program files\truc\bidule"), all these directories will be created :
+;@+ ; - C:\Program files\
+;@+ ; - C:\Program files\truc\
+;@+ ; - C:\Program files\truc\bidule
+;@returnvalue 1 if the creation of the directory has a success
 ;@+ 0 if not
 ProcedureDLL.l CreateDirectoryEx(FolderPath.s)
  Protected Folder.s, Txt.s, Cpt.l
@@ -29,8 +29,9 @@ ProcedureDLL.l CreateDirectoryEx(FolderPath.s)
  EndIf
 EndProcedure 
 
+;@author Dr. Dri
 ;@desc Permits to know if a string is a numeric
-;@returnvalue : #true if it's a numeric, else #false
+;@returnvalue #True if it's a numeric, else #False
 ProcedureDLL.l IsNumeric(String.s)
   Protected Numeric.l, *String.Character
   If String
@@ -48,6 +49,7 @@ ProcedureDLL.l IsNumeric(String.s)
   ProcedureReturn Numeric
 EndProcedure
 
+;@desc Initialize batch & log files
 ProcedureDLL Output_Init()
   ; Log
   If gProject\bLogFile = #True
@@ -83,6 +85,7 @@ ProcedureDLL Output_Init()
     hFileBatch = OpenFile(#PB_Any, gProject\sDirProject+"BAT"+#System_Separator+"Script"+#System_ExtBatch)
   EndIf
 EndProcedure
+;@desc Close batch & log files
 ProcedureDLL Output_End()
   ; Log
   If gProject\bLogFile = #True
@@ -110,6 +113,7 @@ ProcedureDLL Output_End()
     EndIf
   EndIf
 EndProcedure
+;@desc Add content to batch or/and log files
 ProcedureDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
   Protected sLogContent.s = FormatDate("%hh:%ii:%ss", Date())+"  "+Space(lNumTabs) + sContent
   Protected sBatContent.s = sContent

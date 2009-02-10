@@ -1,5 +1,5 @@
+;@desc FASM compiles the ASM files created by Moebius To OBJ
 ProcedureDLL Moebius_Compile_Step3()
-  ; 3. FASM compiles the ASM files created by tailbite To OBJ
   ;     Compiling ASM sources
   Protected Pgm_Fasm.l
   Protected sFASMError.s, sReadPgm.s
