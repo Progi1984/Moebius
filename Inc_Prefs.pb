@@ -148,6 +148,9 @@ ProcedureDLL Moebius_ReadParameters()
           gProject\sFileCHM  = gProject\sLibName + #System_ExtHelp
           IncA = IncA + 1
         ;}
+        Case #Switch_Param_LogFileInStream_s, #Switch_Param_LogFileInStream_sl ;{
+          gProject\bLogInStreaming = #True
+        ;}
         Default:
       EndSelect
   Next

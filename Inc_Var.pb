@@ -20,6 +20,7 @@ Structure S_Project
   bDontBuildLib.b
   bDontKeepSrcFiles.b
   bLogFile.b
+  bLogInStreaming.b
   bBatFile.b
 EndStructure
 Structure S_DLLFunctions
@@ -73,6 +74,7 @@ Global NewList LL_LibUsed.s()
 Global NewList LL_DLLUsed.s()
 Global NewList LL_ImportUsed.s()
 Global NewList LL_ASM_extrn.s()
+Global NewList LL_Logs.s()
 
 
 #DQuote = Chr(34)

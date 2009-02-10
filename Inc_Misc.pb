@@ -51,28 +51,32 @@ EndProcedure
 ProcedureDLL Output_Init()
   ; Log
   If gProject\bLogFile = #True
-    hFileLog = OpenFile(#PB_Any, gProject\sFileLog)
-    WriteStringN(hFileLog, "PARAM > gProject\sFileName = "+gProject\sFileName)
-    WriteStringN(hFileLog, "PARAM > gProject\sLibName = "+gProject\sLibName)
-    WriteStringN(hFileLog, "PARAM > gProject\sDirAsm = "+gProject\sDirAsm)
-    WriteStringN(hFileLog, "PARAM > gProject\sFileDesc = "+gProject\sFileDesc)
-    WriteStringN(hFileLog, "PARAM > gProject\sDirObj = "+gProject\sDirObj)
-    WriteStringN(hFileLog, "PARAM > gProject\sDirLib = "+gProject\sDirLib)
-    WriteStringN(hFileLog, "PARAM > gProject\sFileCHM = "+gProject\sFileCHM)
-    WriteStringN(hFileLog, "PARAM > gProject\sFileOutput = "+gProject\sFileOutput)
-    WriteStringN(hFileLog, "PARAM > gProject\sSubsystem = "+gProject\sSubsystem)
-    WriteStringN(hFileLog, "PARAM > gProject\sFileLog = "+gProject\sFileLog)
-    WriteStringN(hFileLog, "PARAM > gProject\sDirProject = "+gProject\sDirProject)
-    WriteStringN(hFileLog, "PARAM > gProject\bDontBuildLib = "+Str(gProject\bDontBuildLib))
-    WriteStringN(hFileLog, "PARAM > gProject\bDontKeepSrcFiles = "+Str(gProject\bDontKeepSrcFiles))
-    WriteStringN(hFileLog, "PARAM > gProject\bLogFile = "+Str(gProject\bLogFile))
-    WriteStringN(hFileLog, "PARAM > gProject\bUnicode = "+Str(gProject\bUnicode))
-    WriteStringN(hFileLog, "PARAM > gProject\bThreadSafe = "+Str(gProject\bThreadSafe))
-    WriteStringN(hFileLog, "PARAM > gProject\bBatFile = "+Str(gProject\bBatFile))
-    WriteStringN(hFileLog, "PARAM > gConf_SourceDir = "+gConf_SourceDir)
-    WriteStringN(hFileLog, "PARAM > gConf_Ini_Purebasic = "+gConf_Ini_Purebasic)
-    WriteStringN(hFileLog, "PARAM > gConf_Ini_Project = "+gConf_Ini_Project)
-    WriteStringN(hFileLog, "")
+    If gProject\bLogInStreaming = #False
+      hFileLog = OpenFile(#PB_Any, gProject\sFileLog)
+      WriteStringN(hFileLog, "PARAM > gProject\sFileName = "+gProject\sFileName)
+      WriteStringN(hFileLog, "PARAM > gProject\sLibName = "+gProject\sLibName)
+      WriteStringN(hFileLog, "PARAM > gProject\sDirAsm = "+gProject\sDirAsm)
+      WriteStringN(hFileLog, "PARAM > gProject\sFileDesc = "+gProject\sFileDesc)
+      WriteStringN(hFileLog, "PARAM > gProject\sDirObj = "+gProject\sDirObj)
+      WriteStringN(hFileLog, "PARAM > gProject\sDirLib = "+gProject\sDirLib)
+      WriteStringN(hFileLog, "PARAM > gProject\sFileCHM = "+gProject\sFileCHM)
+      WriteStringN(hFileLog, "PARAM > gProject\sFileOutput = "+gProject\sFileOutput)
+      WriteStringN(hFileLog, "PARAM > gProject\sSubsystem = "+gProject\sSubsystem)
+      WriteStringN(hFileLog, "PARAM > gProject\sFileLog = "+gProject\sFileLog)
+      WriteStringN(hFileLog, "PARAM > gProject\sDirProject = "+gProject\sDirProject)
+      WriteStringN(hFileLog, "PARAM > gProject\bDontBuildLib = "+Str(gProject\bDontBuildLib))
+      WriteStringN(hFileLog, "PARAM > gProject\bDontKeepSrcFiles = "+Str(gProject\bDontKeepSrcFiles))
+      WriteStringN(hFileLog, "PARAM > gProject\bLogFile = "+Str(gProject\bLogFile))
+      WriteStringN(hFileLog, "PARAM > gProject\bUnicode = "+Str(gProject\bUnicode))
+      WriteStringN(hFileLog, "PARAM > gProject\bThreadSafe = "+Str(gProject\bThreadSafe))
+      WriteStringN(hFileLog, "PARAM > gProject\bBatFile = "+Str(gProject\bBatFile))
+      WriteStringN(hFileLog, "PARAM > gConf_SourceDir = "+gConf_SourceDir)
+      WriteStringN(hFileLog, "PARAM > gConf_Ini_Purebasic = "+gConf_Ini_Purebasic)
+      WriteStringN(hFileLog, "PARAM > gConf_Ini_Project = "+gConf_Ini_Project)
+      WriteStringN(hFileLog, "")
+    Else
+      ClearList(LL_Logs())
+    EndIf
   EndIf
   ; Batch
   If gProject\bBatFile = #True
@@ -82,8 +86,18 @@ EndProcedure
 ProcedureDLL Output_End()
   ; Log
   If gProject\bLogFile = #True
-    If hFileLog
-      CloseFile(hFileLog)
+    If gProject\bLogInStreaming = #False
+      If hFileLog
+        CloseFile(hFileLog)
+      EndIf
+    Else
+      hFileLog = OpenFile(#PB_Any, gProject\sFileLog)
+      If hFileLog
+        ForEach LL_Logs()
+          WriteStringN(hFileLog, LL_Logs())
+        Next
+        CloseFile(hFileLog)
+      EndIf
     EndIf
   EndIf
   ; Batch
@@ -102,11 +116,18 @@ ProcedureDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
   ; Log
   If gProject\bLogFile = #True
     If lFlags & #Output_Log
-      If hFileLog
-        WriteStringN(hFileLog, sLogContent)
-        CompilerIf #PB_Compiler_Debugger = #True
-          Debug "LOG > "+sLogContent
-        CompilerEndIf
+      If gProject\bLogInStreaming = #False
+        If hFileLog
+          WriteStringN(hFileLog, sLogContent)
+          CompilerIf #PB_Compiler_Debugger = #True
+            Debug "LOG > "+sLogContent
+          CompilerEndIf
+        EndIf
+      Else
+        LastElement(LL_Logs())
+        If AddElement(LL_Logs())
+          LL_Logs() = sLogContent
+        EndIf
       EndIf
     EndIf
   EndIf

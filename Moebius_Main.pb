@@ -25,8 +25,8 @@ CompilerIf Defined(Moebius_App, #PB_Constant) = #False
 CompilerEndIf
 
 ;-DONE : replace all countstring in for by a long which contains this value
-;-TD : Improve log functions : combine batch and logs
-;-TD : Log in streaming or log final (infos contained in linked lists)
+;-DONE : Improve log functions : combine batch and logs
+;-DONE : Log in streaming or log final (infos contained in linked lists)
 ;-TD : @desc for all functions
 
 ;-TD : Step2 : TimeToWin : Listing LL_DLLUsed() & "Create ASM Files"
