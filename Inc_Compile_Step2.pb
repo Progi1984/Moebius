@@ -1,10 +1,11 @@
 ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
-  Protected Inc.l, IncA.l, lPos.l
+  Protected Inc.l, IncA.l, lPos.l, lNbLines.l
   Protected CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned2.s, sFuncName.s, sFuncNameCleared.s, sReturnValField.s, sParamItem.s
   Protected sIsParameterDefautValueStart.s, sIsParameterDefautValueEnd.s, sCallingConvention.s
   Protected bFunctionEverAdded.b, bFunctionEverAdded_NbParams.b, bHasNumberInLastPlace.b
   ;{ Extracts information for the future creation of the DESC File
-  For Inc = 0 To CountString(CodeContent, #System_EOL)
+  lNbLines = CountString(CodeContent, #System_EOL)
+  For Inc = 0 To lNbLines
     CodeField = StringField(CodeContent, Inc+1, #System_EOL)
     TrCodeField = ReplaceString(CodeField, Chr(13), "")
     TrCodeField = ReplaceString(TrCodeField, Chr(10), "")
@@ -273,12 +274,13 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
   ;}
 EndProcedure
 ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
-  Protected Inc.l
+  Protected Inc.l, lNbLines.l
   Protected CodeField.s, TrCodeField.s, CodeCleaned.s, sNameOfFunction.s, sTmpString.s
   Protected bFound.b, bNotCapture.b, bInFunction.b, bInBSSSection.b, bInSharedCode.b, bInSystemLib.b, bInImportLib.b, bInPBLib.b
 
   ;{ Permits in functions of some code to extract, remove some code & informations
-  For Inc = 0 To CountString(CodeContent, #System_EOL)
+  lNbLines = CountString(CodeContent, #System_EOL)
+  For Inc = 0 To lNbLines
     CodeField = StringField(CodeContent, Inc+1, #System_EOL)
     TrCodeField = ReplaceString(CodeField, Chr(13), "")
     TrCodeField = ReplaceString(TrCodeField, Chr(10), "")
@@ -435,11 +437,12 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
   ;}
 EndProcedure
 ProcedureDLL.s Moebius_Compile_Step2_WriteASMForArrays(lFile.l)
-  Protected lIncA.l, lIncB.l, lOffset.l
+  Protected lIncA.l, lIncB.l, lOffset.l, lNbLines.l
   Protected sItemParam.s, sReturnDataSection.s
   Protected bNbArrays.b
   If FindString(LCase(LL_DLLFunctions()\ParamsRetType), "array", 0)  > 0
-    For lIncA = 1 To CountString(LL_DLLFunctions()\ParamsRetType, ",")
+    lNbLines = CountString(LL_DLLFunctions()\ParamsRetType, ",")
+    For lIncA = 1 To lNbLines
       ; Param's Type
       sItemParam = StringField(LL_DLLFunctions()\ParamsRetType, lIncA +1, ",")
       sItemParam = LCase(sItemParam)
@@ -642,7 +645,7 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step2()
   ; 2. TAILBITE grabs the ASM file, splits it, rewrites some parts
   Protected CodeContent.s, CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned.s, sDataSectionForArray.s
-  Protected IncA.l, IncB.l, lPos.l, lPosLast.l, lFile.l
+  Protected IncA.l, IncB.l, lPos.l, lPosLast.l, lFile.l,lNbLines.l
   Protected bFound.b, bLastIsLabel.b, bIsDLLFunction.b
   If ReadFile(0, gProject\sDirProject+"purebasic.asm")
     CodeContent = Space(Lof(0)+1)
@@ -710,7 +713,8 @@ ProcedureDLL Moebius_Compile_Step2()
         EndIf;}
         WriteStringN(lFile, "")
         ;{ extrn
-        For IncA = 0 To CountString(LL_DLLFunctions()\Code, #System_EOL)
+        lNbLines = CountString(LL_DLLFunctions()\Code, #System_EOL)
+        For IncA = 0 To lNbLines
           CodeField = Trim(StringField(LL_DLLFunctions()\Code, IncA, #System_EOL))
           CodeField = ReplaceString(CodeField, Chr(13), "")
           CodeField = ReplaceString(CodeField, Chr(10), "")
@@ -822,7 +826,8 @@ ProcedureDLL Moebius_Compile_Step2()
         EndIf;}
         ; We initialize the var for testing if the line contains a label
         bLastIsLabel = #True
-        For IncA = 0 To CountString(TrCodeField, #System_EOL)
+        lNbLines = CountString(TrCodeField, #System_EOL)
+        For IncA = 0 To lNbLines
           sTmpString = StringField(TrCodeField, IncA+1, #System_EOL)
           sTmpString = ReplaceString(sTmpString, Chr(13), "")
           sTmpString = ReplaceString(sTmpString, Chr(10), "")

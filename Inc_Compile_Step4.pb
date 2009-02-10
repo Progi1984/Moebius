@@ -1,108 +1,87 @@
 ProcedureDLL Moebius_Compile_Step4()
-  Protected StringTmp.s
+  Protected StringTmp.s, sDescContent.s, sProgRequest.s
   Protected hDescFile.l, lNbImportLib.l
   ; 4. POLIB creates the LIB library from the *.OBJ files
-  ; Creating descriptor file
-  Log_Add("Creating descriptor file", 2)
-  hDescFile = CreateFile(#PB_Any, gProject\sFileDesc)
-  If hDescFile
+  ;{ Creating descriptor file
+    Log_Add("Creating descriptor file", 2)
     ;{ Langage used to code the library
-    WriteStringN(hDescFile,"; Langage used to code the library") 
-    Log_Add("; Langage used to code the library", 4)
-    WriteStringN(hDescFile,"ASM") 
-    Log_Add("ASM", 4)
-    WriteStringN(hDescFile, ""):Log_Add("", 4)
+      sDescContent = "; Langage used to code the library" + #System_EOL
+      sDescContent + "ASM" + #System_EOL
+      sDescContent + "" + #System_EOL
     ;}
     ;{ Lib Systems
-    WriteStringN(hDescFile,"; Number of Libraries than the library need")
-    Log_Add("; Number of Libraries than the library need", 4)
-    WriteStringN(hDescFile,Str(ListSize(LL_DLLUsed())))
-    Log_Add(Str(ListSize(LL_DLLUsed())), 4)
-    ForEach LL_DLLUsed()
-      WriteStringN(hDescFile, LL_DLLUsed())
-      Log_Add(LL_DLLUsed(), 4)
-    Next
-    WriteStringN(hDescFile, ""):Log_Add("", 4)
+      sDescContent + "; Number of Libraries than the library need" + #System_EOL
+      sDescContent + Str(ListSize(LL_DLLUsed())) + #System_EOL
+      ForEach LL_DLLUsed()
+        sDescContent + LL_DLLUsed() + #System_EOL
+      Next
+      sDescContent + "" + #System_EOL
     ;}
     ;{ Library Type
-    WriteStringN(hDescFile,"; Library Type")
-    Log_Add("; Library Type", 4)
-    WriteStringN(hDescFile,"LIB")
-    Log_Add("LIB", 4)
-    StringTmp=""
-    ForEach LL_LibUsed()
-      If LL_LibUsed() = "glibc"
-        DeleteElement(LL_LibUsed())
-      EndIf
-    Next
-    ForEach LL_LibUsed()
-      If FindString(StringTmp,"~"+LL_LibUsed()+"~",1)
-        DeleteElement(LL_LibUsed(),1)
-      EndIf
-    Next
-    ForEach LL_LibUsed()
-      StringTmp=StringTmp+"~"+LL_LibUsed()+"~"
-    Next
-    WriteStringN(hDescFile, ""):Log_Add("", 4)
+      sDescContent + "; Library Type" + #System_EOL
+      sDescContent + "LIB" + #System_EOL
+      ForEach LL_LibUsed()
+        If LL_LibUsed() = "glibc"
+          DeleteElement(LL_LibUsed())
+        EndIf
+      Next
+      sDescContent + "" + #System_EOL
     ;}
     ;{ PureBasic library needed by the library
-    WriteStringN(hDescFile,"; PureBasic library needed by the library")
-    Log_Add("; PureBasic library needed by the library", 4)
-    WriteStringN(hDescFile,Str(ListSize(LL_LibUsed())))
-    Log_Add(Str(ListSize(LL_LibUsed())), 4)
-    StringTmp=""
-    ForEach LL_LibUsed()
-      WriteStringN(hDescFile,LL_LibUsed())
-      Log_Add(LL_LibUsed(), 4)
-    Next
-    WriteStringN(hDescFile, ""):Log_Add("", 4)
+      sDescContent + "; PureBasic library needed by the library" + #System_EOL
+      sDescContent + Str(ListSize(LL_LibUsed())) + #System_EOL
+      ForEach LL_LibUsed()
+        sDescContent + LL_LibUsed() + #System_EOL
+      Next
+      sDescContent + "" + #System_EOL
     ;}
     ;{ Help directory name
-    WriteStringN(hDescFile,"; Help directory name")
-    Log_Add("; Help directory name", 4)
-    WriteStringN(hDescFile, gProject\sFileCHM)
-    Log_Add(gProject\sFileCHM, 4)
-    WriteStringN(hDescFile, ""):Log_Add("", 4)
+      sDescContent + "; Help directory name" + #System_EOL
+      sDescContent + gProject\sFileCHM + #System_EOL
+      sDescContent + "" + #System_EOL
     ;}
     ;{ Library functions
-    WriteStringN(hDescFile,"; Library functions")
-    Log_Add("; Library functions", 4)
-    ForEach LL_DLLFunctions()
-      If LL_DLLFunctions()\InDescFile = #True
-        If LL_DLLFunctions()\IsDLLFunction = #True
-          StringTmp = LL_DLLFunctions()\FuncName+LL_DLLFunctions()\ParamsRetType+", ("+LL_DLLFunctions()\ParamsClean+")"
-          If LL_DLLFunctions()\FuncDesc <> ""
-            StringTmp + " - "+LL_DLLFunctions()\FuncDesc
+      sDescContent + "; Library functions" + #System_EOL
+      ForEach LL_DLLFunctions()
+        If LL_DLLFunctions()\InDescFile = #True
+          If LL_DLLFunctions()\IsDLLFunction = #True
+            sDescContent + LL_DLLFunctions()\FuncName+LL_DLLFunctions()\ParamsRetType+", ("+LL_DLLFunctions()\ParamsClean+")"
+            If LL_DLLFunctions()\FuncDesc <> ""
+              sDescContent + " - "+LL_DLLFunctions()\FuncDesc
+            EndIf
+            sDescContent + #System_EOL
+            sDescContent + LL_DLLFunctions()\FuncRetType+" | "+LL_DLLFunctions()\CallingConvention
+            If LL_DLLFunctions()\FlagsReturn <> ""
+              sDescContent + LL_DLLFunctions()\FlagsReturn
+            EndIf
+            sDescContent + #System_EOL
           EndIf
-          WriteStringN(hDescFile, StringTmp)
-          Log_Add(StringTmp, 4)
-          StringTmp = LL_DLLFunctions()\FuncRetType+" | "+LL_DLLFunctions()\CallingConvention
-          If LL_DLLFunctions()\FlagsReturn <> ""
-            StringTmp + LL_DLLFunctions()\FlagsReturn
-          EndIf
-          WriteStringN(hDescFile, StringTmp) 
-          Log_Add(StringTmp, 4)
         EndIf
-      EndIf
-    Next
+      Next
     ;}
-    CloseFile(hDescFile)
-  EndIf
-  ; Working on Import .lib/.a
-  Log_Add("Working on Import", 2)
-  ForEach LL_ImportUsed()
-    CopyFile(LL_ImportUsed(), gProject\sDirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed()))
-    Log_Add("IN  > "+LL_ImportUsed(), 4)
-    LL_ImportUsed() = gProject\sDirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed())
-    Log_Add("OUT > "+LL_ImportUsed(), 4)
-  Next
+    
+    hDescFile = CreateFile(#PB_Any, gProject\sFileDesc)
+    If hDescFile
+      WriteString(hDescFile, sDescContent)
+      CloseFile(hDescFile)
+    EndIf
+  ;}
+  ;{ Working on Import .lib/.a
+    Log_Add("Working on Import", 2)
+    ForEach LL_ImportUsed()
+      CopyFile(LL_ImportUsed(), gProject\sDirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed()))
+      Log_Add("IN  > "+LL_ImportUsed(), 4)
+      LL_ImportUsed() = gProject\sDirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed())
+      Log_Add("OUT > "+LL_ImportUsed(), 4)
+    Next
+  ;}
   ; Creating archive
   Log_Add("Creating archive", 2)
-  ; Generates a file which contains all objects files
+  ;{ Generates a file which contains all objects files
   CompilerSelect #PB_Compiler_OS
     CompilerCase #PB_OS_Windows;{
       Protected hObjFile.l = CreateFile(#PB_Any, gProject\sDirObj+"ObjList.txt")
-      Protected Pgm_Polib.l
+      Protected hPgm_Polib.l
       If hObjFile
         ForEach LL_DLLFunctions()
           WriteStringN(hObjFile, #DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote)
@@ -112,25 +91,26 @@ ProcedureDLL Moebius_Compile_Step4()
         Next
         CloseFile(hObjFile)
       EndIf
-      Pgm_Polib = RunProgram(gConf_Path_OBJ2LIB, "/out:"+#DQuote+gProject\sDirLib+M_LibName_Clean(gProject\sLibName)+".lib"+#DQuote+" @"+#DQuote+gProject\sDirObj+"ObjList.txt"+#DQuote, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
-      Log_Add(#DQuote+gConf_Path_OBJ2LIB+#DQuote+" /out:"+#DQuote+gProject\sDirLib+M_LibName_Clean(gProject\sLibName)+".lib"+#DQuote+" @"+#DQuote+gProject\sDirObj+"ObjList.txt"+#DQuote, 2)
-      Batch_Add(#DQuote+gConf_Path_OBJ2LIB+#DQuote+" /out:"+#DQuote+gProject\sDirLib+M_LibName_Clean(gProject\sLibName)+".lib"+#DQuote+" @"+#DQuote+gProject\sDirObj+"ObjList.txt"+#DQuote)
-      If Pgm_Polib
-        While ProgramRunning(Pgm_Polib)
-          Log_Add(ReadProgramString(Pgm_Polib),2)
+      sProgRequest = "/out:" + #DQuote + gProject\sDirLib + M_LibName_Clean(gProject\sLibName) + ".lib" + #DQuote
+      sProgRequest + " @" + #DQuote + gProject\sDirObj + "ObjList.txt" + #DQuote
+      hPgm_Polib = RunProgram(gConf_Path_OBJ2LIB, sProgRequest, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+      If hPgm_Polib
+        While ProgramRunning(hPgm_Polib)
+          Log_Add(ReadProgramString(hPgm_Polib),2)
         Wend
       Else
         Log_Add("Error in RunProgram", 2)
       EndIf
-      CloseProgram(Pgm_Polib)
+      CloseProgram(hPgm_Polib)
     ;}
     CompilerCase #PB_OS_Linux;{
-      StringTmp = "ar rvs "
-      StringTmp + #DQuote+gProject\sDirLib+#DQuote+" "
-      StringTmp + gProject\DirObj + "*"
-      Log_Add(StringTmp, 2)
-      Batch_Add(StringTmp)
-      system_(@StringTmp)
+      sProgRequest = "ar rvs "
+      sProgRequest + #DQuote+gProject\sDirLib+#DQuote+" "
+      sProgRequest + gProject\DirObj + "*"
+      system_(@sProgRequest)
     ;}
   CompilerEndSelect
+  Log_Add(sProgRequest, 2)
+  Batch_Add(sProgRequest)
+  ;}
 EndProcedure
