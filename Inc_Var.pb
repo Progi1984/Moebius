@@ -71,6 +71,7 @@ Global gProject.S_Project
 Global hCompiler.l
 Global hFileLog.l
 Global hFileBatch.l
+Global lTimeStart.l
 Global Moebius_Compile_Step2_sCodeShared.s
 Global gConf_PureBasic_Path.s
 Global gConf_Path_PBCOMPILER.s

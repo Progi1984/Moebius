@@ -11,17 +11,17 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
     TrCodeField = ReplaceString(CodeField, Chr(13), "")
     TrCodeField = ReplaceString(TrCodeField, Chr(10), "")
     TrCodeField = Trim(TrCodeField)
-    sTmpString  = StringField(CodeContent, Inc+2, #System_EOL)
-    sTmpString  = StringField(sTmpString, 1, " ")
-    sTmpString  = ReplaceString(sTmpString, Chr(13), "")
-    sTmpString  = ReplaceString(sTmpString, Chr(10), "")
-    sTmpString  = Trim(sTmpString)
     If Left(TrCodeField, 1) =";"
       TrCodeField = Right(TrCodeField, Len(TrCodeField) - 2)
       If TrCodeField <> ""
         CodeCleaned2 = Trim(StringField(TrCodeField, 1, " "))
         CodeCleaned2 = Trim(StringField(CodeCleaned2, 1, "."))
         CodeCleaned2 = Trim(CodeCleaned2)
+        sTmpString  = StringField(CodeContent, Inc+2, #System_EOL)
+        sTmpString  = StringField(sTmpString, 1, " ")
+        sTmpString  = ReplaceString(sTmpString, Chr(13), "")
+        sTmpString  = ReplaceString(sTmpString, Chr(10), "")
+        sTmpString  = Trim(sTmpString)
         If (LCase(CodeCleaned2) = "proceduredll" Or LCase(CodeCleaned2) = "procedurecdll" Or LCase(CodeCleaned2) = "procedurec" Or LCase(CodeCleaned2) = "procedure") And sTmpString  = "macro"
           If LCase(CodeCleaned2) = "proceduredll" Or LCase(CodeCleaned2) = "procedure"
             sCallingConvention = "StdCall"
@@ -303,7 +303,7 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
             Function = Right(Function, Len(Function)-Pos)
           EndIf
           ; Searchs in libs where the function is contained
-          LibName = Trim(PB_ListFunctions(Function))
+          LibName = Trim(PB_GetLibFromFunctionName(Function))
           If LibName <> ""
             bFound = #False
             ; in lib ?
@@ -426,11 +426,9 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
           EndIf
         ;}
         Default ;{
-          If bNotCapture = 0
-            ; In the function, getting the code
-            If bInFunction = #True 
-              LL_DLLFunctions()\Code + TrCodeField + #System_EOL
-            EndIf
+          ; In the function, getting the code
+          If bNotCapture = 0 And bInFunction = #True 
+            LL_DLLFunctions()\Code + TrCodeField + #System_EOL
           EndIf
         ;}
       EndSelect
@@ -655,6 +653,8 @@ ProcedureDLL Moebius_Compile_Step2()
     ReadData(0,@CodeContent, Lof(0))
     CloseFile(0)
   EndIf
+  Output_Add("Create Functions List from Pure & User Libraries", #Output_Log, 2)
+  PB_CreateFunctionsList()
   Output_Add("Extracts information for the future creation of the DESC File", #Output_Log, 2)
   Moebius_Compile_Step2_ExtractMainInformations(CodeContent)
   Output_Add("Remove some ASM code", #Output_Log, 2)
@@ -840,8 +840,10 @@ ProcedureDLL Moebius_Compile_Step2()
               bLastIsLabel = #True
             Else
               If bLastIsLabel = #True
-                Output_Add("Moebius_Compile_Step2_WriteASMForArrays()", #Output_Log, 2)
-                sDataSectionForArray = Moebius_Compile_Step2_WriteASMForArrays(lFile)
+                If FindString(LCase(LL_DLLFunctions()\ParamsRetType), "array", 1) > 0
+                  Output_Add("Moebius_Compile_Step2_WriteASMForArrays() > "+LL_DLLFunctions()\FuncName, #Output_Log, 2)
+                  sDataSectionForArray = Moebius_Compile_Step2_WriteASMForArrays(lFile)
+                EndIf
                 bLastIsLabel = #False
               EndIf
             EndIf

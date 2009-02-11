@@ -1,5 +1,5 @@
 ;@desc Extracts all informations from userlibs
-Procedure PB_GetInfoUserLib(LibFileName.s)
+ProcedureDLL PB_GetInfoUserLib(LibFileName.s)
   Protected LibName.s = GetFilePart(LibFileName)
   Protected LibSize.l, hDLL.l, hPL.l, IncA.l, lTest.l
   Protected *MemLib_Header, *MemLib_Footer
@@ -86,7 +86,7 @@ Procedure PB_GetInfoUserLib(LibFileName.s)
   EndIf
 EndProcedure
 ;@desc Extracts function names and libs which are containing them
-Procedure PB_GetInfoLib(FileName.s)
+ProcedureDLL PB_GetInfoLib(FileName.s)
   Protected LibName.s = GetFilePart(FileName)
   Protected hFile = ReadFile(#PB_Any, FileName)
   Protected Ndx.l
@@ -126,11 +126,32 @@ Procedure PB_GetInfoLib(FileName.s)
     ProcedureReturn -1  ; erreur sur l'ouverture du fichier
   EndIf
 EndProcedure
-
 ;@desc List all functions contained in purelibraries & {System}Libraries
-Procedure.s PB_ListFunctions(Function.s)
+ProcedureDLL.s PB_GetLibFromFunctionName(Function.s)
+  Protected sTrFunction.s, sLibContaining.s
+  sTrFunction = LCase(Trim(Function))
+  If Left(sTrFunction, 1) = "_"
+    sTrFunction = Right(sTrFunction, Len(sTrFunction) - 1)
+  EndIf
+  If FindString(sTrFunction, "@", 1) > 0
+    sTrFunction = StringField(sTrFunction, 1, "@")
+  EndIf
+  If Right(sTrFunction, 1) =  "a"
+    sTrFunction = Left(sTrFunction, Len(sTrFunction) - 1)
+  EndIf
+  FirstElement(LL_PBFunctions())
+  ForEach LL_PBFunctions()
+    If LCase(LL_PBFunctions()\FuncName) = sTrFunction
+      sLibContaining = LL_PBFunctions()\LibContaining
+      Break
+    EndIf
+  Next
+  ProcedureReturn sLibContaining
+EndProcedure
+;@desc Create Functions List from Pure & User Libraries
+ProcedureDLL PB_CreateFunctionsList()
   Protected NextDir.l, lTest.l
-  Protected NameOfLib.s, LibFileName.s, sTrFunction.s
+  Protected NameOfLib.s, LibFileName.s
   If ListSize(LL_PBFunctions()) = 0
     ; List all functions contained in purelibraries
     If ExamineDirectory(0, gConf_PureBasic_Path+"purelibraries"+#System_Separator, "")
@@ -166,26 +187,10 @@ Procedure.s PB_ListFunctions(Function.s)
       Until NextDir = #False
     EndIf
   EndIf
-  sTrFunction = LCase(Trim(Function))
-  If Left(sTrFunction, 1) = "_"
-    sTrFunction = Right(sTrFunction, Len(sTrFunction) - 1)
-  EndIf
-  If FindString(sTrFunction, "@", 1) > 0
-    sTrFunction = StringField(sTrFunction, 1, "@")
-  EndIf
-  If Right(sTrFunction, 1) =  "a" Or Right(sTrFunction, 1) =  "a"
-    sTrFunction = Left(sTrFunction, Len(sTrFunction) - 1)
-  EndIf
-  ForEach LL_PBFunctions()
-    If LCase(LL_PBFunctions()\FuncName) = sTrFunction
-      ProcedureReturn LL_PBFunctions()\LibContaining
-    EndIf
-  Next
 EndProcedure
-
 ;@desc Retrieves Purebasic folder [empty string if not installed]
 ;@returnvalue Purebasic Path
-Procedure.s PB_GetPBFolder()
+ProcedureDLL.s PB_GetPBFolder()
   CompilerSelect #PB_Compiler_OS
     CompilerCase #PB_OS_Windows
     ;{
@@ -240,7 +245,6 @@ Procedure.s PB_GetPBFolder()
     ;}
   CompilerEndSelect
 EndProcedure
-
 ;@desc Connects to PBCompiler for restarting the compiler
 ProcedureDLL PB_Connect()
   Protected ReponseComp.s

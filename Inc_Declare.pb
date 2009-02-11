@@ -10,10 +10,11 @@ DeclareDLL Output_End()
 DeclareDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
 
 ; Inc_PB.pb
-Declare PB_GetInfoUserLib(LibFileName.s)
-Declare PB_GetInfoLib(FileName.s)
-Declare.s PB_ListFunctions(Function.s)
-Declare.s PB_GetPBFolder()
+DeclareDLL PB_GetInfoUserLib(LibFileName.s)
+DeclareDLL PB_GetInfoLib(FileName.s)
+DeclareDLL.s PB_GetLibFromFunctionName(Function.s)
+DeclareDLL PB_CreateFunctionsList()
+DeclareDLL.s PB_GetPBFolder()
 DeclareDLL PB_Connect()
 DeclareDLL PB_DisConnect()
 

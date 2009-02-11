@@ -53,6 +53,7 @@ EndProcedure
 ProcedureDLL Output_Init()
   ; Log
   If gProject\bLogFile = #True
+    lTimeStart = Date()
     If gProject\bLogInStreaming = #False
       hFileLog = OpenFile(#PB_Any, gProject\sFileLog)
       WriteStringN(hFileLog, "PARAM > gProject\sFileName = "+gProject\sFileName)
@@ -89,8 +90,14 @@ EndProcedure
 ProcedureDLL Output_End()
   ; Log
   If gProject\bLogFile = #True
+    Protected sTimeStart.s = "TIME > Start    > " + FormatDate("%hh:%ii:%ss", lTimeStart)
+    Protected sTimeEnd.s = "TIME > End      > " + FormatDate("%hh:%ii:%ss", Date())
+    Protected sTimeDuration.s = "TIME > Duration > " + Str(Date() - lTimeStart)+"s"
     If gProject\bLogInStreaming = #False
       If hFileLog
+        WriteStringN(hFileLog, sTimeStart)
+        WriteStringN(hFileLog, sTimeEnd)
+        WriteStringN(hFileLog, sTimeDuration)
         CloseFile(hFileLog)
       EndIf
     Else
@@ -99,9 +106,17 @@ ProcedureDLL Output_End()
         ForEach LL_Logs()
           WriteStringN(hFileLog, LL_Logs())
         Next
+        WriteStringN(hFileLog, sTimeStart)
+        WriteStringN(hFileLog, sTimeEnd)
+        WriteStringN(hFileLog, sTimeDuration)
         CloseFile(hFileLog)
       EndIf
     EndIf
+    CompilerIf #PB_Compiler_Debugger = #True
+      Debug sTimeStart
+      Debug sTimeEnd
+      Debug sTimeDuration
+    CompilerEndIf
   EndIf
   ; Batch
   If gProject\bBatFile = #True
