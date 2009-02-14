@@ -663,11 +663,45 @@ ProcedureDLL Moebius_Compile_Step2_CreateSharedFunction(CodeContent.s)
   ;}
   Output_Add("Finish to write the SharedFunction in file", #Output_Log, 4)
 EndProcedure
+;@desc Create Init Function Code
+ProcedureDLL Moebius_Compile_Step2_CreateInitFunction()
+  Protected lFile.l
+  If AddElement(LL_DLLFunctions())
+    LL_DLLFunctions()\FuncName = ReplaceString(gProject\sLibName, " ", "_")+"_Init" 
+    LL_DLLFunctions()\FuncRetType = "InitFunction"
+    LL_DLLFunctions()\CallingConvention = "StdCall"
+    LL_DLLFunctions()\FuncDesc = ""
+    LL_DLLFunctions()\Params = ""
+    LL_DLLFunctions()\ParamsRetType = ""
+    LL_DLLFunctions()\Code = "format "+#System_LibFormat + #System_EOL
+    LL_DLLFunctions()\Code + "" + #System_EOL
+    CompilerSelect #PB_Compiler_OS 
+      CompilerCase #PB_OS_Windows : LL_DLLFunctions()\Code + "extrn _SYS_InitString@0" + #System_EOL
+      CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "extrn SYS_InitString" + #System_EOL
+    CompilerEndSelect
+    LL_DLLFunctions()\Code + "" + #System_EOL
+    LL_DLLFunctions()\Code + "public PB_"+ReplaceString(gProject\sLibName, " ", "_")+"_Init"  + #System_EOL 
+    LL_DLLFunctions()\Code + "" + #System_EOL
+    LL_DLLFunctions()\Code + "PB_"+ReplaceString(gProject\sLibName, " ", "_")+"_Init:" + #System_EOL
+    CompilerSelect #PB_Compiler_OS 
+      CompilerCase #PB_OS_Windows : LL_DLLFunctions()\Code + "CALL _SYS_InitString@0" + #System_EOL
+      CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "CALL SYS_InitString" + #System_EOL
+    CompilerEndSelect
+    LL_DLLFunctions()\Code + "RET " + #System_EOL
+    LL_DLLFunctions()\IsDLLFunction = #True
+    LL_DLLFunctions()\InDescFile = #True
+  EndIf
+  lFile = CreateFile(#PB_Any, gProject\sDirAsm+LL_DLLFunctions()\FuncName+".asm")
+  If lFile
+    WriteStringN(lFile, LL_DLLFunctions()\Code)
+    CloseFile(lFile)
+  EndIf
+EndProcedure
 ;@desc This step grabs the ASM file, splits it, rewrites some parts
 ProcedureDLL Moebius_Compile_Step2()
   Protected CodeContent.s, CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned.s, sDataSectionForArray.s
   Protected IncA.l, IncB.l, lPos.l, lPosLast.l, lFile.l,lNbLines.l
-  Protected bFound.b, bLastIsLabel.b, bIsDLLFunction.b
+  Protected bFound.b, bLastIsLabel.b, bIsDLLFunction.b, bExistsInitFunction.b
   Output_Add("Load the content of purebasic.asm in a string", #Output_Log, 2)
   ;{ load the content of purebasic.asm in a string
     If ReadFile(0, gProject\sDirProject+"purebasic.asm")
@@ -722,6 +756,13 @@ ProcedureDLL Moebius_Compile_Step2()
       ClearList(LL_ASM_extrn())
       lFile = CreateFile(#PB_Any, gProject\sDirProject+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
       If lFile
+        ;{ Tests if it's an InitFunction
+        If bExistsInitFunction <> #True
+          If LCase(Right(LL_DLLFunctions()\FuncName,5)) = "_init"
+            bExistsInitFunction = #True
+          EndIf
+        EndIf
+        ;}
         ;{ format  
           WriteStringN(lFile, "format "+#System_LibFormat)
         ;}
@@ -893,46 +934,8 @@ ProcedureDLL Moebius_Compile_Step2()
 
   Output_Add("Init Function Code", #Output_Log, 2)
   ;{ Init Function
-    ; We search if an Init Function exists
-    bFound = #False
-    ForEach LL_DLLFunctions()
-      If LCase(Right(LL_DLLFunctions()\FuncName,5)) = "_init"
-        bFound = #True
-        Break
-      EndIf
-    Next
-    ; The Init Function doesn't exist
-    If bFound = #False
-      If AddElement(LL_DLLFunctions())
-        LL_DLLFunctions()\FuncName = ReplaceString(gProject\sLibName, " ", "_")+"_Init" 
-        LL_DLLFunctions()\FuncRetType = "InitFunction"
-        LL_DLLFunctions()\CallingConvention = "StdCall"
-        LL_DLLFunctions()\FuncDesc = ""
-        LL_DLLFunctions()\Params = ""
-        LL_DLLFunctions()\ParamsRetType = ""
-        LL_DLLFunctions()\Code = "format "+#System_LibFormat + #System_EOL
-        LL_DLLFunctions()\Code + "" + #System_EOL
-        CompilerSelect #PB_Compiler_OS 
-          CompilerCase #PB_OS_Windows : LL_DLLFunctions()\Code + "extrn _SYS_InitString@0" + #System_EOL
-          CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "extrn SYS_InitString" + #System_EOL
-        CompilerEndSelect
-        LL_DLLFunctions()\Code + "" + #System_EOL
-        LL_DLLFunctions()\Code + "public PB_"+ReplaceString(gProject\sLibName, " ", "_")+"_Init"  + #System_EOL 
-        LL_DLLFunctions()\Code + "" + #System_EOL
-        LL_DLLFunctions()\Code + "PB_"+ReplaceString(gProject\sLibName, " ", "_")+"_Init:" + #System_EOL
-        CompilerSelect #PB_Compiler_OS 
-          CompilerCase #PB_OS_Windows : LL_DLLFunctions()\Code + "CALL _SYS_InitString@0" + #System_EOL
-          CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code + "CALL SYS_InitString" + #System_EOL
-        CompilerEndSelect
-        LL_DLLFunctions()\Code + "RET " + #System_EOL
-        LL_DLLFunctions()\IsDLLFunction = #True
-        LL_DLLFunctions()\InDescFile = #True
-      EndIf
-      lFile = CreateFile(#PB_Any, gProject\sDirProject+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
-      If lFile
-        WriteStringN(lFile, LL_DLLFunctions()\Code)
-        CloseFile(lFile)
-      EndIf
+    If bExistsInitFunction = #False
+      Moebius_Compile_Step2_CreateInitFunction()
     EndIf
   ;}
 
