@@ -83,15 +83,6 @@ Global hCompiler.l
 Global hFileLog.l
 Global hFileBatch.l
 Global lTimeStart.l
-Global Moebius_Compile_Step2_sCodeShared.s
-; Global gConf_PureBasic_Path.s
-; Global gConf_Path_PBCOMPILER.s
-; Global gConf_Path_FASM.s
-; Global gConf_Path_OBJ2LIB.s
-; Global gConf_Path_PBLIBMAKER.s
-; Global gConf_SourceDir.s
-; Global gConf_Ini_Purebasic.s
-; Global gConf_Ini_Project.s
 
 ;- Constants
 #DQuote = Chr(34)

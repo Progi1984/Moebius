@@ -1,32 +1,36 @@
-;@desc FASM compiles the ASM files created by Moebius To OBJ
+;@desc FASM compiles the ASM files To OBJ
 ProcedureDLL Moebius_Compile_Step3()
-  ;     Compiling ASM sources
-  Protected Pgm_Fasm.l
-  Protected sFASMError.s, sReadPgm.s
+  Protected lPgm_Fasm.l
+  Protected sFASMError.s, sFASMString.s sReadPgm.s
   ForEach LL_DLLFunctions()
-    Pgm_Fasm = RunProgram(gConf\sPath_FASM, " "+#DQuote+gProject\sDirProject+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide | #PB_Program_Error)
+    lPgm_Fasm = RunProgram(gConf\sPath_FASM, " "+#DQuote+gProject\sDirProject+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide | #PB_Program_Error)
     Output_Add(#DQuote+gConf\sPath_FASM+#DQuote+" "+#DQuote+gProject\sDirProject+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, #Output_Log|#Output_Bat, 2)
-    If Pgm_Fasm
+    If lPgm_Fasm
       sFASMError = ""
-      While ProgramRunning(Pgm_Fasm)
+      While ProgramRunning(lPgm_Fasm)
         ; Read from Main Stream of the program
-        sReadPgm = Trim(ReadProgramString(Pgm_Fasm))
+        sReadPgm = Trim(ReadProgramString(lPgm_Fasm))
         If sReadPgm <> ""
-          Output_Add(sReadPgm, #Output_Log, 2)
+          sFASMString + Space(2)+sReadPgm+#System_EOL
         EndIf
         ; Read from Error Stream of the program
-        sReadPgm = Trim(ReadProgramError(Pgm_Fasm))
+        sReadPgm = Trim(ReadProgramError(lPgm_Fasm))
         If sReadPgm <> ""
           sFASMError + Space(2)+sReadPgm+#System_EOL
         EndIf
       Wend
+      If sFASMString <> ""
+        Output_Add("FASM String", #Output_Log, 2)
+        Output_Add(sFASMString, #Output_Log, 0)
+      EndIf
       If sFASMError <>""
+        Output_Add("FASM Error", #Output_Log, 2)
         Output_Add(sFASMError, #Output_Log, 0)
       EndIf
     Else
-      Output_Add("Error in RunProgram", #Output_Log, 2)
+      Output_Add("Error in RunProgram FASM", #Output_Log, 2)
     EndIf
     Output_Add("", #Output_Log, 2)
-    CloseProgram(Pgm_Fasm)
+    CloseProgram(lPgm_Fasm)
   Next
 EndProcedure

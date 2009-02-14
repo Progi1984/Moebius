@@ -18,7 +18,7 @@ ProcedureDLL Moebius_Compile_Step0()
       ProcedureReturn #False
     EndIf
   EndIf
-  ;Prepares the location For Moebius
+  ;Deletes old content of directories
   If FileSize(gProject\sDirAsm) = -2
     If DeleteDirectory(gProject\sDirAsm, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
       ProcedureReturn #False -6
@@ -39,6 +39,7 @@ ProcedureDLL Moebius_Compile_Step0()
       ProcedureReturn #False -8
     EndIf
   EndIf
+  ; Creates directories if inexistant
   If CreateDirectoryEx(gProject\sDirProject) = #False
     ProcedureReturn #False -1
   EndIf
@@ -57,6 +58,7 @@ ProcedureDLL Moebius_Compile_Step0()
   If CreateDirectoryEx(gProject\sDirObj)= #False
     ProcedureReturn #False -5
   EndIf
+  ; Initializes batch and log files
   Output_Init()
   ProcedureReturn #True
 EndProcedure

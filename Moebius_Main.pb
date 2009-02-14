@@ -5,6 +5,7 @@ XIncludeFile "Inc_Var.pb"
 CompilerSelect #PB_Compiler_OS
   CompilerCase #PB_OS_Windows : XIncludeFile "Inc_OS_Windows.pb"
   CompilerCase #PB_OS_Linux : XIncludeFile "Inc_OS_Linux.pb"
+  CompilerCase #PB_OS_MacOS: XIncludeFile "Inc_OS_MacOS.pb"
 CompilerEndSelect
 XIncludeFile "Inc_Prefs.pb"
 XIncludeFile "Inc_Misc.pb"
