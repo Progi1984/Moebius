@@ -3,9 +3,10 @@ ProcedureDLL Moebius_Compile_Step3()
   Protected lPgm_Fasm.l
   Protected sFASMError.s, sFASMString.s, sReadPgm.s
   ForEach LL_DLLFunctions()
-    lPgm_Fasm = RunProgram(gConf\sPath_FASM, " "+#DQuote+gProject\sDirProject+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide | #PB_Program_Error)
-    Output_Add(#DQuote+gConf\sPath_FASM+#DQuote+" "+#DQuote+gProject\sDirProject+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, #Output_Log|#Output_Bat, 2)
+    lPgm_Fasm = RunProgram(gConf\sPath_FASM, " "+#DQuote+gProject\sDirAsm+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide | #PB_Program_Error)
+    Output_Add(#DQuote+gConf\sPath_FASM+#DQuote+" "+#DQuote+gProject\sDirAsm+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, #Output_Log|#Output_Bat, 2)
     If lPgm_Fasm
+      sFASMString = ""
       sFASMError = ""
       While ProgramRunning(lPgm_Fasm)
         ; Read from Main Stream of the program
