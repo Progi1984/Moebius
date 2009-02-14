@@ -91,9 +91,9 @@ ProcedureDLL Moebius_Compile_Step4()
         Next
         CloseFile(hObjFile)
       EndIf
-      sProgRequest = "/out:" + #DQuote + gProject\sDirLib + M_LibName_Clean(gProject\sLibName) + ".lib" + #DQuote
+      sProgRequest = "/out:" + #DQuote + gProject\sDirLib + M_LibName_Clean(gProject\sLibName) + #System_ExtLib + #DQuote
       sProgRequest + " @" + #DQuote + gProject\sDirObj + "ObjList.txt" + #DQuote
-      hPgm_Polib = RunProgram(gConf_Path_OBJ2LIB, sProgRequest, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+      hPgm_Polib = RunProgram(gConf\sPath_OBJ2LIB, sProgRequest, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
       If hPgm_Polib
         While ProgramRunning(hPgm_Polib)
           sProgReturn + ReadProgramString(hPgm_Polib) + #System_EOL
@@ -105,7 +105,7 @@ ProcedureDLL Moebius_Compile_Step4()
     ;}
     CompilerCase #PB_OS_Linux;{
       sProgRequest = "ar rvs "
-      sProgRequest + #DQuote+gProject\sDirLib+#DQuote+" "
+      sProgRequest + #DQuote+gProject\sDirLib+ M_LibName_Clean(gProject\sLibName) + #System_ExtLib+#DQuote+" "
       sProgRequest + gProject\sDirObj + "*"
       sProgReturn = Str(system_(@sProgRequest))
     ;}

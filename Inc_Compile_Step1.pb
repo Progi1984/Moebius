@@ -28,7 +28,12 @@ ProcedureDLL Moebius_Compile_Step1()
     Default ; it's not a purebasic file
       ProcedureReturn #False
   EndSelect
-  
+  CompilerSelect #PB_Compiler_OS
+    CompilerCase #PB_OS_Linux;{
+      SetEnvironmentVariable("PUREBASIC_HOME", gConf\sPureBasic_Path)
+      SetEnvironmentVariable("PATH", GetEnvironmentVariable("PATH") + ":" + gConf\sPureBasic_Path+ "/compilers")
+    ;}
+  CompilerEndSelect
   ; we delete the last asm created
   SetFileAttributes(gProject\sDirProject + "PureBasic.asm", #PB_FileSystem_Normal)
   DeleteFile(gProject\sDirProject + "PureBasic.asm")
@@ -44,9 +49,10 @@ ProcedureDLL Moebius_Compile_Step1()
     Param + #Switch_SubSystem + #DQuote + gProject\sSubSystem + #DQuote
   EndIf
   Param +#Switch_Executable+" "+#DQuote+FichierExe+#DQuote
-  Compilateur = RunProgram(gConf_Path_PBCOMPILER, #DQuote+gProject\sFileName+#DQuote+" "+Param, gProject\sDirProject, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+  Compilateur = RunProgram(gConf\sPath_PBCOMPILER, #DQuote+gProject\sFileName+#DQuote+" "+Param, gProject\sDirProject, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
   
-  Output_Add(#DQuote+gConf_Path_PBCOMPILER+#DQuote+" " + #DQuote+gProject\sFileName+#DQuote+" "+Param, #Output_Log)
+  Output_Add("From > "+gProject\sDirProject, #Output_Log)
+  Output_Add(#DQuote+gConf\sPath_PBCOMPILER+#DQuote+" " + #DQuote+gProject\sFileName+#DQuote+" "+Param, #Output_Log)
   
   If Compilateur
     While ProgramRunning(Compilateur)

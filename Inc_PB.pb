@@ -154,34 +154,34 @@ ProcedureDLL PB_CreateFunctionsList()
   Protected NameOfLib.s, LibFileName.s
   If ListSize(LL_PBFunctions()) = 0
     ; List all functions contained in purelibraries
-    If ExamineDirectory(0, gConf_PureBasic_Path+"purelibraries"+#System_Separator, "")
+    If ExamineDirectory(0, gConf\sPureBasic_Path+"purelibraries"+#System_Separator, "")
       NextDir = NextDirectoryEntry(0)
       Repeat
         NameOfLib = DirectoryEntryName(0)
-        LibFileName = gConf_PureBasic_Path+"purelibraries"+#System_Separator+NameOfLib
+        LibFileName = gConf\sPureBasic_Path+"purelibraries"+#System_Separator+NameOfLib
         PB_GetInfoUserLib(LibFileName)
         NextDir = NextDirectoryEntry(0)
       Until NextDir = #False
     EndIf
     
     ; List all functions contained in {System}Libraries
-    lTest = ExamineDirectory(0, gConf_PureBasic_Path+"purelibraries"+#System_Separator+LCase(#System_OS)+#System_Separator, "")
+    lTest = ExamineDirectory(0, gConf\sPureBasic_Path+"purelibraries"+#System_Separator+LCase(#System_OS)+#System_Separator, "")
     If lTest
       NextDir = NextDirectoryEntry(0)
       Repeat
         NameOfLib = DirectoryEntryName(0)
-        LibFileName = gConf_PureBasic_Path+"purelibraries"+#System_Separator+LCase(#System_OS)+#System_Separator+NameOfLib
+        LibFileName = gConf\sPureBasic_Path+"purelibraries"+#System_Separator+LCase(#System_OS)+#System_Separator+NameOfLib
         PB_GetInfoLib(LibFileName)
         NextDir = NextDirectoryEntry(0)
       Until NextDir = #False
     EndIf
     
     ; List all functions contained in PureLibraries\UserLibrairies
-    If ExamineDirectory(0, gConf_PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator, "")
+    If ExamineDirectory(0, gConf\sPureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator, "")
       NextDir = NextDirectoryEntry(0)
       Repeat
         NameOfLib = DirectoryEntryName(0)
-        LibFileName = gConf_PureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator+NameOfLib
+        LibFileName = gConf\sPureBasic_Path+"purelibraries"+#System_Separator+"userlibraries"+#System_Separator+NameOfLib
         PB_GetInfoUserLib(LibFileName)
         NextDir = NextDirectoryEntry(0)
       Until NextDir = #False
@@ -248,7 +248,7 @@ EndProcedure
 ;@desc Connects to PBCompiler for restarting the compiler
 ProcedureDLL PB_Connect()
   Protected ReponseComp.s
-  hCompiler = RunProgram(gConf_Path_PBCOMPILER, #Switch_StandBy, "", #PB_Program_Open|#PB_Program_Read|#PB_Program_Write|#PB_Program_Hide)
+  hCompiler = RunProgram(gConf\sPath_PBCOMPILER, #Switch_StandBy, "", #PB_Program_Open|#PB_Program_Read|#PB_Program_Write|#PB_Program_Hide)
   If hCompiler = 0
     ProcedureReturn #False
   Else

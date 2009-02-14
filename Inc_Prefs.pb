@@ -1,26 +1,26 @@
 ;@desc : Read preferences
 ProcedureDLL Moebius_ReadPrefs()
   ; ReadPreferences > Path
-  If gConf_Ini_Purebasic <> "" And FileSize(gConf_Ini_Purebasic) > 0
-    If OpenPreferences(gConf_Ini_Purebasic) <> 0
+  If gConf\sIni_Purebasic <> "" And FileSize(gConf\sIni_Purebasic) > 0
+    If OpenPreferences(gConf\sIni_Purebasic) <> 0
       PreferenceGroup("PATH")
-      gConf_PureBasic_Path.s = ReadPreferenceString("PureBasic", PB_GetPBFolder())
-      gConf_Path_PBCOMPILER.s = ReadPreferenceString("PBCompiler", gConf_PureBasic_Path+#System_Separator+"compilers"+#System_Separator+"pbcompiler"+#System_ExtExec)
-      gConf_Path_FASM.s = ReadPreferenceString("PBFasm",gConf_PureBasic_Path+#System_Separator+"compilers"+#System_Separator+"fasm"+#System_ExtExec)
-      gConf_Path_OBJ2LIB.s = ReadPreferenceString("PBObj2Lib","")
-      gConf_Path_PBLIBMAKER.s = ReadPreferenceString("PBLibMaker","")
+      gConf\sPureBasic_Path.s = ReadPreferenceString("PureBasic", PB_GetPBFolder())
+      gConf\sPath_PBCOMPILER.s = ReadPreferenceString("PBCompiler", gConf\sPureBasic_Path+#System_Separator+"compilers"+#System_Separator+"pbcompiler"+#System_ExtExec)
+      gConf\sPath_FASM.s = ReadPreferenceString("PBFasm",gConf\sPureBasic_Path+#System_Separator+"compilers"+#System_Separator+"fasm"+#System_ExtExec)
+      gConf\sPath_OBJ2LIB.s = ReadPreferenceString("PBObj2Lib","")
+      gConf\sPath_PBLIBMAKER.s = ReadPreferenceString("PBLibMaker","")
       ClosePreferences()
     EndIf
   EndIf
 
   ; ReadPreferences > Project
-  If gConf_Ini_Project <> "" And FileSize(gConf_Ini_Project) > 0
-    If OpenPreferences(gConf_Ini_Project) <> 0
+  If gConf\sIni_Project <> "" And FileSize(gConf\sIni_Project) > 0
+    If OpenPreferences(gConf\sIni_Project) <> 0
       PreferenceGroup(UCase(#System_OS))
         gProject\sLibName = ReadPreferenceString("LibName", "")
         gProject\sFileName = ReadPreferenceString("FileName", "")
-        gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
-        gProject\sDirProject = gConf_SourceDir + gProject\sLibName + #System_Separator
+        gConf\sSourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
+        gProject\sDirProject = gConf\sSourceDir + gProject\sLibName + #System_Separator
         M_Moebius_InitDir()
       
       PreferenceGroup("PROJECT")
@@ -55,12 +55,12 @@ ProcedureDLL Moebius_ReadParameters()
   CompilerEndSelect
   gProject\sLibName  = Left(GetFilePart(gProject\sFileName), Len(GetFilePart(gProject\sFileName)) - Len(GetExtensionPart(gProject\sFileName))-1)
 
-  gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
-  gProject\sDirProject = gConf_SourceDir + gProject\sLibName + #System_Separator
+  gConf\sSourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
+  gProject\sDirProject = gConf\sSourceDir + gProject\sLibName + #System_Separator
   M_Moebius_InitDir()
   
-  gConf_Ini_Purebasic = ""
-  gConf_Ini_Project = ""
+  gConf\sIni_Purebasic = ""
+  gConf\sIni_Project = ""
   
   gProject\bDontBuildLib = #False
   gProject\bDontKeepSrcFiles  = #True
@@ -86,8 +86,8 @@ ProcedureDLL Moebius_ReadParameters()
         ;}
         Case #Switch_Param_LibName_s, #Switch_Param_LibName_sl  ;{
           gProject\sLibName = ProgramParameter(IncA + 1)
-          gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
-          gProject\sDirProject = gConf_SourceDir + gProject\sLibName + #System_Separator
+          gConf\sSourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
+          gProject\sDirProject = gConf\sSourceDir + gProject\sLibName + #System_Separator
           M_Moebius_InitDir(bDecl_Switch_Param_Help, bDecl_Switch_Param_LogFileName, bDecl_Switch_Param_OutputLib)
           IncA = IncA + 1
         ;}
@@ -109,31 +109,31 @@ ProcedureDLL Moebius_ReadParameters()
           gProject\bBatFile = #True
         ;}
         Case #Switch_Param_PB_Path_s, #Switch_Param_PB_Path_sl;{
-          gConf_PureBasic_Path = ProgramParameter(IncA + 1)
+          gConf\sPureBasic_Path = ProgramParameter(IncA + 1)
           IncA = IncA + 1
         ;}
         Case #Switch_Param_PB_Compiler_s, #Switch_Param_PB_Compiler_sl;{
-          gConf_Path_PBCOMPILER = ProgramParameter(IncA + 1)
+          gConf\sPath_PBCOMPILER = ProgramParameter(IncA + 1)
           IncA = IncA + 1
         ;}
         Case #Switch_Param_PB_Obj2Lib_s, #Switch_Param_PB_Obj2Lib_sl;{
-          gConf_Path_OBJ2LIB = ProgramParameter(IncA + 1)
+          gConf\sPath_OBJ2LIB = ProgramParameter(IncA + 1)
           IncA = IncA + 1
         ;}
         Case #Switch_Param_PB_Fasm_s, #Switch_Param_PB_Fasm_sl;{
-          gConf_Path_FASM = ProgramParameter(IncA + 1)
+          gConf\sPath_FASM = ProgramParameter(IncA + 1)
           IncA = IncA + 1
         ;}
         Case #Switch_Param_PB_LibMaker_s, #Switch_Param_PB_LibMaker_sl;{
-          gConf_Path_PBLIBMAKER = ProgramParameter(IncA + 1)
+          gConf\sPath_PBLIBMAKER = ProgramParameter(IncA + 1)
           IncA = IncA + 1
         ;}
         Case #Switch_Param_PB_Ini_s, #Switch_Param_PB_Ini_sl;{
-          gConf_Ini_Purebasic = ProgramParameter(IncA + 1)
+          gConf\sIni_Purebasic = ProgramParameter(IncA + 1)
           IncA = IncA + 1
         ;}
         Case #Switch_Param_Project_Ini_s, #Switch_Param_Project_Ini_sl;{
-          gConf_Ini_Project = ProgramParameter(IncA + 1)
+          gConf\sIni_Project = ProgramParameter(IncA + 1)
           IncA = IncA + 1
         ;}
         Case #Switch_Param_Subsytem_s, #Switch_Param_Subsytem_sl;{
@@ -146,8 +146,8 @@ ProcedureDLL Moebius_ReadParameters()
           IncA = IncA + 1
         ;}
         Case #Switch_Param_ProjectDir_s, #Switch_Param_ProjectDir_sl ;{
-          gConf_SourceDir = ProgramParameter(IncA + 1)
-          gProject\sDirProject = gConf_SourceDir + gProject\sLibName + #System_Separator
+          gConf\sSourceDir = ProgramParameter(IncA + 1)
+          gProject\sDirProject = gConf\sSourceDir + gProject\sLibName + #System_Separator
           M_Moebius_InitDir(bDecl_Switch_Param_Help, bDecl_Switch_Param_LogFileName, bDecl_Switch_Param_OutputLib)
           gProject\sFileCHM  = gProject\sLibName + #System_ExtHelp
           IncA = IncA + 1

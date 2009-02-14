@@ -1,4 +1,35 @@
 ;- Structures
+Structure S_DLLFunctions
+  FuncName.s
+  FuncRetType.s
+  FuncDesc.s
+  CallingConvention.s
+  Params.s
+  ParamsClean.s
+  ParamsNumber.l
+  ParamsRetType.s
+  FlagsReturn.s ; FlagsReturn for specific options : MMX, SSE, SSE2, etc...
+  InDescFile.b
+  Code.s
+  IsDLLFunction.b
+  Win_ASMNameFunc.s
+EndStructure
+Structure S_PBConf
+  sPureBasic_Path.s
+  sPath_PBCOMPILER.s
+  sPath_FASM.s
+  sPath_OBJ2LIB.s
+  sPath_PBLIBMAKER.s
+  sSourceDir.s
+  sIni_Purebasic.s
+  sIni_Project.s
+EndStructure
+Structure S_PBFunctionInfo
+  FuncName.s
+  FuncDesc.s
+  Params.s
+  LibContaining.s
+EndStructure
 Structure S_Project
   sFileName.s           ; PB Filename for compiling
   sFileDesc.s           ; Desc File
@@ -24,27 +55,6 @@ Structure S_Project
   bLogInStreaming.b
   bBatFile.b
 EndStructure
-Structure S_DLLFunctions
-  FuncName.s
-  FuncRetType.s
-  FuncDesc.s
-  CallingConvention.s
-  Params.s
-  ParamsClean.s
-  ParamsNumber.l
-  ParamsRetType.s
-  FlagsReturn.s ; FlagsReturn for specific options : MMX, SSE, SSE2, etc...
-  InDescFile.b
-  Code.s
-  IsDLLFunction.b
-  Win_ASMNameFunc.s
-EndStructure
-Structure S_PBFunctionInfo
-  FuncName.s
-  FuncDesc.s
-  Params.s
-  LibContaining.s
-EndStructure
 Structure S_Seeker
   StructureUnion
     b.b
@@ -68,19 +78,20 @@ Global Dim D_Parameters.s(9)
 
 ;- Globals
 Global gProject.S_Project
+Global gConf.S_PBConf
 Global hCompiler.l
 Global hFileLog.l
 Global hFileBatch.l
 Global lTimeStart.l
 Global Moebius_Compile_Step2_sCodeShared.s
-Global gConf_PureBasic_Path.s
-Global gConf_Path_PBCOMPILER.s
-Global gConf_Path_FASM.s
-Global gConf_Path_OBJ2LIB.s
-Global gConf_Path_PBLIBMAKER.s
-Global gConf_SourceDir.s
-Global gConf_Ini_Purebasic.s
-Global gConf_Ini_Project.s
+; Global gConf_PureBasic_Path.s
+; Global gConf_Path_PBCOMPILER.s
+; Global gConf_Path_FASM.s
+; Global gConf_Path_OBJ2LIB.s
+; Global gConf_Path_PBLIBMAKER.s
+; Global gConf_SourceDir.s
+; Global gConf_Ini_Purebasic.s
+; Global gConf_Ini_Project.s
 
 ;- Constants
 #DQuote = Chr(34)

@@ -13,8 +13,8 @@
 ;@returnvalue -10> Error : Can't delete the directory BAT of project
 ProcedureDLL Moebius_Compile_Step0()
   ;Cleans the old userlib
-  If FileSize(gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\sLibName) > 0
-    If DeleteFile(gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\sLibName) = 0
+  If FileSize(gConf\sPureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\sLibName) > 0
+    If DeleteFile(gConf\sPureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\sLibName) = 0
       ProcedureReturn #False
     EndIf
   EndIf

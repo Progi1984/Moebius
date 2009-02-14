@@ -1,9 +1,9 @@
 ;@desc LibraryMaker creates userlibrary from the LIB file
 ProcedureDLL Moebius_Compile_Step5()
-  Protected DirUserLibrary.s = gConf_PureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator
+  Protected DirUserLibrary.s = gConf\sPureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator
   If gProject\bDontBuildLib = #False
-    RunProgram(gConf_Path_PBLIBMAKER, " "+#DQuote+gProject\sFileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, gProject\sDirProject, #PB_Program_Wait|#PB_Program_Hide)
-    Output_Add(#DQuote+gConf_Path_PBLIBMAKER+#DQuote+" "+#DQuote+gProject\sFileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, #Output_Log | #Output_Bat, 2)
+    RunProgram(gConf\sPath_PBLIBMAKER, " "+#DQuote+gProject\sFileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, gProject\sDirProject, #PB_Program_Wait|#PB_Program_Hide)
+    Output_Add(#DQuote+gConf\sPath_PBLIBMAKER+#DQuote+" "+#DQuote+gProject\sFileDesc+#DQuote+" /To "+#DQuote+DirUserLibrary+#DQuote+" "+#Switch_NoUnicodeWarning, #Output_Log | #Output_Bat, 2)
     If FileSize(DirUserLibrary+gProject\sLibName)>0
       If gProject\sFileOutput <> ""
         If gProject\sLibName <> gProject\sFileOutput
