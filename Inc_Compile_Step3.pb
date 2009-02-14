@@ -1,7 +1,7 @@
 ;@desc FASM compiles the ASM files To OBJ
 ProcedureDLL Moebius_Compile_Step3()
   Protected lPgm_Fasm.l
-  Protected sFASMError.s, sFASMString.s sReadPgm.s
+  Protected sFASMError.s, sFASMString.s, sReadPgm.s
   ForEach LL_DLLFunctions()
     lPgm_Fasm = RunProgram(gConf\sPath_FASM, " "+#DQuote+gProject\sDirProject+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide | #PB_Program_Error)
     Output_Add(#DQuote+gConf\sPath_FASM+#DQuote+" "+#DQuote+gProject\sDirProject+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, #Output_Log|#Output_Bat, 2)

@@ -453,55 +453,40 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
 EndProcedure
 ;@desc Write some asm code for arrays in asm code
 ProcedureDLL.s Moebius_Compile_Step2_WriteASMForArrays(lFile.l)
-  Protected lIncA.l, lIncB.l, lOffset.l, lNbLines.l
-  Protected sItemParam.s, sReturnDataSection.s
+  Protected lIncA.l, lIncB.l, lOffset.l, lNbParams.l
+  Protected sItemParam.s, sReturn.s
   Protected bNbArrays.b
-  If FindString(LCase(LL_DLLFunctions()\ParamsRetType), "array", 0)  > 0
-    lNbLines = CountString(LL_DLLFunctions()\ParamsRetType, ",")
-    For lIncA = 1 To lNbLines
-      ; Param's Type
-      sItemParam = StringField(LL_DLLFunctions()\ParamsRetType, lIncA +1, ",")
-      sItemParam = LCase(sItemParam)
-      sItemParam = Trim(sItemParam)
-      If sItemParam = "array"
-        ; Offset
-        If lIncA = 1 
-          lOffset  = 4
-        Else
-          lOffset  = 0
-          For lIncB = 1 To lIncA - 1
-            sItemParam = StringField(LL_DLLFunctions()\ParamsRetType, lIncA +1, ",")
-            sItemParam = LCase(sItemParam)
-            sItemParam = Trim(sItemParam)
-            Select sItemParam
-              Case "array"  : lOffset +4
-              Case "linkedlist"  : lOffset +4
-              Default:lOffset+SizeOf(sItemParam)
-            EndSelect
-          Next
-          lOffset +4
-        EndIf
-        WriteStringN(lFile, "MOV  edx, dword [esp+"+Str(lOffset)+"]") 
-        WriteStringN(lFile, "MOV  dword [_Ptr_Array_"+Str(bNbArrays)+"], edx ")
-        WriteStringN(lFile, "MOV  dword [esp+"+Str(lOffset)+"], _Ptr_Array_"+Str(bNbArrays))
-        If sReturnDataSection = ""
-          sReturnDataSection = "Macro align value { rb (value-1) - ($-_"+LL_DLLFunctions()\FuncName+" + value-1) mod value }"+ #System_EOL
-          CompilerSelect #PB_Compiler_OS 
-            CompilerCase #PB_OS_Windows : sReturnDataSection + "section '.Arrays' readable writeable"+ #System_EOL
-            CompilerCase #PB_OS_Linux : sReturnDataSection + "section '.Arrays' writeable"+ #System_EOL
-          CompilerEndSelect
-          sReturnDataSection + "_"+LL_DLLFunctions()\FuncName+":"+ #System_EOL
-          sReturnDataSection + "align 4"+ #System_EOL
-        EndIf
-        sReturnDataSection + "_Ptr_Array_"+Str(bNbArrays)+":"+ #System_EOL
-        sReturnDataSection + "rd 1"+ #System_EOL
-        bNbArrays +1
+  lNbParams = CountString(LL_DLLFunctions()\ParamsRetType, ",") +1
+  For lIncA = 1 To lNbParams
+    ; Param's Type
+    sItemParam = StringField(LL_DLLFunctions()\ParamsRetType, lIncA, ",")
+    sItemParam = LCase(sItemParam)
+    sItemParam = Trim(sItemParam)
+    If sItemParam = "array"
+      ; Offset
+      If lIncA = 1 
+        lOffset  = 4
+      Else
+        lOffset  = 0
+        For lIncB = 1 To lIncA - 1
+          sItemParam = StringField(LL_DLLFunctions()\ParamsRetType, lIncA +1, ",")
+          sItemParam = LCase(sItemParam)
+          sItemParam = Trim(sItemParam)
+          Select sItemParam
+            Case "array"  : lOffset +4
+            Case "linkedlist"  : lOffset +4
+            Default:lOffset+SizeOf(sItemParam)
+          EndSelect
+        Next
+        lOffset +4
       EndIf
-    Next
-  Else
-    sReturnDataSection = ""
-  EndIf 
-  ProcedureReturn sReturnDataSection
+      sReturn + "MOV  edx, dword [esp+"+Str(lOffset)+"]" + #System_EOL
+      sReturn + "MOV  dword [_Ptr_Array_"+Str(bNbArrays)+"], edx " + #System_EOL
+      sReturn + "MOV  dword [esp+"+Str(lOffset)+"], _Ptr_Array_"+Str(bNbArrays) + #System_EOL
+      bNbArrays +1
+    EndIf
+  Next
+  ProcedureReturn sReturn
 EndProcedure
 ;@desc Adds some extern and verify some contrainsts
 ProcedureDLL Moebius_Compile_Step2_AddExtrn(Part.s)
@@ -699,9 +684,10 @@ ProcedureDLL Moebius_Compile_Step2_CreateInitFunction()
 EndProcedure
 ;@desc This step grabs the ASM file, splits it, rewrites some parts
 ProcedureDLL Moebius_Compile_Step2()
-  Protected CodeContent.s, CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned.s, sDataSectionForArray.s
+  Protected CodeContent.s, CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned.s
   Protected IncA.l, IncB.l, lPos.l, lPosLast.l, lFile.l,lNbLines.l
   Protected bFound.b, bLastIsLabel.b, bIsDLLFunction.b, bExistsInitFunction.b
+  Protected cNbParams.c
   Output_Add("Load the content of purebasic.asm in a string", #Output_Log, 2)
   ;{ load the content of purebasic.asm in a string
     If ReadFile(0, gProject\sDirProject+"purebasic.asm")
@@ -763,6 +749,7 @@ ProcedureDLL Moebius_Compile_Step2()
           EndIf
         EndIf
         ;}
+        
         ;{ format  
           WriteStringN(lFile, "format "+#System_LibFormat)
         ;}
@@ -914,15 +901,26 @@ ProcedureDLL Moebius_Compile_Step2()
                   ; we are just after the two labels (one for PB FuncName and ASM FuncName) 
                   ;+ and we want To add the code For asm arrays
                   Output_Add("Moebius_Compile_Step2_WriteASMForArrays() > "+LL_DLLFunctions()\FuncName, #Output_Log, 2)
-                  sDataSectionForArray = Moebius_Compile_Step2_WriteASMForArrays(lFile)
+                  WriteStringN(lFile, Moebius_Compile_Step2_WriteASMForArrays(lFile))
                   bLastIsLabel = #False
                 EndIf
               EndIf
               WriteStringN(lFile, sTmpString)
             Next
-            If sDataSectionForArray <> ""
-              WriteStringN(lFile, sDataSectionForArray)
-            EndIf
+            
+            ; macro final
+            WriteStringN(lFile, "Macro align value { rb (value-1) - ($-_"+LL_DLLFunctions()\FuncName+" + value-1) mod value }")
+            CompilerSelect #PB_Compiler_OS 
+              CompilerCase #PB_OS_Windows : WriteStringN(lFile, "section '.Arrays' readable writeable")
+              CompilerCase #PB_OS_Linux : WriteStringN(lFile, "section '.Arrays' writeable")
+            CompilerEndSelect
+            WriteStringN(lFile, "_"+LL_DLLFunctions()\FuncName+":")
+            WriteStringN(lFile, "align 4")
+            cNbParams = CountString(LCase(LL_DLLFunctions()\ParamsRetType), "array")
+            For IncA = 0 To cNbParams - 1
+              WriteStringN(lFile, "_Ptr_Array_"+Str(IncA)+":")
+              WriteStringN(lFile, "rd 1")
+            Next
           Else
             WriteStringN(lFile, TrCodeField)
           EndIf
