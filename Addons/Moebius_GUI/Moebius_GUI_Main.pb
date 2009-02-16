@@ -76,8 +76,8 @@ Repeat
                 Else
                   bIsCHM = #True
                 EndIf
-                gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
-                gProject\sDirProject = gConf_SourceDir + gProject\sLibName + #System_Separator
+                gConf\sSourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
+                gProject\sDirProject = gConf\sSourceDir + gProject\sLibName + #System_Separator
                 M_Moebius_InitDir(bIsCHM, #False, bIsOutput)
               EndIf
             ;}
@@ -110,8 +110,8 @@ Repeat
                 If gProject\sFileName <> "" And FileSize(gProject\sFileName) > 0
                   If gProject\sLibName = ""
                     gProject\sLibName = Left(GetFilePart(gProject\sFileName), Len(GetFilePart(gProject\sFileName)) - Len(GetExtensionPart(gProject\sFileName))-1)
-                    gConf_SourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
-                    gProject\sDirProject = gConf_SourceDir + gProject\sLibName + #System_Separator
+                    gConf\sSourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
+                    gProject\sDirProject = gConf\sSourceDir + gProject\sLibName + #System_Separator
                     M_Moebius_InitDir(#True, #False, #True)
                     If GetGadgetText(#String_2) = ""
                       gProject\sFileCHM  = gProject\sLibName + #System_ExtHelp
@@ -133,14 +133,14 @@ Repeat
             Case #Button_13 ;{ 
               sRetString = PathRequester("Purebasic path", "")
               If sRetString
-                gConf_SourceDir = sRetString
-                gProject\sDirProject = gConf_SourceDir + gProject\sLibName + #System_Separator
+                gConf\sSourceDir = sRetString
+                gProject\sDirProject = gConf\sSourceDir + gProject\sLibName + #System_Separator
                 M_Moebius_InitDir(#True, #False, #True)
                 If GetGadgetText(#String_2) = ""
                   gProject\sFileCHM  = gProject\sLibName + #System_ExtHelp
                   SetGadgetText(#String_2, gProject\sFileCHM)
                 EndIf
-                SetGadgetText(#String_8, gConf_SourceDir)
+                SetGadgetText(#String_8, gConf\sSourceDir)
               EndIf            
             ;}
             
@@ -157,22 +157,22 @@ Repeat
             Case #Button_4 ;{ Purebasic path
               sRetString = PathRequester("Purebasic path", "")
               If sRetString
-                gConf_PureBasic_Path = sRetString
-                SetGadgetText(#String_3, gConf_PureBasic_Path)
+                gConf\sPureBasic_Path = sRetString
+                SetGadgetText(#String_3, gConf\sPureBasic_Path)
               EndIf
             ;}
             Case #Button_5 ;{ Compiler
-              sRetString = OpenFileRequester("Compiler", gConf_PureBasic_Path+"compilers"+#System_Separator, "Compiler|pbcompiler"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
+              sRetString = OpenFileRequester("Compiler", gConf\sPureBasic_Path+"compilers"+#System_Separator, "Compiler|pbcompiler"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
               If sRetString
-                gConf_Path_PBCOMPILER = sRetString
-                SetGadgetText(#String_4, gConf_Path_PBCOMPILER)
+                gConf\sPath_PBCOMPILER = sRetString
+                SetGadgetText(#String_4, gConf\sPath_PBCOMPILER)
               EndIf
             ;}
             Case #Button_6 ;{ Fasm
-              sRetString = OpenFileRequester("Fasm", gConf_PureBasic_Path+"compilers"+#System_Separator, "Fasm|fasm"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
+              sRetString = OpenFileRequester("Fasm", gConf\sPureBasic_Path+"compilers"+#System_Separator, "Fasm|fasm"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
               If sRetString
-                gConf_Path_FASM = sRetString
-                SetGadgetText(#String_5, gConf_Path_FASM)
+                gConf\sPath_FASM = sRetString
+                SetGadgetText(#String_5, gConf\sPath_FASM)
               EndIf
             ;}
             Case #Button_7 ;{ Obj2Lib
@@ -181,26 +181,26 @@ Repeat
                   sRetString = OpenFileRequester("ar", "/usr/bin/ar", "ar|ar|Tous les fichiers (*.*)|*.*",0)
                 ;}
                 CompilerCase #PB_OS_Windows ;{
-                  sRetString = OpenFileRequester("Polib", gConf_PureBasic_Path+"compilers\", "Polib |polib.exe|Tous les fichiers (*.*)|*.*",0)
+                  sRetString = OpenFileRequester("Polib", gConf\sPureBasic_Path+"compilers\", "Polib |polib.exe|Tous les fichiers (*.*)|*.*",0)
                 ;}
               CompilerEndSelect              
               If sRetString
-                gConf_Path_OBJ2LIB = sRetString
-                SetGadgetText(#String_6, gConf_Path_OBJ2LIB)
+                gConf\sPath_OBJ2LIB = sRetString
+                SetGadgetText(#String_6, gConf\sPath_OBJ2LIB)
               EndIf
             ;}
             Case #Button_8 ;{ LibMaker 
               CompilerSelect #PB_Compiler_OS
                 CompilerCase #PB_OS_Linux ;{
-                  sRetString = OpenFileRequester("Library Maker", gConf_PureBasic_Path+"compilers"+#System_Separator, "LibMaker|pblibrarymaker"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
+                  sRetString = OpenFileRequester("Library Maker", gConf\sPureBasic_Path+"compilers"+#System_Separator, "LibMaker|pblibrarymaker"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
                 ;}
                 CompilerCase #PB_OS_Windows ;{
-                  sRetString = OpenFileRequester("Library Maker", gConf_PureBasic_Path+"compilers"+#System_Separator, "LibMaker|LibraryMaker"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
+                  sRetString = OpenFileRequester("Library Maker", gConf\sPureBasic_Path+"compilers"+#System_Separator, "LibMaker|LibraryMaker"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
                 ;}
               CompilerEndSelect
               If sRetString
-                gConf_Path_PBLIBMAKER = sRetString
-                SetGadgetText(#String_7, gConf_Path_PBLIBMAKER)
+                gConf\sPath_PBLIBMAKER = sRetString
+                SetGadgetText(#String_7, gConf\sPath_PBLIBMAKER)
               EndIf
             ;}
             Case #Button_9 ;{ Validate Purebasic paths
@@ -221,47 +221,47 @@ Repeat
             Case #String_3 ;{ PureBasic path
               sRetString = GetGadgetText(#String_3)
               If sRetString And FileSize(sRetString) = -2
-                gConf_PureBasic_Path = sRetString
-                gConf_Path_PBCOMPILER = gConf_PureBasic_Path+"compilers"+#System_Separator+"pbcompiler"+#System_ExtExec
-                gConf_Path_FASM = gConf_PureBasic_Path+"compilers"+#System_Separator+"fasm"+#System_ExtExec
+                gConf\sPureBasic_Path = sRetString
+                gConf\sPath_PBCOMPILER = gConf\sPureBasic_Path+"compilers"+#System_Separator+"pbcompiler"+#System_ExtExec
+                gConf\sPath_FASM = gConf\sPureBasic_Path+"compilers"+#System_Separator+"fasm"+#System_ExtExec
                 CompilerSelect #PB_Compiler_OS
                   CompilerCase #PB_OS_Windows;{
-                    gConf_Path_OBJ2LIB = gConf_PureBasic_Path+"compilers"+#System_Separator+"polib"+#System_ExtExec
-                    gConf_Path_PBLIBMAKER = gConf_PureBasic_Path+"SDK"+#System_Separator+"LibraryMaker"+#System_ExtExec
+                    gConf\sPath_OBJ2LIB = gConf\sPureBasic_Path+"compilers"+#System_Separator+"polib"+#System_ExtExec
+                    gConf\sPath_PBLIBMAKER = gConf\sPureBasic_Path+"SDK"+#System_Separator+"LibraryMaker"+#System_ExtExec
                   ;}
                   CompilerCase #PB_OS_Linux;{
-                    gConf_Path_OBJ2LIB = "/usr/bin/ar"
-                    gConf_Path_PBLIBMAKER = gConf_PureBasic_Path+"compilers"+#System_Separator+"pblibrarymaker"+#System_ExtExec
+                    gConf\sPath_OBJ2LIB = "/usr/bin/ar"
+                    gConf\sPath_PBLIBMAKER = gConf\sPureBasic_Path+"compilers"+#System_Separator+"pblibrarymaker"+#System_ExtExec
                   ;}
                 CompilerEndSelect
-                SetGadgetText(#String_4, gConf_Path_PBCOMPILER)
-                SetGadgetText(#String_5, gConf_Path_FASM)
-                SetGadgetText(#String_6, gConf_Path_OBJ2LIB)
-                SetGadgetText(#String_7, gConf_Path_PBLIBMAKER)
+                SetGadgetText(#String_4, gConf\sPath_PBCOMPILER)
+                SetGadgetText(#String_5, gConf\sPath_FASM)
+                SetGadgetText(#String_6, gConf\sPath_OBJ2LIB)
+                SetGadgetText(#String_7, gConf\sPath_PBLIBMAKER)
               EndIf
             ;}
             Case #String_4 ;{ PbCompiler
               sRetString = GetGadgetText(#String_4)
               If sRetString
-                gConf_Path_PBCOMPILER = sRetString
+                gConf\sPath_PBCOMPILER = sRetString
               EndIf
             ;}
             Case #String_5 ;{ Fasm
               sRetString = GetGadgetText(#String_5)
               If sRetString
-                gConf_Path_FASM = sRetString
+                gConf\sPath_FASM = sRetString
               EndIf
             ;}
             Case #String_6 ;{ OBJ2LIB
               sRetString = GetGadgetText(#String_6)
               If sRetString
-                gConf_Path_OBJ2LIB = sRetString
+                gConf\sPath_OBJ2LIB = sRetString
               EndIf
             ;}
             Case #String_7 ;{ PBLibMaker
               sRetString = GetGadgetText(#String_7)
               If sRetString
-                gConf_Path_PBLIBMAKER = sRetString
+                gConf\sPath_PBLIBMAKER = sRetString
               EndIf
             ;}
           EndSelect
