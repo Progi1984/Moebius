@@ -150,6 +150,21 @@ Repeat
                 gProject\sLibName  = Left(GetFilePart(gProject\sFileName), Len(GetFilePart(gProject\sFileName)) - Len(GetExtensionPart(gProject\sFileName))-1)
               EndIf
             ;}
+            Case #String_1 ;{ Help File
+              sRetString = GetGadgetText(#String_1)
+              If sRetString 
+                gProject\sFileCHM  = GetFilePart(sRetString)
+              EndIf
+            ;}
+            Case #String_8 ;{ LibName
+              sRetString = GetGadgetText(#String_8)
+              If sRetString 
+                If FileSize(sRetString) = -2
+                  gProject\sDirProject  = sRetString
+                  M_Moebius_InitDir(#True, #False, #False)
+                EndIf
+              EndIf
+            ;}
           EndSelect
         ;}
         Case #Window_1;{

@@ -31,7 +31,7 @@ ProcedureDLL Main_Open()
       StringGadget(#String_2, 160, 250, 330, 20, "")
       ButtonGadget(#Button_2, 500, 246, 80, 28, "Parcourir")
       
-      TextGadget(#Text_16, 30, 280, 120, 20, "Dossier Travail :")
+      TextGadget(#Text_16, 30, 280, 120, 20, "Dossier de Travail :")
       StringGadget(#String_8, 160, 280, 330, 20, "")
       ButtonGadget(#Button_13, 500, 276, 80, 28, "Parcourir")
 
