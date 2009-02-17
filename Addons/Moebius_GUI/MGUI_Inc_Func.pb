@@ -21,26 +21,64 @@ ProcedureDLL Main_Open()
         gProject\bDontKeepSrcFiles = #True
       
       TextGadget(#Text_2, 30, 190, 120, 20, "Nom de la librairie")
-      StringGadget(#String_0, 160, 190, 330, 20, "")
+      CompilerSelect #PB_Compiler_OS
+        CompilerCase #PB_OS_Linux;{
+          StringGadget(#String_0, 160, 186, 330, 28, "")
+        ;}
+        CompilerCase #PB_OS_Windows;{
+          StringGadget(#String_0, 160, 190, 330, 20, "")
+        ;}      
+      CompilerEndSelect
       
       TextGadget(#Text_3, 30, 220, 120, 20, "Fichier Source :")
-      StringGadget(#String_1, 160, 220, 330, 20, "")
-      ButtonGadget(#Button_1, 500, 216, 80, 28, "Parcourir")
+      CompilerSelect #PB_Compiler_OS
+        CompilerCase #PB_OS_Linux;{
+          StringGadget(#String_1, 160, 216, 330, 28, "")
+          ButtonGadget(#Button_1, 500, 216, 80, 28, "Parcourir")
+        ;}
+        CompilerCase #PB_OS_Windows;{
+          StringGadget(#String_1, 160, 220, 330, 20, "")
+          ButtonGadget(#Button_1, 500, 220, 80, 20, "Parcourir")
+        ;}      
+      CompilerEndSelect
       
       TextGadget(#Text_4, 30, 250, 120, 20, "Fichier Aide :")
-      StringGadget(#String_2, 160, 250, 330, 20, "")
-      ButtonGadget(#Button_2, 500, 246, 80, 28, "Parcourir")
+      CompilerSelect #PB_Compiler_OS
+        CompilerCase #PB_OS_Linux;{
+          StringGadget(#String_2, 160, 246, 330, 28, "")
+          ButtonGadget(#Button_2, 500, 246, 80, 28, "Parcourir")
+        ;}
+        CompilerCase #PB_OS_Windows;{
+          StringGadget(#String_2, 160, 250, 330, 20, "")
+          ButtonGadget(#Button_2, 500, 250, 80, 20, "Parcourir")
+        ;}      
+      CompilerEndSelect
       
       TextGadget(#Text_16, 30, 280, 120, 20, "Dossier de Travail :")
-      StringGadget(#String_8, 160, 280, 330, 20, "")
-      ButtonGadget(#Button_13, 500, 276, 80, 28, "Parcourir")
+      CompilerSelect #PB_Compiler_OS
+        CompilerCase #PB_OS_Linux;{
+          StringGadget(#String_8, 160, 276, 330, 28, "")
+          ButtonGadget(#Button_13, 500, 276, 80, 28, "Parcourir")
+        ;}
+        CompilerCase #PB_OS_Windows;{
+          StringGadget(#String_8, 160, 280, 330, 20, "")
+          ButtonGadget(#Button_13, 500, 280, 80, 20, "Parcourir")
+        ;}      
+      CompilerEndSelect
 
       TextGadget(#Text_5, 30, 310, 120, 20, "Sous-système :")
-      ComboBoxGadget(#Combo_0, 160, 306, 330, 20)
-      ButtonGadget(#Button_11, 500, 306, 80, 20, "Valider")
+      CompilerSelect #PB_Compiler_OS
+        CompilerCase #PB_OS_Linux;{
+          ComboBoxGadget(#Combo_0, 160, 306, 330, 28)
+          ButtonGadget(#Button_11, 500, 306, 80, 28, "Valider")
+        ;}
+        CompilerCase #PB_OS_Windows;{
+          ComboBoxGadget(#Combo_0, 160, 306, 330, 20)
+          ButtonGadget(#Button_11, 500, 306, 80, 20, "Valider")
+        ;}      
+      CompilerEndSelect
         DisableGadget(#Button_11, #True)
 
-      
     Frame3DGadget(#Frame3D_2, 10, 340, 580, 180, "Etape 3 : Compilation du projet")
       EditorGadget(#Editor_0, 20, 390, 560, 120, #PB_Editor_ReadOnly)
       ButtonGadget(#Button_3, 20, 356, 110, 28, "Compiler")
@@ -228,4 +266,22 @@ ProcedureDLL PBParams_SaveIni()
     WritePreferenceString("PBLibMaker", gConf\sPath_PBLIBMAKER)
     ClosePreferences()
   EndIf
+EndProcedure
+
+;@desc : Return #False if the gadget is enabled
+ProcedureDLL GetDisableGadget(Gadget.l)
+  CompilerSelect #PB_Compiler_OS
+    CompilerCase #PB_OS_Linux;{
+      Protected *Widget.GtkWidget = GadgetID(Gadget)
+      Protected *Object.GtkObject = *Widget\object
+      If *Object\flags & #GTK_SENSITIVE <> 0
+        ProcedureReturn #False
+      Else
+        ProcedureReturn #True
+      EndIf
+    ;}
+    CompilerCase #PB_OS_Windows;{
+      ProcedureReturn #True - IsWindowEnabled_(GadgetID(gadget))
+    ;}
+  CompilerEndSelect
 EndProcedure

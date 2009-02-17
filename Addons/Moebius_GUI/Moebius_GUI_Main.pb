@@ -34,21 +34,27 @@ Repeat
           Select Evt_Gadget
             Case #CheckBox_0 ;{ Unicode
               gProject\bUnicode = GetGadgetState(#CheckBox_0)
+              M_GUI_EnableStep2()
             ;}
             Case #CheckBox_1 ;{ Threadsafe
               gProject\bThreadSafe = GetGadgetState(#CheckBox_1)
+              M_GUI_EnableStep2()
             ;}
             Case #CheckBox_2 ;{ Batch
               gProject\bBatFile = GetGadgetState(#CheckBox_2)
+              M_GUI_EnableStep2()
             ;}
             Case #CheckBox_3 ;{ Log
               gProject\bLogFile = GetGadgetState(#CheckBox_3)
+              M_GUI_EnableStep2()
             ;}
             Case #CheckBox_4 ;{ Don't Build Lib
               gProject\bDontBuildLib = GetGadgetState(#CheckBox_4)
+              M_GUI_EnableStep2()
             ;}
             Case #CheckBox_5 ;{ Don't Keep Src Files
               gProject\bDontKeepSrcFiles = 1-GetGadgetState(#CheckBox_5)
+              M_GUI_EnableStep2()
             ;}
             Case #CheckBox_6 ;{ Enable Logging
               bEnableLogEditor = GetGadgetState(#CheckBox_6)
@@ -79,6 +85,7 @@ Repeat
                 gConf\sSourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
                 gProject\sDirProject = gConf\sSourceDir + gProject\sLibName + #System_Separator
                 M_Moebius_InitDir(bIsCHM, #False, bIsOutput)
+                M_GUI_EnableStep2()
               EndIf
             ;}
             Case #Button_2 ;{ Help File
@@ -86,6 +93,7 @@ Repeat
               If sRetString
                 gProject\sFileCHM = sRetString
                 SetGadgetText(#String_2, gProject\sFileCHM)
+                M_GUI_EnableStep2()
               EndIf
             ;}
             Case #Button_3 ;{ Compile
@@ -141,6 +149,7 @@ Repeat
                   SetGadgetText(#String_2, gProject\sFileCHM)
                 EndIf
                 SetGadgetText(#String_8, gConf\sSourceDir)
+                M_GUI_EnableStep2()
               EndIf            
             ;}
             
@@ -148,12 +157,14 @@ Repeat
               sRetString = GetGadgetText(#String_0)
               If sRetString 
                 gProject\sLibName  = Left(GetFilePart(gProject\sFileName), Len(GetFilePart(gProject\sFileName)) - Len(GetExtensionPart(gProject\sFileName))-1)
+                M_GUI_EnableStep2()
               EndIf
             ;}
             Case #String_1 ;{ Help File
               sRetString = GetGadgetText(#String_1)
               If sRetString 
                 gProject\sFileCHM  = GetFilePart(sRetString)
+                M_GUI_EnableStep2()
               EndIf
             ;}
             Case #String_8 ;{ LibName
@@ -162,6 +173,7 @@ Repeat
                 If FileSize(sRetString) = -2
                   gProject\sDirProject  = sRetString
                   M_Moebius_InitDir(#True, #False, #False)
+                  M_GUI_EnableStep2()
                 EndIf
               EndIf
             ;}

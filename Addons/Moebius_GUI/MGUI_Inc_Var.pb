@@ -1,3 +1,6 @@
+; Declaration
+DeclareDLL GetDisableGadget(Gadget.l)
+
 ; Constants
   Enumeration
     #Button_0
@@ -69,3 +72,13 @@
   Global sRetString.s
   Global bPBParams_Valid.b = #False
   Global bEnableLogEditor.b = #False
+  
+; Macros
+Macro M_GUI_EnableStep2()
+  If GetDisableGadget(#Button_11) = #True
+    DisableGadget(#Button_11, #False)
+  EndIf
+  If GetDisableGadget(#Button_3) = #False
+    DisableGadget(#Button_3, #True)
+  EndIf
+EndMacro
