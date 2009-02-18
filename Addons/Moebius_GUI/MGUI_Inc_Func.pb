@@ -3,7 +3,7 @@ DeclareDLL PBParams_Open()
 
 ;@desc Opens the main window for Moebius
 ProcedureDLL Main_Open()
-  If OpenWindow(#Window_0, 353, 5, 600, 533, "Moebius",  #PB_Window_SystemMenu | #PB_Window_TitleBar | #PB_Window_ScreenCentered)
+  If OpenWindow(#Window_0, 353, 5, 600, 575, "Moebius",  #PB_Window_SystemMenu | #PB_Window_TitleBar | #PB_Window_ScreenCentered)
     Frame3DGadget(#Frame3D_0, 10, 10, 580, 70, "Etape 1 : Purebasic")
       TextGadget(#Text_0, 80, 40, 40, 20, "Etat : ")
       ButtonGadget(#Button_0, 450, 30, 130, 40, "Configurer")
@@ -82,9 +82,26 @@ ProcedureDLL Main_Open()
     Frame3DGadget(#Frame3D_2, 10, 340, 580, 180, "Etape 3 : Compilation du projet")
       EditorGadget(#Editor_0, 20, 390, 560, 120, #PB_Editor_ReadOnly)
       ButtonGadget(#Button_3, 20, 356, 110, 28, "Compiler")
-        DisableGadget(#Button_3, #True)
       CheckBoxGadget(#CheckBox_6, 140, 356, 110, 28, "Activer le log")
+        DisableGadget(#Button_3, #True)
         DisableGadget(#CheckBox_6, #True)
+
+    Frame3DGadget(#Frame3D_3, 10, 520, 580, 50, "")
+      TextGadget(#Text_17, 30, 540, 120, 20, "Profil :")
+      CompilerSelect #PB_Compiler_OS
+        CompilerCase #PB_OS_Linux;{
+          ComboBoxGadget(#Combo_1, 160, 536, 250, 28)
+          ButtonGadget(#Button_14, 415, 536, 80, 28, "Charger")
+          ButtonGadget(#Button_15, 500, 536, 80, 28, "Sauver")
+        ;}
+        CompilerCase #PB_OS_Windows;{
+          ComboBoxGadget(#Combo_1, 160, 536, 250, 20)
+          ButtonGadget(#Button_14, 420, 536, 80, 20, "Charger")
+          ButtonGadget(#Button_15, 500, 536, 80, 20, "Sauver")
+        ;}      
+      CompilerEndSelect
+        M_GUI_ReloadProfiles()
+        SetGadgetState(#Combo_1, 1)
   EndIf
 EndProcedure
 ;@desc Set Purebasic params
@@ -203,9 +220,13 @@ ProcedureDLL PBParams_Validate(InWindow.b)
     If InWindow = #True
       MessageRequester("Purebasic Paths", "Les chemins sont valides.")
     Else
+      ; Step 1
       DisableGadget(#Button_0, #True)
+      ; Step 2
       DisableGadget(#Button_11, #False)
-      DisableGadget(#CheckBox_6, #False)
+      ; Step 3
+      DisableGadget(#Button_3, #True)
+      DisableGadget(#CheckBox_6, #True)
     EndIf
   EndIf
 EndProcedure

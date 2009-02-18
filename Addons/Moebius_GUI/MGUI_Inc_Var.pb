@@ -17,7 +17,10 @@ DeclareDLL GetDisableGadget(Gadget.l)
     #Button_11
     #Button_12
     #Button_13
+    #Button_14
+    #Button_15
     #Combo_0
+    #Combo_1
     #CheckBox_0
     #CheckBox_1
     #CheckBox_2
@@ -29,6 +32,7 @@ DeclareDLL GetDisableGadget(Gadget.l)
     #Frame3D_0
     #Frame3D_1
     #Frame3D_2
+    #Frame3D_3
     #String_0
     #String_1
     #String_2
@@ -55,6 +59,7 @@ DeclareDLL GetDisableGadget(Gadget.l)
     #Text_14
     #Text_15
     #Text_16
+    #Text_17
     #Window_0
     #Window_1
   EndEnumeration
@@ -72,6 +77,7 @@ DeclareDLL GetDisableGadget(Gadget.l)
   Global sRetString.s
   Global bPBParams_Valid.b = #False
   Global bEnableLogEditor.b = #False
+  Global cReturnMessageRequester.c
   
 ; Macros
 Macro M_GUI_EnableStep2()
@@ -80,5 +86,20 @@ Macro M_GUI_EnableStep2()
   EndIf
   If GetDisableGadget(#Button_3) = #False
     DisableGadget(#Button_3, #True)
+  EndIf
+EndMacro
+Macro M_GUI_ReloadProfiles()
+  ClearGadgetItems(#Combo_1)
+  AddGadgetItem(#Combo_1, 0, "=== Nouveau ===")
+  AddGadgetItem(#Combo_1, 1, "Default")
+  If FileSize("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
+    If OpenPreferences("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
+      If ExaminePreferenceGroups() > 0
+        While NextPreferenceGroup()
+          AddGadgetItem(#Combo_1, -1, PreferenceGroupName())
+        Wend 
+      EndIf
+      ClosePreferences()
+    EndIf
   EndIf
 EndMacro
