@@ -91,7 +91,6 @@ EndMacro
 Macro M_GUI_ReloadProfiles()
   ClearGadgetItems(#Combo_1)
   AddGadgetItem(#Combo_1, 0, "=== Nouveau ===")
-  AddGadgetItem(#Combo_1, 1, "Default")
   If FileSize("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
     If OpenPreferences("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
       If ExaminePreferenceGroups() > 0
@@ -101,5 +100,34 @@ Macro M_GUI_ReloadProfiles()
       EndIf
       ClosePreferences()
     EndIf
+  EndIf
+EndMacro
+Macro M_Profil_Load(ContainsInfos = #False)
+  If ContainsInfos = #True
+    ; Long
+    SetGadgetState(#CheckBox_0, ReadPreferenceLong("Unicode", #False))
+    SetGadgetState(#CheckBox_1, ReadPreferenceLong("Threadsafe", #False))
+    SetGadgetState(#CheckBox_2, ReadPreferenceLong("Batch", #False))
+    SetGadgetState(#CheckBox_3, ReadPreferenceLong("Log", #False))
+    SetGadgetState(#CheckBox_4, ReadPreferenceLong("DontBuildLib", #False))
+    SetGadgetState(#CheckBox_5, ReadPreferenceLong("DontKeepSrcFiles", #False))
+    ; String
+    SetGadgetText(#String_1, ReadPreferenceString("Source", ""))
+    SetGadgetText(#String_0, ReadPreferenceString("LibName", ""))
+    SetGadgetText(#String_2, ReadPreferenceString("HelpFile", ""))
+    SetGadgetText(#String_8, ReadPreferenceString("DirProject", ""))
+  EndIf
+  gProject\bUnicode = GetGadgetState(#CheckBox_0)
+  gProject\bThreadSafe = GetGadgetState(#CheckBox_1)
+  gProject\bBatFile = GetGadgetState(#CheckBox_2)
+  gProject\bLogFile = GetGadgetState(#CheckBox_3)
+  gProject\bDontBuildLib = GetGadgetState(#CheckBox_4)
+  gProject\bDontKeepSrcFiles = 1-GetGadgetState(#CheckBox_5)
+  gProject\sFileName = GetGadgetText(#String_1)
+  gProject\sLibName = GetGadgetText(#String_0)
+  gProject\sFileCHM = GetGadgetText(#String_2)
+  gProject\sDirProject = GetGadgetText(#String_8)
+  If gProject\sDirProject <> "" And FileSize(gProject\sDirProject) = -2
+    M_Moebius_InitDir(#True, #False, #False)
   EndIf
 EndMacro

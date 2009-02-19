@@ -101,6 +101,20 @@ ProcedureDLL Main_Open()
         ;}      
       CompilerEndSelect
         M_GUI_ReloadProfiles()
+        ; Load the default preference group if existant
+        If FileSize("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
+          If OpenPreferences("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
+            If ExaminePreferenceGroups() > 0
+              While NextPreferenceGroup()
+                If LCase(PreferenceGroupName()) = "default"
+                  M_Profil_Load(#True)
+                  Break
+                EndIf
+              Wend 
+            EndIf
+            ClosePreferences()
+          EndIf
+        EndIf
         SetGadgetState(#Combo_1, 1)
   EndIf
 EndProcedure
@@ -149,7 +163,7 @@ ProcedureDLL PBParams_Open()
 EndProcedure
 ;@desc Validate Purebasic paths
 ;@param InWindow : If #True, this is the window param
-                        ;@+  If #False, that validates params at startup
+  ;@+  If #False, that validates params at startup
 ProcedureDLL PBParams_Validate(InWindow.b)
   bPBParams_Valid = #False
   SetGadgetText(#Text_1, "NOK")
