@@ -21,7 +21,7 @@ IncludePath "../../"
 WinMain_Create()
 ; Load Ini File with PB Paths
 WinParamsPB_LoadIni()
-;WinParamsPB_Validate(#False)
+WinParamsPB_Validate(#False)
 Repeat
   lEvt_System = WaitWindowEvent()
   lEvt_Window = EventWindow()

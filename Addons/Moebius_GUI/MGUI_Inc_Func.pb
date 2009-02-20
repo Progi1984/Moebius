@@ -317,11 +317,20 @@ EndProcedure
 
 ;@desc Create the Window for Preferences
 ProcedureDLL WinPrefs_Create()
-  If OpenWindow(#Window_2, 0, 0, 270, 70, "Préférences", #PB_Window_ScreenCentered) 
-    CheckBoxGadget(#Window_2_CheckBox_0, 10,  10, 250, 20, "Toujours demander avant de charger un projet")
+  If OpenWindow(#Window_2, 0, 0, 350, 70, "Préférences", #PB_Window_ScreenCentered) 
+    CheckBoxGadget(#Window_2_CheckBox_0, 10,  10, 330, 20, "Toujours demander avant de charger un projet")
+    CompilerSelect #PB_Compiler_OS
+      CompilerCase #PB_OS_Linux;{
+        ButtonGadget(#Window_2_Button_0, 130, 36, 70, 28, "Annuler")
+        ButtonGadget(#Window_2_Button_1, 210, 36, 130, 28, "Sauver et Fermer")
+      ;}
+      CompilerCase #PB_OS_Windows;{
+        ButtonGadget(#Window_2_Button_0, 180, 40, 050, 20, "Annuler")
+        ButtonGadget(#Window_2_Button_1, 240, 40, 100, 20, "Sauver et Fermer")
+      ;}
+    ;}
+    CompilerEndSelect
     
-    ButtonGadget(#Window_2_Button_0, 100, 40, 050, 20, "Annuler")
-    ButtonGadget(#Window_2_Button_1, 160, 40, 100, 20, "Sauver et Fermer")
   
     DisableWindow(#Window_0, #True)
     StickyWindow(#Window_2, #True)
