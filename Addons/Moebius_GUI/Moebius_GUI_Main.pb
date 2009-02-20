@@ -1,3 +1,4 @@
+EnableExplicit
 #Moebius_App = #True
 
 IncludePath "../../"
@@ -22,6 +23,9 @@ WinMain_Create()
 ; Load Ini File with PB Paths
 WinParamsPB_LoadIni()
 WinParamsPB_Validate(#False)
+
+OnErrorCall(@Main_ErrorHandler())
+
 Repeat
   lEvt_System = WaitWindowEvent()
   lEvt_Window = EventWindow()
@@ -47,6 +51,7 @@ Repeat
             ;}
             Case #CheckBox_3 ;{ Log
               gProject\bLogFile = GetGadgetState(#CheckBox_3)
+              gProject\bLogInStreaming = GetGadgetState(#CheckBox_3)
               M_GUI_EnableStep(#False, #True, #False)
             ;}
             Case #CheckBox_4 ;{ Don't Build Lib
@@ -119,6 +124,7 @@ Repeat
                 If gProject\sFileName <> "" And FileSize(gProject\sFileName) > 0
                   If gProject\sLibName = ""
                     gProject\sLibName = Left(GetFilePart(gProject\sFileName), Len(GetFilePart(gProject\sFileName)) - Len(GetExtensionPart(gProject\sFileName))-1)
+                    SetGadgetText(#String_0, gProject\sLibName)
                     gConf\sSourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
                     gProject\sDirProject = gConf\sSourceDir + gProject\sLibName + #System_Separator
                     M_Moebius_InitDir(#True, #False, #True)
@@ -127,12 +133,23 @@ Repeat
                       SetGadgetText(#String_2, gProject\sFileCHM)
                     EndIf
                   EndIf
-                  DisableGadget(#Button_3, #False)
-                  DisableGadget(#CheckBox_6, #False)
-                  MessageRequester("Moebius", "Ready to Compile :)")
+                  If gProject\sDirProject = ""
+                      SetGadgetText(#String_8, GetTemporaryDirectory()+ "Moebius" + #System_Separator + gProject\sLibName + #System_Separator)
+                      gProject\sDirProject  = GetGadgetText(#string_8)
+                      M_Moebius_InitDir(#True, #False, #False)
+                      M_GUI_EnableStep(#False, #False, #True)
+                      MessageRequester("Moebius", "Ready to Compile :)")
+                  Else
+                    If FileSize(gProject\sDirProject) <> -2 And Right(gProject\sDirProject, 1) <> #System_Separator
+                      M_GUI_EnableStep(#False, #True, #False)
+                      MessageRequester("Moebius", "The working directory must be a directory.")
+                    Else
+                      M_GUI_EnableStep(#False, #False, #True)
+                      MessageRequester("Moebius", "Ready to Compile :)")
+                    EndIf
+                  EndIf
                 Else
-                  DisableGadget(#Button_3, #True)
-                  DisableGadget(#CheckBox_6, #True)
+                  M_GUI_EnableStep(#False, #True, #False)
                   MessageRequester("Moebius", "Need a real purebasic source file for compiling")
                 EndIf
               Else
@@ -160,7 +177,7 @@ Repeat
                 cReturnMessageRequester = #PB_MessageRequester_Yes
               EndIf
               If cReturnMessageRequester = #PB_MessageRequester_Yes
-                If GetGadgetState(#Combo_1) = 1
+                If GetGadgetState(#Combo_1) = 0
                   ; Long
                   SetGadgetState(#CheckBox_0, #False)
                   SetGadgetState(#CheckBox_1, #False)
@@ -195,7 +212,7 @@ Repeat
             Case #Button_15 ;{ Profil : Sauver
               If GetGadgetState(#Combo_1) = 0
                 sRetString = InputRequester("Moebius", "Nom du Modèle :", "Template"+Str(Random(SizeOf(Long))))
-                If sRetString
+                If sRetString > ""
                   If FileSize("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
                     OpenPreferences("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
                   Else
@@ -267,11 +284,9 @@ Repeat
             Case #String_8 ;{ DirProject
               sRetString = GetGadgetText(#String_8)
               If sRetString 
-                If FileSize(sRetString) = -2
-                  gProject\sDirProject  = sRetString
-                  M_Moebius_InitDir(#True, #False, #False)
-                  M_GUI_EnableStep(#False, #True, #False)
-                EndIf
+                gProject\sDirProject  = sRetString
+                M_Moebius_InitDir(#True, #False, #False)
+                M_GUI_EnableStep(#False, #True, #False)
               EndIf
             ;}
           EndSelect
@@ -425,3 +440,4 @@ Repeat
 Until lQuit = #True
 
 ;-TD : Renommage Constant
+;-TD : macro Clear before compiling

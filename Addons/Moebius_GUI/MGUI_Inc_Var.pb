@@ -7,7 +7,6 @@
   DeclareDLL WinPrefs_Create()
   DeclareDLL Misc_GetDisableGadget(Gadget.l)
 ;}
-
 ;{ Constants
   Enumeration
     #Button_0
@@ -100,14 +99,11 @@
       #Window_2_Button_1
   EndEnumeration
 ;}
-
 ;{ Structures
   Structure S_MoebiusGUIPrefs
     lAlwaysAskBeforeLoadingProject.l
   EndStructure
 ;}
-
-
 ;{ Variables
   Global lFont_Arial28 = LoadFont(#PB_Any, "Arial", 28)
 
@@ -127,21 +123,15 @@
   
   Global gGUIPrefs.S_MoebiusGUIPrefs
 ;}
-
 ;{ Macros
   Macro M_GUI_EnableStep(Step1, Step2, Step3)
     ; Step1
-    If Misc_GetDisableGadget(#Button_0) = Step1
-      DisableGadget(#Button_0, #False)
-    EndIf
+    DisableGadget(#Button_0, 1 - Step1)
     ; Step2
-    If Misc_GetDisableGadget(#Button_11) = Step2
-      DisableGadget(#Button_11, #False)
-    EndIf
+    DisableGadget(#Button_11, 1 - Step2)
     ; Step3
-    If Misc_GetDisableGadget(#Button_3) = Step3
-      DisableGadget(#Button_3, #False)
-    EndIf
+    DisableGadget(#Button_3, 1 - Step3)
+    DisableGadget(#Checkbox_6, 1 - Step3)
   EndMacro
   Macro M_Profil_GUIReload()
     ; clears the combo

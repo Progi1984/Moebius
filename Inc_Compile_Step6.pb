@@ -18,13 +18,4 @@ ProcedureDLL Moebius_Compile_Step6()
   
   ; we close logs & batchs
   Output_End()
-  
-  ; 
-  CompilerIf Defined(Moebius_App, #PB_Constant) = #True
-    If FileSize(gConf\sPureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\sFileOutput) > 0
-      MessageRequester("Moebius", "Build successful !")
-    Else
-      MessageRequester("Moebius", "Build failed !")
-    EndIf
-  CompilerEndIf
 EndProcedure
