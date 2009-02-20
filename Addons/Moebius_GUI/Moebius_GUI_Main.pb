@@ -18,52 +18,52 @@ IncludePath "../../"
   XIncludeFile "Moebius_Main.pb"
 
 ; Open the main window
-Main_Open()
+WinMain_Create()
 ; Load Ini File with PB Paths
-PBParams_LoadIni()
-PBParams_Validate(#False)
+WinParamsPB_LoadIni()
+;WinParamsPB_Validate(#False)
 Repeat
-  Evt_System = WaitWindowEvent()
-  Evt_Window = EventWindow()
-  Evt_Gadget = EventGadget()
-  Evt_Type = EventType()
+  lEvt_System = WaitWindowEvent()
+  lEvt_Window = EventWindow()
+  lEvt_Gadget = EventGadget()
+  lEvt_Type = EventType()
   
-  Select Evt_System
+  Select lEvt_System
     Case #PB_Event_Gadget;{
-      Select Evt_Window
+      Select lEvt_Window
         Case #Window_0;{
-          Select Evt_Gadget
+          Select lEvt_Gadget
             Case #CheckBox_0 ;{ Unicode
               gProject\bUnicode = GetGadgetState(#CheckBox_0)
-              M_GUI_EnableStep2()
+              M_GUI_EnableStep(#False, #True, #False)
             ;}
             Case #CheckBox_1 ;{ Threadsafe
               gProject\bThreadSafe = GetGadgetState(#CheckBox_1)
-              M_GUI_EnableStep2()
+              M_GUI_EnableStep(#False, #True, #False)
             ;}
             Case #CheckBox_2 ;{ Batch
               gProject\bBatFile = GetGadgetState(#CheckBox_2)
-              M_GUI_EnableStep2()
+              M_GUI_EnableStep(#False, #True, #False)
             ;}
             Case #CheckBox_3 ;{ Log
               gProject\bLogFile = GetGadgetState(#CheckBox_3)
-              M_GUI_EnableStep2()
+              M_GUI_EnableStep(#False, #True, #False)
             ;}
             Case #CheckBox_4 ;{ Don't Build Lib
               gProject\bDontBuildLib = GetGadgetState(#CheckBox_4)
-              M_GUI_EnableStep2()
+              M_GUI_EnableStep(#False, #True, #False)
             ;}
             Case #CheckBox_5 ;{ Don't Keep Src Files
               gProject\bDontKeepSrcFiles = 1-GetGadgetState(#CheckBox_5)
-              M_GUI_EnableStep2()
+              M_GUI_EnableStep(#False, #True, #False)
             ;}
             Case #CheckBox_6 ;{ Enable Logging
               bEnableLogEditor = GetGadgetState(#CheckBox_6)
             ;}
           
             Case #Button_0 ;{ Browse "PureBasic Params"
-              bWinPBParams_Opened = #True
-              PBParams_Open()
+              bAnotherWindowOpened + 1
+              WinParamsPB_Create()
             ;}
             Case #Button_1 ;{ Source File
               Define.b bIsCHM, bIsOutput
@@ -86,7 +86,7 @@ Repeat
                 gConf\sSourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
                 gProject\sDirProject = gConf\sSourceDir + gProject\sLibName + #System_Separator
                 M_Moebius_InitDir(bIsCHM, #False, bIsOutput)
-                M_GUI_EnableStep2()
+                M_GUI_EnableStep(#False, #True, #False)
               EndIf
             ;}
             Case #Button_2 ;{ Help File
@@ -94,7 +94,7 @@ Repeat
               If sRetString
                 gProject\sFileCHM = sRetString
                 SetGadgetText(#String_2, gProject\sFileCHM)
-                M_GUI_EnableStep2()
+                M_GUI_EnableStep(#False, #True, #False)
               EndIf
             ;}
             Case #Button_3 ;{ Compile
@@ -150,11 +150,15 @@ Repeat
                   SetGadgetText(#String_2, gProject\sFileCHM)
                 EndIf
                 SetGadgetText(#String_8, gConf\sSourceDir)
-                M_GUI_EnableStep2()
+                M_GUI_EnableStep(#False, #True, #False)
               EndIf            
             ;}
             Case #Button_14 ;{ Profil : Charger
-              cReturnMessageRequester = MessageRequester("Moebius", "Voulez-vous vraiment charger le profil ?", #PB_MessageRequester_YesNo)
+              If gGUIPrefs\lAlwaysAskBeforeLoadingProject = #True 
+                cReturnMessageRequester = MessageRequester("Moebius", "Voulez-vous vraiment charger le profil ?", #PB_MessageRequester_YesNo)
+              Else
+                cReturnMessageRequester = #PB_MessageRequester_Yes
+              EndIf
               If cReturnMessageRequester = #PB_MessageRequester_Yes
                 If GetGadgetState(#Combo_1) = 1
                   ; Long
@@ -172,7 +176,7 @@ Repeat
                   ; Load the empty profile
                   M_Profil_Load()
                   ; Enable the Step 2 and Disable the Step 3
-                  M_GUI_EnableStep2()
+                  M_GUI_EnableStep(#False, #True, #False)
                 Else
                   If FileSize("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
                     If OpenPreferences("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
@@ -180,7 +184,7 @@ Repeat
                         ; Load the choosen profile
                         M_Profil_Load(#True)
                         ; Enable the Step 2 and Disable the Step 3
-                        M_GUI_EnableStep2()
+                        M_GUI_EnableStep(#False, #True, #False)
                       EndIf
                       ClosePreferences() 
                     EndIf
@@ -210,7 +214,7 @@ Repeat
                   WritePreferenceString("HelpFile", GetGadgetText(#String_2))
                   WritePreferenceString("DirProject", GetGadgetText(#String_8))
                   ClosePreferences() 
-                  M_GUI_ReloadProfiles()
+                  M_Profil_GUIReload()
                 EndIf
               Else
                 If FileSize("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
@@ -229,31 +233,35 @@ Repeat
                       WritePreferenceString("DirProject", GetGadgetText(#String_8))
                     EndIf
                     ClosePreferences() 
-                    M_GUI_ReloadProfiles()
+                    M_Profil_GUIReload()
                   EndIf
                 EndIf
               EndIf
             ;}
-            
+            Case #Button_16 ;{ Réglages
+              bAnotherWindowOpened + 1
+              WinPrefs_Create()
+            ;}
+
             Case #String_0 ;{ LibName
               sRetString = GetGadgetText(#String_0)
               If sRetString 
                 gProject\sLibName  = Left(GetFilePart(gProject\sFileName), Len(GetFilePart(gProject\sFileName)) - Len(GetExtensionPart(gProject\sFileName))-1)
-                M_GUI_EnableStep2()
+                M_GUI_EnableStep(#False, #True, #False)
               EndIf
             ;}
             Case #String_1 ;{ Source
               sRetString = GetGadgetText(#String_1)
               If sRetString 
                 gProject\sFileName  = sRetString
-                M_GUI_EnableStep2()
+                M_GUI_EnableStep(#False, #True, #False)
               EndIf
             ;}
             Case #String_2 ;{ Help File
               sRetString = GetGadgetText(#String_2)
               If sRetString 
                 gProject\sFileCHM  = GetFilePart(sRetString)
-                M_GUI_EnableStep2()
+                M_GUI_EnableStep(#False, #True, #False)
               EndIf
             ;}
             Case #String_8 ;{ DirProject
@@ -262,36 +270,36 @@ Repeat
                 If FileSize(sRetString) = -2
                   gProject\sDirProject  = sRetString
                   M_Moebius_InitDir(#True, #False, #False)
-                  M_GUI_EnableStep2()
+                  M_GUI_EnableStep(#False, #True, #False)
                 EndIf
               EndIf
             ;}
           EndSelect
         ;}
         Case #Window_1;{
-          Select Evt_Gadget
-            Case #Button_4 ;{ Purebasic path
+          Select lEvt_Gadget
+            Case #Window_1_Button_0 ;{ Purebasic path
               sRetString = PathRequester("Purebasic path", "")
               If sRetString
                 gConf\sPureBasic_Path = sRetString
-                SetGadgetText(#String_3, gConf\sPureBasic_Path)
+                SetGadgetText(#Window_1_String_0, gConf\sPureBasic_Path)
               EndIf
             ;}
-            Case #Button_5 ;{ Compiler
+            Case #Window_1_Button_1 ;{ Compiler
               sRetString = OpenFileRequester("Compiler", gConf\sPureBasic_Path+"compilers"+#System_Separator, "Compiler|pbcompiler"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
               If sRetString
                 gConf\sPath_PBCOMPILER = sRetString
-                SetGadgetText(#String_4, gConf\sPath_PBCOMPILER)
+                SetGadgetText(#Window_1_String_1, gConf\sPath_PBCOMPILER)
               EndIf
             ;}
-            Case #Button_6 ;{ Fasm
+            Case #Window_1_Button_2 ;{ Fasm
               sRetString = OpenFileRequester("Fasm", gConf\sPureBasic_Path+"compilers"+#System_Separator, "Fasm|fasm"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
               If sRetString
                 gConf\sPath_FASM = sRetString
-                SetGadgetText(#String_5, gConf\sPath_FASM)
+                SetGadgetText(#Window_1_String_2, gConf\sPath_FASM)
               EndIf
             ;}
-            Case #Button_7 ;{ Obj2Lib
+            Case #Window_1_Button_3 ;{ Obj2Lib
               CompilerSelect #PB_Compiler_OS
                 CompilerCase #PB_OS_Linux ;{
                   sRetString = OpenFileRequester("ar", "/usr/bin/ar", "ar|ar|Tous les fichiers (*.*)|*.*",0)
@@ -302,10 +310,10 @@ Repeat
               CompilerEndSelect              
               If sRetString
                 gConf\sPath_OBJ2LIB = sRetString
-                SetGadgetText(#String_6, gConf\sPath_OBJ2LIB)
+                SetGadgetText(#Window_1_String_3, gConf\sPath_OBJ2LIB)
               EndIf
             ;}
-            Case #Button_8 ;{ LibMaker 
+            Case #Window_1_Button_4 ;{ LibMaker 
               CompilerSelect #PB_Compiler_OS
                 CompilerCase #PB_OS_Linux ;{
                   sRetString = OpenFileRequester("Library Maker", gConf\sPureBasic_Path+"compilers"+#System_Separator, "LibMaker|pblibrarymaker"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
@@ -316,22 +324,24 @@ Repeat
               CompilerEndSelect
               If sRetString
                 gConf\sPath_PBLIBMAKER = sRetString
-                SetGadgetText(#String_7, gConf\sPath_PBLIBMAKER)
+                SetGadgetText(#Window_1_String_4, gConf\sPath_PBLIBMAKER)
               EndIf
             ;}
-            Case #Button_9 ;{ Validate Purebasic paths
-              PBParams_Validate(#True)
+            Case #Window_1_Button_5 ;{ Sauver
+              WinParamsPB_SaveIni()
             ;}
-            Case #Button_10 ;{ Fermer
+            Case #Window_1_Button_6 ;{ Validate Purebasic paths
+              WinParamsPB_Validate(#True)
+            ;}
+            Case #Window_1_Button_7 ;{ Fermer
               CloseWindow(#Window_1)
               If bPBParams_Valid = 5
                 DisableGadget(#Button_0, #True)
                 DisableGadget(#Button_11, #False)
               EndIf
-              bWinPBParams_Opened = #False
-            ;}
-            Case #Button_12 ;{ Sauver
-              PBParams_SaveIni()
+              bAnotherWindowOpened - 1
+              DisableWindow(#Window_0,#False)
+              SetActiveWindow(#Window_0) 
             ;}
             
             Case #String_3 ;{ PureBasic path
@@ -382,12 +392,36 @@ Repeat
             ;}
           EndSelect
         ;}
+        Case #Window_2;{
+          Select lEvt_Gadget
+            Case #Window_2_Button_0 ;{ Annuler
+              CloseWindow(#Window_2)
+              bAnotherWindowOpened - 1
+              DisableWindow(#Window_0,#False)
+              SetActiveWindow(#Window_0) 
+            ;}
+            Case #Window_2_Button_1 ;{ Sauver et Qutter
+              If OpenPreferences("Prefs"+#System_Separator+"MoebiusGUI_Prefs.ini")
+                PreferenceGroup("Main")
+                WritePreferenceLong("AlwaysAskBeforeLoadingProject", GetGadgetState(#Window_2_CheckBox_0))
+                  gGUIPrefs\lAlwaysAskBeforeLoadingProject = GetGadgetState(#Window_2_CheckBox_0)
+                ClosePreferences()
+              EndIf
+              CloseWindow(#Window_2)
+              bAnotherWindowOpened - 1
+              DisableWindow(#Window_0,#False)
+              SetActiveWindow(#Window_0) 
+            ;}
+          EndSelect
+        ;}
       EndSelect
     ;}
     Case #PB_Event_CloseWindow;{
-      If Evt_Window = #Window_0 And bWinPBParams_Opened = #False
+      If lEvt_Window = #Window_0 And bAnotherWindowOpened = 0
         lQuit = #True
       EndIf
     ;}
   EndSelect
 Until lQuit = #True
+
+;-TD : Renommage Constant

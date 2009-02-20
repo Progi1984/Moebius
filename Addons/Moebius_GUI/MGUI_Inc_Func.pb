@@ -1,14 +1,11 @@
-DeclareDLL Main_Open()
-DeclareDLL PBParams_Open()
-
 ;@desc Opens the main window for Moebius
-ProcedureDLL Main_Open()
+ProcedureDLL WinMain_Create()
   If OpenWindow(#Window_0, 353, 5, 600, 575, "Moebius",  #PB_Window_SystemMenu | #PB_Window_TitleBar | #PB_Window_ScreenCentered)
     Frame3DGadget(#Frame3D_0, 10, 10, 580, 70, "Etape 1 : Purebasic")
       TextGadget(#Text_0, 80, 40, 40, 20, "Etat : ")
       ButtonGadget(#Button_0, 450, 30, 130, 40, "Configurer")
       TextGadget(#Text_1, 250, 30, 100, 40, "NOK", #PB_Text_Center)
-        SetGadgetFont(#Text_1, FontID)
+        SetGadgetFont(#Text_1, FontID(lFont_Arial28))
         SetGadgetColor(#Text_1, #PB_Gadget_FrontColor, RGB(255, 0, 0))
     
     Frame3DGadget(#Frame3D_1, 10, 80, 580, 260, "Etape 2 : Configuration du projet")
@@ -86,8 +83,18 @@ ProcedureDLL Main_Open()
         DisableGadget(#Button_3, #True)
         DisableGadget(#CheckBox_6, #True)
 
-    Frame3DGadget(#Frame3D_3, 10, 520, 580, 50, "")
-      TextGadget(#Text_17, 30, 540, 120, 20, "Profil :")
+    Frame3DGadget(#Frame3D_3, 10, 520, 90, 50, "")
+      CompilerSelect #PB_Compiler_OS
+        CompilerCase #PB_OS_Linux;{
+          ButtonGadget(#Button_16, 20, 536, 70, 28, "Préférences")
+        ;}
+        CompilerCase #PB_OS_Windows;{
+          ButtonGadget(#Button_16, 20, 536, 70, 20, "Préférences")
+        ;}
+      CompilerEndSelect
+      
+    Frame3DGadget(#Frame3D_4, 100, 520, 490, 50, "")
+      TextGadget(#Text_17, 110, 540, 30, 20, "Profil :")
       CompilerSelect #PB_Compiler_OS
         CompilerCase #PB_OS_Linux;{
           ComboBoxGadget(#Combo_1, 160, 536, 250, 28)
@@ -100,7 +107,7 @@ ProcedureDLL Main_Open()
           ButtonGadget(#Button_15, 500, 536, 80, 20, "Sauver")
         ;}      
       CompilerEndSelect
-        M_GUI_ReloadProfiles()
+        M_Profil_GUIReload()
         ; Load the default preference group if existant
         If FileSize("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
           If OpenPreferences("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
@@ -116,62 +123,72 @@ ProcedureDLL Main_Open()
           EndIf
         EndIf
         SetGadgetState(#Combo_1, 1)
+
+    If OpenPreferences("Prefs"+#System_Separator+"MoebiusGUI_Prefs.ini")
+      PreferenceGroup("Main")
+        gGUIPrefs\lAlwaysAskBeforeLoadingProject = ReadPreferenceLong("AlwaysAskBeforeLoadingProject", #False)
+      ClosePreferences()
+    EndIf
   EndIf
 EndProcedure
-;@desc Set Purebasic params
-ProcedureDLL PBParams_Open()
-  If OpenWindow(#Window_1, 488, 98, 520, 200, "Moebius : PureBasic",  #PB_Window_SystemMenu | #PB_Window_TitleBar | #PB_Window_ScreenCentered)
-    TextGadget(#Text_6, 10, 10, 110, 20, "Path Purebasic :", #PB_Text_Center)
-    StringGadget(#String_3, 130, 10, 260, 20, "")
-    SetGadgetText(#String_3, gConf\sPureBasic_Path)
-    ButtonGadget(#Button_4, 400, 6, 80, 28, "Parcourir")
-    TextGadget(#Text_7, 486, 6, 28, 28, "")
-      SetGadgetColor(#Text_7, #PB_Gadget_BackColor, RGB(255, 0, 0))
 
-    TextGadget(#Text_8, 10, 40, 110, 20, "Compilateur :", #PB_Text_Center)
-    StringGadget(#String_4, 130, 40, 260, 20, "")
-    SetGadgetText(#String_4, gConf\sPath_PBCOMPILER)
-    ButtonGadget(#Button_5, 400, 36, 80, 28, "Parcourir")
-    TextGadget(#Text_9, 486, 36, 28, 28, "")
-      SetGadgetColor(#Text_9, #PB_Gadget_BackColor, RGB(255, 0, 0))
+;@desc Set Purebasic params
+ProcedureDLL WinParamsPB_Create()
+  If OpenWindow(#Window_1, 488, 98, 520, 200, "Moebius : PureBasic",  #PB_Window_SystemMenu | #PB_Window_TitleBar | #PB_Window_ScreenCentered)
+    TextGadget(#Window_1_Text_0, 10, 10, 110, 20, "Path Purebasic :", #PB_Text_Center)
+    StringGadget(#Window_1_String_0, 130, 10, 260, 20, "")
+      SetGadgetText(#Window_1_String_0, gConf\sPureBasic_Path)
+    ButtonGadget(#Window_1_Button_0, 400, 6, 80, 28, "Parcourir")
+    TextGadget(#Window_1_Text_1, 486, 6, 28, 28, "")
+      SetGadgetColor(#Window_1_Text_1, #PB_Gadget_BackColor, RGB(255, 0, 0))
+
+    TextGadget(#Window_1_Text_2, 10, 40, 110, 20, "Compilateur :", #PB_Text_Center)
+    StringGadget(#Window_1_String_1, 130, 40, 260, 20, "")
+      SetGadgetText(#Window_1_String_1, gConf\sPath_PBCOMPILER)
+    ButtonGadget(#Window_1_Button_1, 400, 36, 80, 28, "Parcourir")
+    TextGadget(#Window_1_Text_3, 486, 36, 28, 28, "")
+      SetGadgetColor(#Window_1_Text_3, #PB_Gadget_BackColor, RGB(255, 0, 0))
     
-    TextGadget(#Text_10, 10, 70, 110, 20, "Fasm :", #PB_Text_Center)
-    StringGadget(#String_5, 130, 70, 260, 20, "")
-    SetGadgetText(#String_5, gConf\sPath_FASM)
-    ButtonGadget(#Button_6, 400, 66, 80, 28, "Parcourir")
-    TextGadget(#Text_11, 486, 66, 28, 28, "")
-      SetGadgetColor(#Text_11, #PB_Gadget_BackColor, RGB(255, 0, 0))
+    TextGadget(#Window_1_Text_4, 10, 70, 110, 20, "Fasm :", #PB_Text_Center)
+    StringGadget(#Window_1_String_2, 130, 70, 260, 20, "")
+      SetGadgetText(#Window_1_String_2, gConf\sPath_FASM)
+    ButtonGadget(#Window_1_Button_2, 400, 66, 80, 28, "Parcourir")
+    TextGadget(#Window_1_Text_5, 486, 66, 28, 28, "")
+      SetGadgetColor(#Window_1_Text_5, #PB_Gadget_BackColor, RGB(255, 0, 0))
     
-    TextGadget(#Text_12, 10, 100, 110, 20, "Obj2Lib :", #PB_Text_Center)
-    StringGadget(#String_6, 130, 100, 260, 20, "")
-    SetGadgetText(#String_6, gConf\sPath_OBJ2LIB)
-    ButtonGadget(#Button_7, 400, 96, 80, 28, "Parcourir")
-    TextGadget(#Text_13, 486, 96, 28, 28, "")
-      SetGadgetColor(#Text_13, #PB_Gadget_BackColor, RGB(255, 0, 0))
+    TextGadget(#Window_1_Text_6, 10, 100, 110, 20, "Obj2Lib :", #PB_Text_Center)
+    StringGadget(#Window_1_String_3, 130, 100, 260, 20, "")
+      SetGadgetText(#Window_1_String_3, gConf\sPath_OBJ2LIB)
+    ButtonGadget(#Window_1_Button_3, 400, 96, 80, 28, "Parcourir")
+    TextGadget(#Window_1_Text_7, 486, 96, 28, 28, "")
+      SetGadgetColor(#Window_1_Text_7, #PB_Gadget_BackColor, RGB(255, 0, 0))
     
-    TextGadget(#Text_14, 10, 130, 110, 20, "LibMaker :", #PB_Text_Center)
-    StringGadget(#String_7, 130, 130, 260, 20, "")
-    SetGadgetText(#String_7, gConf\sPath_PBLIBMAKER)
-    ButtonGadget(#Button_8, 400, 126, 80, 28, "Parcourir")
-    TextGadget(#Text_15, 486, 126, 28, 28, "")
-      SetGadgetColor(#Text_15, #PB_Gadget_BackColor, RGB(255, 0, 0))
+    TextGadget(#Window_1_Text_8, 10, 130, 110, 20, "LibMaker :", #PB_Text_Center)
+    StringGadget(#Window_1_String_4, 130, 130, 260, 20, "")
+      SetGadgetText(#Window_1_String_4, gConf\sPath_PBLIBMAKER)
+    ButtonGadget(#Window_1_Button_4, 400, 126, 80, 28, "Parcourir")
+    TextGadget(#Window_1_Text_9, 486, 126, 28, 28, "")
+      SetGadgetColor(#Window_1_Text_9, #PB_Gadget_BackColor, RGB(255, 0, 0))
     
-    ButtonGadget(#Button_12, 220, 160, 90, 30, "Sauver")
-    ButtonGadget(#Button_9, 320, 160, 90, 30, "Valider")
-    ButtonGadget(#Button_10, 420, 160, 90, 30, "Fermer")
+    ButtonGadget(#Window_1_Button_5, 220, 160, 90, 30, "Sauver")
+    ButtonGadget(#Window_1_Button_6, 320, 160, 90, 30, "Valider")
+    ButtonGadget(#Window_1_Button_7, 420, 160, 90, 30, "Fermer")
+
+    DisableWindow(#Window_0, #True)
+    StickyWindow(#Window_1, #True)
   EndIf
 EndProcedure
 ;@desc Validate Purebasic paths
 ;@param InWindow : If #True, this is the window param
   ;@+  If #False, that validates params at startup
-ProcedureDLL PBParams_Validate(InWindow.b)
+ProcedureDLL WinParamsPB_Validate(InWindow.b)
   bPBParams_Valid = #False
   SetGadgetText(#Text_1, "NOK")
   SetGadgetColor(#Text_1, #PB_Gadget_FrontColor, RGB(255, 0, 0))
   If gConf\sPureBasic_Path <> ""
     If FileSize(gConf\sPureBasic_Path) = -2
       If InWindow = #True
-        SetGadgetColor(#Text_7, #PB_Gadget_BackColor, RGB(0,255,0))
+        SetGadgetColor(#Window_1_Text_1, #PB_Gadget_BackColor, RGB(0,255,0))
       EndIf
       bPBParams_Valid +1
       ; SubSystems if the path is valid
@@ -191,7 +208,7 @@ ProcedureDLL PBParams_Validate(InWindow.b)
   If gConf\sPath_PBCOMPILER <> ""
     If LCase(GetFilePart(gConf\sPath_PBCOMPILER)) = "pbcompiler"+#System_ExtExec And FileSize(gConf\sPath_PBCOMPILER) > 0
       If InWindow = #True
-        SetGadgetColor(#Text_9, #PB_Gadget_BackColor, RGB(0,255,0))
+        SetGadgetColor(#Window_1_Text_3, #PB_Gadget_BackColor, RGB(0,255,0))
       EndIf
       bPBParams_Valid +1
     EndIf
@@ -199,7 +216,7 @@ ProcedureDLL PBParams_Validate(InWindow.b)
   If gConf\sPath_FASM <> ""
     If LCase(GetFilePart(gConf\sPath_FASM)) = "fasm"+#System_ExtExec And FileSize(gConf\sPath_FASM) > 0
       If InWindow = #True
-        SetGadgetColor(#Text_11, #PB_Gadget_BackColor, RGB(0,255,0))
+        SetGadgetColor(#Window_1_Text_5, #PB_Gadget_BackColor, RGB(0,255,0))
       EndIf
       bPBParams_Valid +1
     EndIf
@@ -215,7 +232,7 @@ ProcedureDLL PBParams_Validate(InWindow.b)
     ;}
     CompilerEndSelect
       If InWindow = #True
-        SetGadgetColor(#Text_13, #PB_Gadget_BackColor, RGB(0,255,0))
+        SetGadgetColor(#Window_1_Text_7, #PB_Gadget_BackColor, RGB(0,255,0))
       EndIf
       bPBParams_Valid +1
     EndIf
@@ -223,7 +240,7 @@ ProcedureDLL PBParams_Validate(InWindow.b)
   If gConf\sPath_PBLIBMAKER <> "" And FileSize(gConf\sPath_PBLIBMAKER) > 0
     If LCase(GetFilePart(gConf\sPath_PBLIBMAKER)) = "pblibrarymaker" Or LCase(GetFilePart(gConf\sPath_PBLIBMAKER)) = "librarymaker.exe"
       If InWindow = #True
-        SetGadgetColor(#Text_15, #PB_Gadget_BackColor, RGB(0,255,0))
+        SetGadgetColor(#Window_1_Text_9, #PB_Gadget_BackColor, RGB(0,255,0))
       EndIf
       bPBParams_Valid +1
     EndIf
@@ -234,17 +251,12 @@ ProcedureDLL PBParams_Validate(InWindow.b)
     If InWindow = #True
       MessageRequester("Purebasic Paths", "Les chemins sont valides.")
     Else
-      ; Step 1
-      DisableGadget(#Button_0, #True)
-      ; Step 2
-      DisableGadget(#Button_11, #False)
-      ; Step 3
-      DisableGadget(#Button_3, #True)
-      DisableGadget(#CheckBox_6, #True)
+      ; enable the step 2
+      M_GUI_EnableStep(#False, #True, #False)
     EndIf
   EndIf
 EndProcedure
-ProcedureDLL PBParams_LoadIni()
+ProcedureDLL WinParamsPB_LoadIni()
 Protected bPrefsPresent.b
 Protected sDefaultPath.s
   CompilerIf #PB_Editor_CreateExecutable = #True
@@ -286,7 +298,7 @@ Protected sDefaultPath.s
     ClosePreferences()
   EndIf
 EndProcedure
-ProcedureDLL PBParams_SaveIni()
+ProcedureDLL WinParamsPB_SaveIni()
   CompilerIf #PB_Editor_CreateExecutable = #True
     bPrefsPresent = CreatePreferences("Prefs"+#System_Separator+"Moebius_"+#System_OS+".ini")
   CompilerElse
@@ -303,8 +315,21 @@ ProcedureDLL PBParams_SaveIni()
   EndIf
 EndProcedure
 
-;@desc : Return #False if the gadget is enabled
-ProcedureDLL GetDisableGadget(Gadget.l)
+;@desc Create the Window for Preferences
+ProcedureDLL WinPrefs_Create()
+  If OpenWindow(#Window_2, 0, 0, 270, 70, "Préférences", #PB_Window_ScreenCentered) 
+    CheckBoxGadget(#Window_2_CheckBox_0, 10,  10, 250, 20, "Toujours demander avant de charger un projet")
+    
+    ButtonGadget(#Window_2_Button_0, 100, 40, 050, 20, "Annuler")
+    ButtonGadget(#Window_2_Button_1, 160, 40, 100, 20, "Sauver et Fermer")
+  
+    DisableWindow(#Window_0, #True)
+    StickyWindow(#Window_2, #True)
+  EndIf
+EndProcedure
+
+;@desc Return #False if the gadget is enabled
+ProcedureDLL Misc_GetDisableGadget(Gadget.l)
   CompilerSelect #PB_Compiler_OS
     CompilerCase #PB_OS_Linux;{
       Protected *Widget.GtkWidget = GadgetID(Gadget)
