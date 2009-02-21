@@ -155,7 +155,6 @@ ProcedureDLL Moebius_ReadParameters()
         Case #Switch_Param_LogFileInStream_s, #Switch_Param_LogFileInStream_sl ;{
           gProject\bLogInStreaming = #True
         ;}
-        Default:
       EndSelect
   Next
 EndProcedure 

@@ -108,7 +108,7 @@ Macro M_Moebius_InitDir(isCHM = #False, isLog = #False, isOutput = #False)
   If isCHM = #False
     gProject\sFileCHM  = gProject\sLibName + #System_ExtHelp
     CompilerIf Defined(Moebius_App, #PB_Constant) = #True
-      SetGadgetText(#String_2, gProject\sFileCHM)
+      SetGadgetText(#Window_0_String_2, gProject\sFileCHM)
     CompilerEndIf
   EndIf
   If isLog = #False
@@ -120,4 +120,21 @@ Macro M_Moebius_InitDir(isCHM = #False, isLog = #False, isOutput = #False)
 EndMacro
 Macro M_LibName_Clean(name)
   ReplaceString(gProject\sLibName, " ", "_")
+EndMacro
+Macro M_ClearBeforeBuilding()
+  ; Clear the log editor
+  CompilerIf Defined(Moebius_App, #PB_Constant) = #True
+    ClearGadgetItems(#Window_0_Editor_0)
+  CompilerEndIf
+  ; Clear variables before any compilation
+  ClearList(LL_DLLFunctions())
+  ClearList(LL_PBFunctions())
+  ClearList(LL_Functions())
+  ClearList(LL_LibUsed())
+  ClearList(LL_DLLUsed())
+  ClearList(LL_ImportUsed())
+  ClearList(LL_ASM_extrn())
+  hCompiler = #False
+  hFileLog = #False
+  hFileBatch = #False
 EndMacro

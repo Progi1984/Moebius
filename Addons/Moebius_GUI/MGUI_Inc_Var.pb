@@ -9,66 +9,43 @@
 ;}
 ;{ Constants
   Enumeration
-    #Button_0
-    #Button_1
-    #Button_2
-    #Button_3
-    #Button_4
-    #Button_5
-    #Button_6
-    #Button_7
-    #Button_8
-    #Button_9
-    #Button_10
-    #Button_11
-    #Button_12
-    #Button_13
-    #Button_14
-    #Button_15
-    #Button_16
-    #Combo_0
-    #Combo_1
-    #CheckBox_0
-    #CheckBox_1
-    #CheckBox_2
-    #CheckBox_3
-    #CheckBox_4
-    #CheckBox_5
-    #CheckBox_6
-    #Editor_0
-    #Frame3D_0
-    #Frame3D_1
-    #Frame3D_2
-    #Frame3D_3
-    #Frame3D_4
-    #String_0
-    #String_1
-    #String_2
-    #String_3
-    #String_4
-    #String_5
-    #String_6
-    #String_7
-    #String_8
-    #Text_0
-    #Text_1
-    #Text_2
-    #Text_3
-    #Text_4
-    #Text_5
-    #Text_6
-    #Text_7
-    #Text_8
-    #Text_9
-    #Text_10
-    #Text_11
-    #Text_12
-    #Text_13
-    #Text_14
-    #Text_15
-    #Text_16
-    #Text_17
     #Window_0
+      #Window_0_Button_0
+      #Window_0_Button_1
+      #Window_0_Button_2
+      #Window_0_Button_3
+      #Window_0_Button_4
+      #Window_0_Button_5
+      #Window_0_Button_6
+      #Window_0_Button_7
+      #Window_0_Button_8
+      #Window_0_CheckBox_0
+      #Window_0_CheckBox_1
+      #Window_0_CheckBox_2
+      #Window_0_CheckBox_3
+      #Window_0_CheckBox_4
+      #Window_0_CheckBox_5
+      #Window_0_CheckBox_6
+      #Window_0_Combo_0
+      #Window_0_Combo_1
+      #Window_0_Editor_0
+      #Window_0_Frame3D_0
+      #Window_0_Frame3D_1
+      #Window_0_Frame3D_2
+      #Window_0_Frame3D_3
+      #Window_0_Frame3D_4
+      #Window_0_String_0
+      #Window_0_String_1
+      #Window_0_String_2
+      #Window_0_String_3
+      #Window_0_Text_0
+      #Window_0_Text_1
+      #Window_0_Text_2
+      #Window_0_Text_3
+      #Window_0_Text_4
+      #Window_0_Text_5
+      #Window_0_Text_6
+      #Window_0_Text_7
     #Window_1
       #Window_1_Button_0
       #Window_1_Button_1
@@ -126,24 +103,24 @@
 ;{ Macros
   Macro M_GUI_EnableStep(Step1, Step2, Step3)
     ; Step1
-    DisableGadget(#Button_0, 1 - Step1)
+    DisableGadget(#Window_0_Button_0, 1 - Step1)
     ; Step2
-    DisableGadget(#Button_11, 1 - Step2)
+    DisableGadget(#Window_0_Button_4, 1 - Step2)
     ; Step3
-    DisableGadget(#Button_3, 1 - Step3)
-    DisableGadget(#Checkbox_6, 1 - Step3)
+    DisableGadget(#Window_0_Button_5, 1 - Step3)
+    DisableGadget(#Window_0_CheckBox_6, 1 - Step3)
   EndMacro
   Macro M_Profil_GUIReload()
     ; clears the combo
-    ClearGadgetItems(#Combo_1)
+    ClearGadgetItems(#Window_0_Combo_1)
     ; adds "New" Item
-    AddGadgetItem(#Combo_1, 0, "=== Nouveau ===")
+    AddGadgetItem(#Window_0_Combo_1, 0, "=== Nouveau ===")
     ; Load all groups name in profiles files, if existant
     If FileSize("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
       If OpenPreferences("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
         If ExaminePreferenceGroups() > 0
           While NextPreferenceGroup()
-            AddGadgetItem(#Combo_1, -1, PreferenceGroupName())
+            AddGadgetItem(#Window_0_Combo_1, -1, PreferenceGroupName())
           Wend 
         EndIf
         ClosePreferences()
@@ -154,31 +131,37 @@
     ; if the prefs file is here and we want to load data.
     If ContainsInfos = #True
       ; Long
-      SetGadgetState(#CheckBox_0, ReadPreferenceLong("Unicode", #False))
-      SetGadgetState(#CheckBox_1, ReadPreferenceLong("Threadsafe", #False))
-      SetGadgetState(#CheckBox_2, ReadPreferenceLong("Batch", #False))
-      SetGadgetState(#CheckBox_3, ReadPreferenceLong("Log", #False))
-      SetGadgetState(#CheckBox_4, ReadPreferenceLong("DontBuildLib", #False))
-      SetGadgetState(#CheckBox_5, ReadPreferenceLong("DontKeepSrcFiles", #False))
+      SetGadgetState(#Window_0_CheckBox_0, ReadPreferenceLong("Unicode", #False))
+      SetGadgetState(#Window_0_CheckBox_1, ReadPreferenceLong("Threadsafe", #False))
+      SetGadgetState(#Window_0_CheckBox_2, ReadPreferenceLong("Batch", #False))
+      SetGadgetState(#Window_0_CheckBox_3, ReadPreferenceLong("Log", #False))
+      SetGadgetState(#Window_0_CheckBox_4, ReadPreferenceLong("DontBuildLib", #False))
+      SetGadgetState(#Window_0_CheckBox_5, ReadPreferenceLong("DontKeepSrcFiles", #False))
       ; String
-      SetGadgetText(#String_1, ReadPreferenceString("Source", ""))
-      SetGadgetText(#String_0, ReadPreferenceString("LibName", ""))
-      SetGadgetText(#String_2, ReadPreferenceString("HelpFile", ""))
-      SetGadgetText(#String_8, ReadPreferenceString("DirProject", ""))
+      SetGadgetText(#Window_0_String_0, ReadPreferenceString("LibName", ""))
+      SetGadgetText(#Window_0_String_1, ReadPreferenceString("Source", ""))
+      SetGadgetText(#Window_0_String_2, ReadPreferenceString("HelpFile", ""))
+      SetGadgetText(#Window_0_String_3, ReadPreferenceString("DirProject", ""))
     EndIf
     ; load project infos in structure
-    gProject\bUnicode = GetGadgetState(#CheckBox_0)
-    gProject\bThreadSafe = GetGadgetState(#CheckBox_1)
-    gProject\bBatFile = GetGadgetState(#CheckBox_2)
-    gProject\bLogFile = GetGadgetState(#CheckBox_3)
-    gProject\bDontBuildLib = GetGadgetState(#CheckBox_4)
-    gProject\bDontKeepSrcFiles = 1-GetGadgetState(#CheckBox_5)
-    gProject\sFileName = GetGadgetText(#String_1)
-    gProject\sLibName = GetGadgetText(#String_0)
-    gProject\sFileCHM = GetGadgetText(#String_2)
-    gProject\sDirProject = GetGadgetText(#String_8)
+    gProject\bUnicode = GetGadgetState(#Window_0_CheckBox_0)
+    gProject\bThreadSafe = GetGadgetState(#Window_0_CheckBox_1)
+    gProject\bBatFile = GetGadgetState(#Window_0_CheckBox_2)
+    gProject\bLogFile = GetGadgetState(#Window_0_CheckBox_3)
+    gProject\bDontBuildLib = GetGadgetState(#Window_0_CheckBox_4)
+    gProject\bDontKeepSrcFiles = 1-GetGadgetState(#Window_0_CheckBox_5)
+    gProject\sFileName = GetGadgetText(#Window_0_String_1)
+    gProject\sLibName = GetGadgetText(#Window_0_String_0)
+    gProject\sFileCHM = GetGadgetText(#Window_0_String_2)
+    gProject\sDirProject = GetGadgetText(#Window_0_String_3)
     If gProject\sDirProject <> "" And FileSize(gProject\sDirProject) = -2
       M_Moebius_InitDir(#True, #False, #False)
     EndIf
+  EndMacro
+  Macro M_GUI_CloseWindow(Fenetre)
+    CloseWindow(#Window_#Fenetre)
+    bAnotherWindowOpened - 1
+    DisableWindow(#Window_0,#False)
+    SetActiveWindow(#Window_0) 
   EndMacro
 ;}

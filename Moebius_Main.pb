@@ -19,6 +19,7 @@ XIncludeFile "Inc_Compile_Step5.pb"
 XIncludeFile "Inc_Compile_Step6.pb"
 XIncludeFile "Moebius_MainThread.pb"
 
+M_ClearBeforeBuilding()
 CompilerIf Defined(Moebius_App, #PB_Constant) = #False
   Moebius_ReadParameters()
   Moebius_ReadPrefs()

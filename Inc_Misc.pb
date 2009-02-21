@@ -166,7 +166,7 @@ ProcedureDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
   ; Log InApp
   CompilerIf Defined(Moebius_App, #PB_Constant) = #True
     If bEnableLogEditor = #True
-      AddGadgetItem(#Editor_0, -1, sLogContent)
+      AddGadgetItem(#Window_0_Editor_0, -1, sLogContent)
     EndIf
   CompilerEndIf
   ; Batch

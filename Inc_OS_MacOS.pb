@@ -15,7 +15,7 @@
 #System_ExtBatch = ".sh"
 
 #System_Separator = "/"
-;-#System_EOL = Chr(13)
+#System_EOL = Chr(13)
 ;-#System_LibFormat = ""
 #System_OS = "MacOS"
 
