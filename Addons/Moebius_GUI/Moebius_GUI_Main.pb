@@ -37,40 +37,40 @@ Repeat
       Select lEvt_Window
         Case #Window_0;{
           Select lEvt_Gadget
-            Case #Window_0_CheckBox_0 ;{ Unicode
+            Case #Window_0_CheckBox_0 ;{ Step1 > Unicode
               gProject\bUnicode = GetGadgetState(#Window_0_CheckBox_0)
               M_GUI_EnableStep(#False, #True, #False)
             ;}
-            Case #Window_0_CheckBox_1 ;{ Threadsafe
+            Case #Window_0_CheckBox_1 ;{ Step1 > Threadsafe
               gProject\bThreadSafe = GetGadgetState(#Window_0_CheckBox_1)
               M_GUI_EnableStep(#False, #True, #False)
             ;}
-            Case #Window_0_CheckBox_2 ;{ Batch
+            Case #Window_0_CheckBox_2 ;{ Step1 > Batch
               gProject\bBatFile = GetGadgetState(#Window_0_CheckBox_2)
               M_GUI_EnableStep(#False, #True, #False)
             ;}
-            Case #Window_0_CheckBox_3 ;{ Log
+            Case #Window_0_CheckBox_3 ;{ Step1 > Log
               gProject\bLogFile = GetGadgetState(#Window_0_CheckBox_3)
               gProject\bLogInStreaming = GetGadgetState(#Window_0_CheckBox_3)
               M_GUI_EnableStep(#False, #True, #False)
             ;}
-            Case #Window_0_CheckBox_4 ;{ Don't Build Lib
+            Case #Window_0_CheckBox_4 ;{ Step1 > Don't Build Lib
               gProject\bDontBuildLib = GetGadgetState(#Window_0_CheckBox_4)
               M_GUI_EnableStep(#False, #True, #False)
             ;}
-            Case #Window_0_CheckBox_5 ;{ Don't Keep Src Files
+            Case #Window_0_CheckBox_5 ;{ Step1 > Don't Keep Src Files
               gProject\bDontKeepSrcFiles = 1-GetGadgetState(#Window_0_CheckBox_5)
               M_GUI_EnableStep(#False, #True, #False)
             ;}
-            Case #Window_0_CheckBox_6 ;{ Enable Logging
+            Case #Window_0_CheckBox_6 ;{ Step2 > Enable Logging
               bEnableLogEditor = GetGadgetState(#Window_0_CheckBox_6)
             ;}
           
-            Case #Window_0_Button_0 ;{ Browse "PureBasic Params"
+            Case #Window_0_Button_0 ;{ Step0 > Browse "PureBasic Params"
               bAnotherWindowOpened + 1
               WinParamsPB_Create()
             ;}
-            Case #Window_0_Button_1 ;{ Source File
+            Case #Window_0_Button_1 ;{ Step1 > Source File
               Define.b bIsCHM, bIsOutput
               sRetString = OpenFileRequester("Source File", "", "Fichiers Purebasic|*.pb;*.pbi|Tous les fichiers (*.*)|*.*",0)
               If sRetString
@@ -94,7 +94,7 @@ Repeat
                 M_GUI_EnableStep(#False, #True, #False)
               EndIf
             ;}
-            Case #Window_0_Button_2 ;{ Help File
+            Case #Window_0_Button_2 ;{ Step1 > Help File
               sRetString = OpenFileRequester("Source File", "", "Fichiers d'aide|*"+#System_ExtHelp+"|Tous les fichiers (*.*)|*.*",0)
               If sRetString
                 gProject\sFileCHM = sRetString
@@ -102,7 +102,7 @@ Repeat
                 M_GUI_EnableStep(#False, #True, #False)
               EndIf
             ;}
-            Case #Window_0_Button_3 ;{ Working Directory
+            Case #Window_0_Button_3 ;{ Step1 > Working Directory
               sRetString = PathRequester("Working Directory", "")
               If sRetString
                 gConf\sSourceDir = sRetString
@@ -116,7 +116,7 @@ Repeat
                 M_GUI_EnableStep(#False, #True, #False)
               EndIf            
             ;}
-            Case #Window_0_Button_4 ;{ Validate before compilation
+            Case #Window_0_Button_4 ;{ Step1 > Validate before compilation
               If bPBParams_Valid = 5
                 If gProject\sFileName <> "" And FileSize(gProject\sFileName) > 0
                   If gProject\sLibName = ""
@@ -153,7 +153,7 @@ Repeat
                 MessageRequester("Moebius", "But How do you come here ?")
               EndIf
             ;}
-            Case #Window_0_Button_5 ;{ Compile
+            Case #Window_0_Button_5 ;{ Step2 > Compile
               M_ClearBeforeBuilding()
               ; Launchs a thread for compilation
               CreateThread(@Moebius_MainThread(),0)
@@ -162,7 +162,7 @@ Repeat
               bAnotherWindowOpened + 1
               WinPrefs_Create()
             ;}
-            Case #Window_0_Button_7 ;{ Profil : Charger
+            Case #Window_0_Button_7 ;{ Profil > Load
               If gGUIPrefs\lAlwaysAskBeforeLoadingProject = #True 
                 cReturnMessageRequester = MessageRequester("Moebius", "Voulez-vous vraiment charger le profil ?", #PB_MessageRequester_YesNo)
               Else
@@ -201,7 +201,7 @@ Repeat
                 EndIf
               EndIf
             ;}
-            Case #Window_0_Button_8 ;{ Profil : Sauver
+            Case #Window_0_Button_8 ;{ Profil > Save
               If GetGadgetState(#Window_0_Combo_0) = 0
                 sRetString = InputRequester("Moebius", "Nom du Modèle :", "Template"+Str(Random(SizeOf(Long))))
                 If sRetString > ""
@@ -248,28 +248,28 @@ Repeat
               EndIf
             ;}
 
-            Case #Window_0_String_0 ;{ LibName
+            Case #Window_0_String_0 ;{ Step1 > LibName
               sRetString = GetGadgetText(#Window_0_String_0)
               If sRetString 
                 gProject\sLibName  = Left(GetFilePart(gProject\sFileName), Len(GetFilePart(gProject\sFileName)) - Len(GetExtensionPart(gProject\sFileName))-1)
                 M_GUI_EnableStep(#False, #True, #False)
               EndIf
             ;}
-            Case #Window_0_String_1 ;{ Source
+            Case #Window_0_String_1 ;{ Step1 > Source
               sRetString = GetGadgetText(#Window_0_String_1)
               If sRetString 
                 gProject\sFileName  = sRetString
                 M_GUI_EnableStep(#False, #True, #False)
               EndIf
             ;}
-            Case #Window_0_String_2 ;{ Help File
+            Case #Window_0_String_2 ;{ Step1 > Help File
               sRetString = GetGadgetText(#Window_0_String_2)
               If sRetString 
                 gProject\sFileCHM  = GetFilePart(sRetString)
                 M_GUI_EnableStep(#False, #True, #False)
               EndIf
             ;}
-            Case #Window_0_String_3 ;{ DirProject
+            Case #Window_0_String_3 ;{ Step1 > DirProject
               sRetString = GetGadgetText(#Window_0_String_3)
               If sRetString 
                 gProject\sDirProject  = sRetString
