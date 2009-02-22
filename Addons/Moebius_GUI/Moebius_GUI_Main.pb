@@ -26,6 +26,7 @@ WinParamsPB_Validate(#False)
 
 OnErrorCall(@Main_ErrorHandler())
 
+Global gStateOld.l = #State_StepStart
 Repeat
   lEvt_System = WaitWindowEvent()
   lEvt_Window = EventWindow()
@@ -35,7 +36,7 @@ Repeat
   Select lEvt_System
     Case #PB_Event_Gadget;{
       Select lEvt_Window
-        Case #Window_0;{
+        Case #Window_0;{ Main Window
           Select lEvt_Gadget
             Case #Window_0_CheckBox_0 ;{ Step1 > Unicode
               gProject\bUnicode = GetGadgetState(#Window_0_CheckBox_0)
@@ -169,7 +170,7 @@ Repeat
                 cReturnMessageRequester = #PB_MessageRequester_Yes
               EndIf
               If cReturnMessageRequester = #PB_MessageRequester_Yes
-                If GetGadgetState(#Window_0_Combo_0) = 0
+                If GetGadgetState(#Window_0_Combo_1) = 0
                   ; Long
                   SetGadgetState(#Window_0_CheckBox_0, #False)
                   SetGadgetState(#Window_0_CheckBox_1, #False)
@@ -189,7 +190,7 @@ Repeat
                 Else
                   If FileSize("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
                     If OpenPreferences("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
-                      If PreferenceGroup(GetGadgetItemText(#Window_0_Combo_0, GetGadgetState(#Window_0_Combo_0))) = #True
+                      If PreferenceGroup(GetGadgetItemText(#Window_0_Combo_1, GetGadgetState(#Window_0_Combo_1))) = #True
                         ; Load the choosen profile
                         M_Profil_Load(#True)
                         ; Enable the Step 2 and Disable the Step 3
@@ -202,7 +203,7 @@ Repeat
               EndIf
             ;}
             Case #Window_0_Button_8 ;{ Profil > Save
-              If GetGadgetState(#Window_0_Combo_0) = 0
+              If GetGadgetState(#Window_0_Combo_1) = 0
                 sRetString = InputRequester("Moebius", "Nom du Modèle :", "Template"+Str(Random(SizeOf(Long))))
                 If sRetString > ""
                   If FileSize("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
@@ -279,7 +280,7 @@ Repeat
             ;}
           EndSelect
         ;}
-        Case #Window_1;{
+        Case #Window_1;{ PureBasic Paths
           Select lEvt_Gadget
             Case #Window_1_Button_0 ;{ Purebasic path
               sRetString = PathRequester("Purebasic path", "")
@@ -393,7 +394,7 @@ Repeat
             ;}
           EndSelect
         ;}
-        Case #Window_2;{
+        Case #Window_2;{ Preferences
           Select lEvt_Gadget
             Case #Window_2_Button_0 ;{ Annuler
               M_GUI_CloseWindow(2)
@@ -418,6 +419,16 @@ Repeat
       EndIf
     ;}
   EndSelect
+  If gStateOld <> gState
+    If gState > #State_StepStart
+      If gState > #State_StepLast
+        gState - #State_StepLast 
+        SetGadgetState(#Window_0_ProgressBar_0, gState)
+        MessageRequester("Moebius", GetStringError(gError))
+      Else
+        SetGadgetState(#Window_0_ProgressBar_0, gState)
+      EndIf
+    EndIf
+    gStateOld = gState
+  EndIf
 Until lQuit = #True
-
-;-TD : gestion message d'erreur

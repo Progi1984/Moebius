@@ -1,64 +1,66 @@
 ;@desc Cleans  the directory and prepares the working directory
-;@returnvalue 1  > Success
-;@returnvalue 0  > Error : Can't delete userlibs of old projects
-;@returnvalue -1 > Error : Can't create the directory of project
-;@returnvalue -2 > Error : Can't create the directory "Project\ASM"
-;@returnvalue -3 > Error : Can't create the directory "Project\LOGS"
-;@returnvalue -4 > Error : Can't create the directory "Project\LIB"
-;@returnvalue -5 > Error : Can't create the directory "Project\OBJ"
-;@returnvalue -6 > Error : Can't delete the directory ASM of project
-;@returnvalue -7 > Error : Can't delete the directory LIB of project
-;@returnvalue -8 > Error : Can't delete the directory OBJ of project
-;@returnvalue -9 > Error : Can't create the directory "Project\BAT"
-;@returnvalue -10> Error : Can't delete the directory BAT of project
+;@returnvalue #Error_000  > Success
+;@returnvalue #Error_001  > Error : Can't delete userlibs of old projects
+;@returnvalue #Error_002 > Error : Can't delete the directory ASM of project
+;@returnvalue #Error_003> Error : Can't delete the directory BAT of project
+;@returnvalue #Error_004 > Error : Can't delete the directory LIB of project
+;@returnvalue #Error_005 > Error : Can't delete the directory OBJ of project
+;@returnvalue #Error_006 > Error : Can't create the directory of project
+;@returnvalue #Error_007 > Error : Can't create the directory "Project\BAT"
+;@returnvalue #Error_008 > Error : Can't create the directory "Project\ASM"
+;@returnvalue #Error_009 > Error : Can't create the directory "Project\LOGS"
+;@returnvalue #Error_010 > Error : Can't create the directory "Project\LIB"
+;@returnvalue #Error_011 > Error : Can't create the directory "Project\OBJ"
 ProcedureDLL Moebius_Compile_Step0()
+  gState = #State_Step0
+
   ;Cleans the old userlib
   If FileSize(gConf\sPureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\sLibName) > 0
     If DeleteFile(gConf\sPureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\sLibName) = 0
-      ProcedureReturn #False
+      ProcedureReturn #Error_001
     EndIf
   EndIf
   ;Deletes old content of directories
   If FileSize(gProject\sDirAsm) = -2
     If DeleteDirectory(gProject\sDirAsm, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
-      ProcedureReturn #False -6
+      ProcedureReturn #Error_002
     EndIf
   EndIf
   If FileSize(gProject\sDirBat) = -2
     If DeleteDirectory(gProject\sDirBat, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
-      ProcedureReturn #False -10
+      ProcedureReturn #Error_003
     EndIf
   EndIf
   If FileSize(gProject\sDirLib) = -2
     If DeleteDirectory(gProject\sDirLib, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
-      ProcedureReturn #False -7
+      ProcedureReturn #Error_004
     EndIf
   EndIf
   If FileSize(gProject\sDirObj) = -2
     If DeleteDirectory(gProject\sDirObj, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
-      ProcedureReturn #False -8
+      ProcedureReturn #Error_005
     EndIf
   EndIf
   ; Creates directories if inexistant
   If CreateDirectoryEx(gProject\sDirProject) = #False
-    ProcedureReturn #False -1
+    ProcedureReturn #Error_006
   EndIf
   If CreateDirectoryEx(gProject\sDirBat)= #False
-    ProcedureReturn #False -9
+    ProcedureReturn #Error_007
   EndIf
   If CreateDirectoryEx(gProject\sDirAsm)= #False
-    ProcedureReturn #False -2
+    ProcedureReturn #Error_008
   EndIf
   If CreateDirectoryEx(gProject\sDirLogs)= #False
-    ProcedureReturn #False -3
+    ProcedureReturn#Error_009
   EndIf
   If CreateDirectoryEx(gProject\sDirLib)= #False
-    ProcedureReturn #False -4
+    ProcedureReturn #Error_010
   EndIf
   If CreateDirectoryEx(gProject\sDirObj)= #False
-    ProcedureReturn #False -5
+    ProcedureReturn #Error_011
   EndIf
   ; Initializes batch and log files
   Output_Init()
-  ProcedureReturn #True
+  ProcedureReturn #Error_000
 EndProcedure

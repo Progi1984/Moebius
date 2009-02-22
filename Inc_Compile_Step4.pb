@@ -1,7 +1,15 @@
 ;@desc POLIB or AR creates the LIB library from the *.OBJ files
+;@return : #Error_020 > Error : Can't create the DESC File
+;@return : #Error_021 > Error : Can't copy the lib
+;@return : #Error_022 > Error : Can't create the file ObjList.txt
+;@return : #Error_023 > Error : polib can't be launched
+;@return : #Error_024 > Error : the library isn't generated
 ProcedureDLL Moebius_Compile_Step4()
   Protected StringTmp.s, sDescContent.s, sProgRequest.s, sProgReturn.s
-  Protected lDescFile.l, lNbImportLib.l
+  Protected lDescFile.l, lNbImportLib.l, lError.l
+  
+  gState = #State_Step4
+  
   Output_Add("Creating descriptor file", #Output_Log, 2)
   ;{ Creating descriptor file
     ;{ Langage used to code the library
@@ -65,16 +73,21 @@ ProcedureDLL Moebius_Compile_Step4()
       WriteString(lDescFile, sDescContent)
       Output_Add(sDescContent, #Output_Log, 2)
       CloseFile(lDescFile)
+    Else
+      ProcedureReturn #Error_020
     EndIf
   ;}
 
   Output_Add("Working on Import", #Output_Log, 2)
   ;{ Working on Import .lib/.a
     ForEach LL_ImportUsed()
-      CopyFile(LL_ImportUsed(), gProject\sDirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed()))
-      Output_Add("IN  > "+LL_ImportUsed(), #Output_Log, 4)
-      LL_ImportUsed() = gProject\sDirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed())
-      Output_Add("OUT > "+LL_ImportUsed(), #Output_Log, 4)
+      If CopyFile(LL_ImportUsed(), gProject\sDirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed()))= #False
+        ProcedureReturn #Error_021
+      Else
+        Output_Add("IN  > "+LL_ImportUsed(), #Output_Log, 4)
+        LL_ImportUsed() = gProject\sDirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed())
+        Output_Add("OUT > "+LL_ImportUsed(), #Output_Log, 4)
+      EndIf
     Next
   ;}
   
@@ -82,9 +95,10 @@ ProcedureDLL Moebius_Compile_Step4()
   ;{ Generates a file which contains all objects files
     CompilerSelect #PB_Compiler_OS
       CompilerCase #PB_OS_Windows;{
-        Protected lObjFile.l = CreateFile(#PB_Any, gProject\sDirObj+"ObjList.txt")
+        Protected lObjFile.l
         Protected lPgm_Polib.l
         
+        lObjFile = CreateFile(#PB_Any, gProject\sDirObj+"ObjList.txt")
         If lObjFile
           ForEach LL_DLLFunctions()
             WriteStringN(lObjFile, #DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote)
@@ -93,6 +107,8 @@ ProcedureDLL Moebius_Compile_Step4()
             WriteStringN(lObjFile, #DQuote+LL_ImportUsed()+#DQuote)
           Next
           CloseFile(lObjFile)
+        Else
+          ProcedureReturn #Error_022
         EndIf
         
         sProgRequest = "/out:" + #DQuote + gProject\sDirLib + M_LibName_Clean(gProject\sLibName) + #System_ExtLib + #DQuote
@@ -103,10 +119,11 @@ ProcedureDLL Moebius_Compile_Step4()
           While ProgramRunning(lPgm_Polib)
             sProgReturn + ReadProgramString(lPgm_Polib) + #System_EOL
           Wend
+          CloseProgram(lPgm_Polib)
         Else
           sProgReturn = "Error in RunProgram"
+          lError = #Error_023
         EndIf
-        CloseProgram(lPgm_Polib)
       ;}
       CompilerCase #PB_OS_Linux;{
         sProgRequest = "ar rvs "
@@ -118,5 +135,14 @@ ProcedureDLL Moebius_Compile_Step4()
     CompilerEndSelect
     Output_Add(sProgRequest, #Output_Log | #Output_Bat, 4)
     Output_Add(sProgReturn, #Output_Log, 4)
+
+    If FileSize(gProject\sDirLib + M_LibName_Clean(gProject\sLibName) + #System_ExtLib) = 0
+      lError = #Error_024
+    EndIf
+    If lError <> #Error_000
+      ProcedureReturn lError
+    Else
+      ProcedureReturn #Error_000
+    EndIf
   ;}
 EndProcedure

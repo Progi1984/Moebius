@@ -77,11 +77,12 @@ ProcedureDLL WinMain_Create()
         DisableGadget(#Window_0_Button_4, #True)
     ;}
     Frame3DGadget(#Window_0_Frame3D_2, 10, 340, 580, 180, "Etape 3 : Compilation du projet") ;{
-      EditorGadget(#Window_0_Editor_0, 20, 390, 560, 120, #PB_Editor_ReadOnly)
       ButtonGadget(#Window_0_Button_5, 20, 356, 110, 28, "Compiler")
         DisableGadget(#Window_0_Button_5, #True)
       CheckBoxGadget(#Window_0_CheckBox_6, 140, 356, 110, 28, "Activer le log")
         DisableGadget(#Window_0_CheckBox_6, #True)
+      ProgressBarGadget(#Window_0_ProgressBar_0, 20, 385, 560, 20, #State_Step0, #State_Step6, #PB_ProgressBar_Smooth)
+      EditorGadget(#Window_0_Editor_0, 20, 410, 560, 100, #PB_Editor_ReadOnly)
     ;}
     Frame3DGadget(#Window_0_Frame3D_3, 10, 520, 90, 50, "") ;{ Préférences
       CompilerSelect #PB_Compiler_OS

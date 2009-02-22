@@ -28,7 +28,6 @@ ProcedureDLL.l CreateDirectoryEx(FolderPath.s)
   ProcedureReturn #False
  EndIf
 EndProcedure 
-
 ;@author Dr. Dri
 ;@desc Permits to know if a string is a numeric
 ;@returnvalue #True if it's a numeric, else #False
@@ -48,7 +47,6 @@ ProcedureDLL.l IsNumeric(String.s)
   EndIf
   ProcedureReturn Numeric
 EndProcedure
-
 ;@desc Initialize batch & log files
 ProcedureDLL Output_Init()
   ; Log
@@ -180,4 +178,43 @@ ProcedureDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
       EndIf
     EndIf
   EndIf
+EndProcedure
+;@desc Returns the error message in function of Error Number
+ProcedureDLL.s GetStringError(Error.l)
+  Select Error
+    Case #Error_000 : ProcedureReturn "Step0 : Success"+Chr(0)
+    Case #Error_001 : ProcedureReturn "Step0 : Can't delete userlibs of old projects"
+    Case #Error_002 : ProcedureReturn "Step0 : Can't delete the directory ASM of project"
+    Case #Error_003 : ProcedureReturn "Step0 : Can't delete the directory BAT of project"
+    Case #Error_004 : ProcedureReturn "Step0 : Can't delete the directory LIB of project"
+    Case #Error_005 : ProcedureReturn "Step0 : Can't delete the directory OBJ of project"
+    Case #Error_006 : ProcedureReturn "Step0 : Can't create the directory of project"
+    Case #Error_007 : ProcedureReturn "Step0 : Can't create the directory "+#DQuote+"Project\BAT"+#DQuote
+    Case #Error_008 : ProcedureReturn "Step0 : Can't create the directory "+#DQuote+"Project\ASM"+#DQuote
+    Case #Error_009 : ProcedureReturn "Step0 : Can't create the directory "+#DQuote+"Project\LOGS"+#DQuote
+    Case #Error_010 : ProcedureReturn "Step0 : Can't create the directory "+#DQuote+"Project\LIB"+#DQuote
+    Case #Error_011 : ProcedureReturn "Step0 : Can't create the directory "+#DQuote+"Project\OBJ"+#DQuote
+    Case #Error_012 : ProcedureReturn "Step1 : Not a PureBasic file"
+    Case #Error_013 : ProcedureReturn "Step1 : Program not launched"
+    Case #Error_014 : ProcedureReturn "Step1 : Compiler Error"
+    Case #Error_015 : ProcedureReturn "Step1 : Compiler Exit Code Error"
+    Case #Error_016 : ProcedureReturn "Step2 : Purebasic.asm Not Found"
+    Case #Error_017 : ProcedureReturn "Step2 : Can't generate the asm files"
+    Case #Error_018 : ProcedureReturn "Step3 : FASM has returned an error"
+    Case #Error_019 : ProcedureReturn "Step3 : FASM can't be launched"
+    Case #Error_020 : ProcedureReturn "Step4 : Can't create the DESC File"
+    Case #Error_021 : ProcedureReturn "Step4 : Can't copy the lib"
+    Case #Error_022 : ProcedureReturn "Step4 : Can't create the file ObjList.txt"
+    Case #Error_023 : ProcedureReturn "Step4 : polib can't be launched"
+    Case #Error_024 : ProcedureReturn "Step4 : the library isn't generated"
+    Case #Error_025 : ProcedureReturn "Step5 : LibMaker can't be launched"
+    Case #Error_026 : ProcedureReturn "Step5 : The userlib isn't generated"
+    Case #Error_027 : ProcedureReturn "Step5 : The userlib can't be renamed"
+    Case #Error_028 : ProcedureReturn "Step5 :  PBCompiler can't be restarted"
+    Case #Error_029 : ProcedureReturn "Step6 : The directory ASM can't be deleted"
+    Case #Error_030 : ProcedureReturn "Step6 : The directory OBJ can't be deleted"
+    Case #Error_031 : ProcedureReturn "Step6 : The directory LIB  can't be deleted"
+    Case #Error_032 : ProcedureReturn "Step6 : The directory BAT can't be deleted"
+    Case #Error_033 : ProcedureReturn "Compilation build !!!"
+  EndSelect
 EndProcedure

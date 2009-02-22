@@ -682,18 +682,27 @@ ProcedureDLL Moebius_Compile_Step2_CreateInitFunction()
   EndIf
 EndProcedure
 ;@desc This step grabs the ASM file, splits it, rewrites some parts
+;@return #Error_016 > Error : purebasic.asm Not Found
+;@return #Error_017 > Error : can't generate the asm files
 ProcedureDLL Moebius_Compile_Step2()
   Protected CodeContent.s, CodeField.s, TrCodeField.s, CodeCleaned.s
   Protected sASMContent.s, sTmpString.s
   Protected IncA.l, IncB.l, lPos.l, lPosLast.l, lFile.l, lNbLines.l
   Protected bFound.b, bLastIsLabel.b, bIsDLLFunction.b, bExistsInitFunction.b
   Protected cNbParams.c
+  
+  gState = #State_Step2
+  
   Output_Add("Load the content of purebasic.asm in a string", #Output_Log, 2)
   ;{ load the content of purebasic.asm in a string
-    If ReadFile(0, gProject\sDirProject+"purebasic.asm")
-      CodeContent = Space(Lof(0)+1)
-      ReadData(0,@CodeContent, Lof(0))
-      CloseFile(0)
+    If FileSize(gProject\sDirProject+"purebasic.asm") > 0
+      If ReadFile(0, gProject\sDirProject+"purebasic.asm")
+        CodeContent = Space(Lof(0)+1)
+        ReadData(0,@CodeContent, Lof(0))
+        CloseFile(0)
+      EndIf
+    Else
+      ProcedureReturn #Error_016
     EndIf
   ;}
   
@@ -935,6 +944,8 @@ ProcedureDLL Moebius_Compile_Step2()
         If lFile
           WriteStringN(lFile, sASMContent)
           CloseFile(lFile)
+        Else
+          ProcedureReturn #Error_017
         EndIf
       Next
     ;}
@@ -951,4 +962,5 @@ ProcedureDLL Moebius_Compile_Step2()
   ;{ Shared Code
     Moebius_Compile_Step2_CreateSharedFunction(CodeContent.s)
   ;}
+  ProcedureReturn #Error_000
 EndProcedure

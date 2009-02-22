@@ -8,6 +8,7 @@ DeclareDLL.l IsNumeric(String.s)
 DeclareDLL Output_Init()
 DeclareDLL Output_End()
 DeclareDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
+DeclareDLL.s GetStringError(Error.l)
 
 ; Inc_PB.pb
 DeclareDLL PB_GetInfoUserLib(LibFileName.s)

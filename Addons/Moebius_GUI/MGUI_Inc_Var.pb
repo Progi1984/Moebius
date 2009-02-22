@@ -34,6 +34,7 @@
       #Window_0_Frame3D_2
       #Window_0_Frame3D_3
       #Window_0_Frame3D_4
+      #Window_0_ProgressBar_0
       #Window_0_String_0
       #Window_0_String_1
       #Window_0_String_2
