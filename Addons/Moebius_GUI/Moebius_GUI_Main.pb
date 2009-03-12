@@ -408,6 +408,7 @@ Repeat
               If OpenPreferences(sPath+"Prefs"+#System_Separator+"MoebiusGUI_Prefs.ini")
                 PreferenceGroup("Main")
                 WritePreferenceLong("AlwaysAskBeforeLoadingProject", GetGadgetState(#Window_2_CheckBox_0))
+                WritePreferenceString("Language", GetGadgetText(#Window_2_Combo_0))
                   gGUIPrefs\lAlwaysAskBeforeLoadingProject = GetGadgetState(#Window_2_CheckBox_0)
                   gGUIPrefs\sLanguage = GetGadgetText(#Window_2_Combo_0)
                     Language_Load(gGUIPrefs\sLanguage)
