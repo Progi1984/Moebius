@@ -1,6 +1,8 @@
 EnableExplicit
 #Moebius_App = #True
 
+Global gStateOld.l
+
 IncludePath "../../"
 ; Some includes must be included before others because of some specifics vars are called
   XIncludeFile "Inc_Declare.pb"
@@ -24,9 +26,11 @@ WinMain_Create()
 WinParamsPB_LoadIni()
 WinParamsPB_Validate(#False)
 
-OnErrorCall(@Main_ErrorHandler())
+CompilerIf #PB_Compiler_Debugger = #False
+  OnErrorCall(@Main_ErrorHandler())
+CompilerEndIf
 
-Global gStateOld.l = #State_StepStart
+gStateOld = #State_StepStart
 Repeat
   lEvt_System = WaitWindowEvent()
   lEvt_Window = EventWindow()
@@ -73,7 +77,7 @@ Repeat
             ;}
             Case #Window_0_Button_1 ;{ Step1 > Source File
               Define.b bIsCHM, bIsOutput
-              sRetString = OpenFileRequester("Source File", "", "Fichiers Purebasic|*.pb;*.pbi|Tous les fichiers (*.*)|*.*",0)
+              sRetString = OpenFileRequester(LanguageItems(13), "", LanguageItems(36)+"|*.pb;*.pbi|"+LanguageItems(35)+" (*.*)|*.*",0)
               If sRetString
                 gProject\sFileName = sRetString
                 SetGadgetText(#Window_0_String_1, gProject\sFileName)
@@ -96,7 +100,7 @@ Repeat
               EndIf
             ;}
             Case #Window_0_Button_2 ;{ Step1 > Help File
-              sRetString = OpenFileRequester("Source File", "", "Fichiers d'aide|*"+#System_ExtHelp+"|Tous les fichiers (*.*)|*.*",0)
+              sRetString = OpenFileRequester(LanguageItems(15), "", LanguageItems(15)+"|*"+#System_ExtHelp+"|"+LanguageItems(35)+" (*.*)|*.*",0)
               If sRetString
                 gProject\sFileCHM = sRetString
                 SetGadgetText(#Window_0_String_2, gProject\sFileCHM)
@@ -104,7 +108,7 @@ Repeat
               EndIf
             ;}
             Case #Window_0_Button_3 ;{ Step1 > Working Directory
-              sRetString = PathRequester("Working Directory", "")
+              sRetString = PathRequester(LanguageItems(16), "")
               If sRetString
                 gConf\sSourceDir = sRetString
                 gProject\sDirProject = gConf\sSourceDir + gProject\sLibName + #System_Separator
@@ -136,22 +140,22 @@ Repeat
                       gProject\sDirProject  = GetGadgetText(#Window_0_String_3)
                       M_Moebius_InitDir(#True, #False, #False)
                       M_GUI_EnableStep(#False, #False, #True)
-                      MessageRequester("Moebius", "Ready to Compile :)")
+                      MessageRequester(LanguageItems(1), LanguageItems(37))
                   Else
                     If FileSize(gProject\sDirProject) <> -2 And Right(gProject\sDirProject, 1) <> #System_Separator
                       M_GUI_EnableStep(#False, #True, #False)
-                      MessageRequester("Moebius", "The working directory must be a directory.")
+                      MessageRequester(LanguageItems(1), LanguageItems(38))
                     Else
                       M_GUI_EnableStep(#False, #False, #True)
-                      MessageRequester("Moebius", "Ready to Compile :)")
+                      MessageRequester(LanguageItems(1), LanguageItems(37))
                     EndIf
                   EndIf
                 Else
                   M_GUI_EnableStep(#False, #True, #False)
-                  MessageRequester("Moebius", "Need a real purebasic source file for compiling")
+                  MessageRequester(LanguageItems(1), LanguageItems(39))
                 EndIf
               Else
-                MessageRequester("Moebius", "But How do you come here ?")
+                MessageRequester(LanguageItems(1), LanguageItems(40))
               EndIf
             ;}
             Case #Window_0_Button_5 ;{ Step2 > Compile
@@ -165,7 +169,7 @@ Repeat
             ;}
             Case #Window_0_Button_7 ;{ Profil > Load
               If gGUIPrefs\lAlwaysAskBeforeLoadingProject = #True 
-                cReturnMessageRequester = MessageRequester("Moebius", "Voulez-vous vraiment charger le profil ?", #PB_MessageRequester_YesNo)
+                cReturnMessageRequester = MessageRequester(LanguageItems(1), LanguageItems(41), #PB_MessageRequester_YesNo)
               Else
                 cReturnMessageRequester = #PB_MessageRequester_Yes
               EndIf
@@ -188,8 +192,8 @@ Repeat
                   ; Enable the Step 2 and Disable the Step 3
                   M_GUI_EnableStep(#False, #True, #False)
                 Else
-                  If FileSize("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
-                    If OpenPreferences("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
+                  If FileSize(sPath+"Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
+                    If OpenPreferences(sPath+"Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
                       If PreferenceGroup(GetGadgetItemText(#Window_0_Combo_1, GetGadgetState(#Window_0_Combo_1))) = #True
                         ; Load the choosen profile
                         M_Profil_Load(#True)
@@ -204,12 +208,12 @@ Repeat
             ;}
             Case #Window_0_Button_8 ;{ Profil > Save
               If GetGadgetState(#Window_0_Combo_1) = 0
-                sRetString = InputRequester("Moebius", "Nom du Modèle :", "Template"+Str(Random(SizeOf(Long))))
+                sRetString = InputRequester(LanguageItems(1), LanguageItems(42)+" :", "Template"+Str(Random(SizeOf(Long))))
                 If sRetString > ""
-                  If FileSize("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
-                    OpenPreferences("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
+                  If FileSize(sPath+"Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
+                    OpenPreferences(sPath+"Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
                   Else
-                    CreatePreferences("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
+                    CreatePreferences(sPath+"Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
                   EndIf
                   PreferenceGroup(sRetString)
                   WritePreferenceLong("Unicode", GetGadgetState(#Window_0_CheckBox_0))
@@ -227,8 +231,8 @@ Repeat
                   M_Profil_GUIReload()
                 EndIf
               Else
-                If FileSize("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
-                  If OpenPreferences("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
+                If FileSize(sPath+"Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
+                  If OpenPreferences(sPath+"Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
                     If PreferenceGroup(GetGadgetItemText(#Window_0_Combo_1, GetGadgetState(#Window_0_Combo_1))) = #True
                       WritePreferenceLong("Unicode", GetGadgetState(#Window_0_CheckBox_0))
                       WritePreferenceLong("Threadsafe", GetGadgetState(#Window_0_CheckBox_1))
@@ -283,21 +287,21 @@ Repeat
         Case #Window_1;{ PureBasic Paths
           Select lEvt_Gadget
             Case #Window_1_Button_0 ;{ Purebasic path
-              sRetString = PathRequester("Purebasic path", "")
+              sRetString = PathRequester(LanguageItems(26), "")
               If sRetString
                 gConf\sPureBasic_Path = sRetString
                 SetGadgetText(#Window_1_String_0, gConf\sPureBasic_Path)
               EndIf
             ;}
             Case #Window_1_Button_1 ;{ Compiler
-              sRetString = OpenFileRequester("Compiler", gConf\sPureBasic_Path+"compilers"+#System_Separator, "Compiler|pbcompiler"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
+              sRetString = OpenFileRequester(LanguageItems(27), gConf\sPureBasic_Path+"compilers"+#System_Separator, LanguageItems(27)+"|pbcompiler"+#System_ExtExec+LanguageItems(35)+"| (*.*)|*.*",0)
               If sRetString
                 gConf\sPath_PBCOMPILER = sRetString
                 SetGadgetText(#Window_1_String_1, gConf\sPath_PBCOMPILER)
               EndIf
             ;}
             Case #Window_1_Button_2 ;{ Fasm
-              sRetString = OpenFileRequester("Fasm", gConf\sPureBasic_Path+"compilers"+#System_Separator, "Fasm|fasm"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
+              sRetString = OpenFileRequester("Fasm", gConf\sPureBasic_Path+"compilers"+#System_Separator, "Fasm|fasm"+#System_ExtExec+"|"+LanguageItems(35)+" (*.*)|*.*",0)
               If sRetString
                 gConf\sPath_FASM = sRetString
                 SetGadgetText(#Window_1_String_2, gConf\sPath_FASM)
@@ -306,10 +310,10 @@ Repeat
             Case #Window_1_Button_3 ;{ Obj2Lib
               CompilerSelect #PB_Compiler_OS
                 CompilerCase #PB_OS_Linux ;{
-                  sRetString = OpenFileRequester("ar", "/usr/bin/ar", "ar|ar|Tous les fichiers (*.*)|*.*",0)
+                  sRetString = OpenFileRequester("ar", "/usr/bin/ar", "ar|ar|"+LanguageItems(35)+" (*.*)|*.*",0)
                 ;}
                 CompilerCase #PB_OS_Windows ;{
-                  sRetString = OpenFileRequester("Polib", gConf\sPureBasic_Path+"compilers\", "Polib |polib.exe|Tous les fichiers (*.*)|*.*",0)
+                  sRetString = OpenFileRequester("Polib", gConf\sPureBasic_Path+"compilers\", "Polib |polib.exe|"+LanguageItems(35)+" (*.*)|*.*",0)
                 ;}
               CompilerEndSelect              
               If sRetString
@@ -320,10 +324,10 @@ Repeat
             Case #Window_1_Button_4 ;{ LibMaker 
               CompilerSelect #PB_Compiler_OS
                 CompilerCase #PB_OS_Linux ;{
-                  sRetString = OpenFileRequester("Library Maker", gConf\sPureBasic_Path+"compilers"+#System_Separator, "LibMaker|pblibrarymaker"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
+                  sRetString = OpenFileRequester("Library Maker", gConf\sPureBasic_Path+"compilers"+#System_Separator, "LibMaker|pblibrarymaker"+#System_ExtExec+"|"+LanguageItems(35)+" (*.*)|*.*",0)
                 ;}
                 CompilerCase #PB_OS_Windows ;{
-                  sRetString = OpenFileRequester("Library Maker", gConf\sPureBasic_Path+"compilers"+#System_Separator, "LibMaker|LibraryMaker"+#System_ExtExec+"|Tous les fichiers (*.*)|*.*",0)
+                  sRetString = OpenFileRequester("Library Maker", gConf\sPureBasic_Path+"compilers"+#System_Separator, "LibMaker|LibraryMaker"+#System_ExtExec+"|"+LanguageItems(35)+" (*.*)|*.*",0)
                 ;}
               CompilerEndSelect
               If sRetString
@@ -401,12 +405,15 @@ Repeat
             ;}
             Case #Window_2_Button_1 ;{ Sauver et Quitter
               ; Save Preferences for the GUI
-              If OpenPreferences("Prefs"+#System_Separator+"MoebiusGUI_Prefs.ini")
+              If OpenPreferences(sPath+"Prefs"+#System_Separator+"MoebiusGUI_Prefs.ini")
                 PreferenceGroup("Main")
                 WritePreferenceLong("AlwaysAskBeforeLoadingProject", GetGadgetState(#Window_2_CheckBox_0))
                   gGUIPrefs\lAlwaysAskBeforeLoadingProject = GetGadgetState(#Window_2_CheckBox_0)
+                  gGUIPrefs\sLanguage = GetGadgetText(#Window_2_Combo_0)
+                    Language_Load(gGUIPrefs\sLanguage)
                 ClosePreferences()
               EndIf
+              Language_Apply()
               M_GUI_CloseWindow(2)
             ;}
           EndSelect
@@ -424,7 +431,7 @@ Repeat
       If gState > #State_StepLast
         gState - #State_StepLast 
         SetGadgetState(#Window_0_ProgressBar_0, gState)
-        MessageRequester("Moebius", GetStringError(gError))
+        MessageRequester(LanguageItems(1), GetStringError(gError))
       Else
         SetGadgetState(#Window_0_ProgressBar_0, gState)
       EndIf
