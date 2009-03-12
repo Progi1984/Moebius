@@ -6,6 +6,10 @@
   DeclareDLL WinParamsPB_SaveIni()
   DeclareDLL WinPrefs_Create()
   DeclareDLL Misc_GetDisableGadget(Gadget.l)
+  DeclareDLL Main_ErrorHandler()
+  DeclareDLL.s GetStringError(Error.l)
+  DeclareDLL Language_Load(LanguageName.s)
+  DeclareDLL Language_Apply()
 ;}
 ;{ Constants
   Enumeration
@@ -72,14 +76,17 @@
       #Window_1_Text_8
       #Window_1_Text_9
     #Window_2
-      #Window_2_CheckBox_0
       #Window_2_Button_0
       #Window_2_Button_1
+      #Window_2_CheckBox_0
+      #Window_2_Combo_0
+      #Window_2_Text_0
   EndEnumeration
 ;}
 ;{ Structures
   Structure S_MoebiusGUIPrefs
     lAlwaysAskBeforeLoadingProject.l
+    sLanguage.s
   EndStructure
 ;}
 ;{ Variables
@@ -92,7 +99,13 @@
   Global lQuit.l = #False
 
   Global sRetString.s
-
+  Global sPath.s
+  CompilerIf #PB_Editor_CreateExecutable = #True
+    sPath = ""
+  CompilerElse
+    sPath = ".."+#System_Separator+".."+#System_Separator
+  CompilerEndIf
+  
   Global bPBParams_Valid.b = #False
   Global bEnableLogEditor.b = #False
   Global bAnotherWindowOpened.b
@@ -100,8 +113,16 @@
   Global cReturnMessageRequester.c
   
   Global gGUIPrefs.S_MoebiusGUIPrefs
+  
+  Global Dim LanguageItems.s(0)
 ;}
 ;{ Macros
+  Macro M_GUI_CloseWindow(Fenetre)
+    CloseWindow(#Window_#Fenetre)
+    bAnotherWindowOpened - 1
+    DisableWindow(#Window_0,#False)
+    SetActiveWindow(#Window_0) 
+  EndMacro
   Macro M_GUI_EnableStep(Step1, Step2, Step3)
     ; Step1
     DisableGadget(#Window_0_Button_0, 1 - Step1)
@@ -115,7 +136,7 @@
     ; clears the combo
     ClearGadgetItems(#Window_0_Combo_1)
     ; adds "New" Item
-    AddGadgetItem(#Window_0_Combo_1, 0, "=== Nouveau ===")
+    AddGadgetItem(#Window_0_Combo_1, 0, "=== "+LanguageItems(0)+" ===")
     ; Load all groups name in profiles files, if existant
     If FileSize("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
       If OpenPreferences("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
@@ -158,11 +179,5 @@
     If gProject\sDirProject <> "" And FileSize(gProject\sDirProject) = -2
       M_Moebius_InitDir(#True, #False, #False)
     EndIf
-  EndMacro
-  Macro M_GUI_CloseWindow(Fenetre)
-    CloseWindow(#Window_#Fenetre)
-    bAnotherWindowOpened - 1
-    DisableWindow(#Window_0,#False)
-    SetActiveWindow(#Window_0) 
   EndMacro
 ;}
