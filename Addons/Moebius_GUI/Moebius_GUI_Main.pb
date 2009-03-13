@@ -291,10 +291,40 @@ Repeat
               If sRetString
                 gConf\sPureBasic_Path = sRetString
                 SetGadgetText(#Window_1_String_0, gConf\sPureBasic_Path)
+                If GetGadgetText(#Window_1_String_1) = ""
+                  gConf\sPath_PBCOMPILER = gConf\sPureBasic_Path+"compilers"+#System_Separator+"pbcompiler"+#System_ExtExec
+                  SetGadgetText(#Window_1_String_1, gConf\sPath_PBCOMPILER)
+                EndIf
+                If GetGadgetText(#Window_1_String_2) = ""
+                  gConf\sPath_FASM = gConf\sPureBasic_Path+"compilers"+#System_Separator+"fasm"+#System_ExtExec
+                  SetGadgetText(#Window_1_String_2, gConf\sPath_FASM)
+                EndIf
+                If GetGadgetText(#Window_1_String_3) = ""
+                  CompilerSelect #PB_Compiler_OS
+                    CompilerCase #PB_OS_Linux ;{
+                      gConf\sPath_OBJ2LIB = "/usr/bin/ar"
+                    ;}
+                    CompilerCase #PB_OS_Windows ;{
+                      gConf\sPath_OBJ2LIB = gConf\sPureBasic_Path+"compilers"+#System_Separator+"polib"+#System_ExtExec
+                    ;}
+                  CompilerEndSelect   
+                  SetGadgetText(#Window_1_String_3, gConf\sPath_OBJ2LIB)
+                EndIf
+                If GetGadgetText(#Window_1_String_4) = ""
+                  CompilerSelect #PB_Compiler_OS
+                    CompilerCase #PB_OS_Linux ;{
+                      gConf\sPath_PBLIBMAKER = gConf\sPureBasic_Path+"compilers"+#System_Separator+"pblibrarymaker"+#System_ExtExec
+                    ;}
+                    CompilerCase #PB_OS_Windows ;{
+                      gConf\sPath_PBLIBMAKER = gConf\sPureBasic_Path+"compilers"+#System_Separator+"LibraryMaker"+#System_ExtExec
+                    ;}
+                  CompilerEndSelect
+                  SetGadgetText(#Window_1_String_4, gConf\sPath_PBLIBMAKER)
+                EndIf
               EndIf
             ;}
             Case #Window_1_Button_1 ;{ Compiler
-              sRetString = OpenFileRequester(LanguageItems(27), gConf\sPureBasic_Path+"compilers"+#System_Separator, LanguageItems(27)+"|pbcompiler"+#System_ExtExec+LanguageItems(35)+"| (*.*)|*.*",0)
+              sRetString = OpenFileRequester(LanguageItems(27), gConf\sPureBasic_Path+"compilers"+#System_Separator, LanguageItems(27)+"|pbcompiler"+#System_ExtExec+"|"+LanguageItems(35)+" (*.*)|*.*",0)
               If sRetString
                 gConf\sPath_PBCOMPILER = sRetString
                 SetGadgetText(#Window_1_String_1, gConf\sPath_PBCOMPILER)
@@ -340,6 +370,10 @@ Repeat
             ;}
             Case #Window_1_Button_6 ;{ Validate Purebasic paths
               WinParamsPB_Validate(#True)
+              If bPBParams_Valid = 5 ; enable step 2
+                M_GUI_EnableStep(#False, #True, #False)
+              EndIf
+              M_GUI_CloseWindow(1)
             ;}
             Case #Window_1_Button_7 ;{ Fermer
               If bPBParams_Valid = 5 ; enable step 2
@@ -424,6 +458,15 @@ Repeat
     Case #PB_Event_CloseWindow;{
       If lEvt_Window = #Window_0 And bAnotherWindowOpened = 0
         lQuit = #True
+      Else
+        If lEvt_Window = #Window_1
+          If bPBParams_Valid = 5 ; enable step 2
+            M_GUI_EnableStep(#False, #True, #False)
+          EndIf
+          M_GUI_CloseWindow(1)
+        ElseIf lEvt_Window = #Window_2
+          M_GUI_CloseWindow(2)
+        EndIf
       EndIf
     ;}
   EndSelect

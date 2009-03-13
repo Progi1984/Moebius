@@ -6,3 +6,7 @@ Thanks to :
 	LSI			for the function CreateDirectoryEx
 	Dr. Dri		for the Macro IsDigit and the function IsNumeric
 		Link : http://www.purebasic.fr/french/viewtopic.php?t=4667
+		
+Translation :
+	Fangles		English
+	Ts-Soft		German

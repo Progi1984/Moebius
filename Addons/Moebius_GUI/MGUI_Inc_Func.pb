@@ -4,9 +4,10 @@ ProcedureDLL WinMain_Create()
     PreferenceGroup("Main")
       gGUIPrefs\lAlwaysAskBeforeLoadingProject = ReadPreferenceLong("AlwaysAskBeforeLoadingProject", #False)
       gGUIPrefs\sLanguage = ReadPreferenceString("Language", "French")
-      Debug gGUIPrefs\sLanguage
       Language_Load(gGUIPrefs\sLanguage)
     ClosePreferences()
+  Else
+    Language_Load("French")
   EndIf
   If OpenWindow(#Window_0, 353, 5, 600, 575, LanguageItems(1),  #PB_Window_SystemMenu | #PB_Window_TitleBar | #PB_Window_ScreenCentered)
     Frame3DGadget(#Window_0_Frame3D_0, 10, 10, 580, 70, LanguageItems(2)+" 1 : Purebasic") ;{
@@ -422,7 +423,6 @@ ProcedureDLL Language_Load(LanguageName.s)
     ReDim LanguageItems.s(ReadPreferenceLong("NumItems",1))
     For lNbItems = 1 To ReadPreferenceLong("NumItems",1)
       LanguageItems(lNbItems - 1) = ReadPreferenceString("lng"+Str(lNbItems - 1), "")
-      Debug ReadPreferenceString("lng"+Str(lNbItems - 1), "")
     Next
     ClosePreferences()
   EndIf
