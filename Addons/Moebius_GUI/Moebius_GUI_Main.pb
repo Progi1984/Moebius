@@ -163,7 +163,7 @@ Repeat
               ; Launchs a thread for compilation
               CreateThread(@Moebius_MainThread(),0)
             ;}
-            Case #Window_0_Button_6 ;{ Préférences
+            Case #Window_0_Button_6 ;{ Prï¿½fï¿½rences
               bAnotherWindowOpened + 1
               WinPrefs_Create()
             ;}
@@ -307,7 +307,7 @@ Repeat
                     CompilerCase #PB_OS_Windows ;{
                       gConf\sPath_OBJ2LIB = gConf\sPureBasic_Path+"compilers"+#System_Separator+"polib"+#System_ExtExec
                     ;}
-                  CompilerEndSelect   
+                  CompilerEndSelect
                   SetGadgetText(#Window_1_String_3, gConf\sPath_OBJ2LIB)
                 EndIf
                 If GetGadgetText(#Window_1_String_4) = ""
@@ -386,24 +386,6 @@ Repeat
               sRetString = GetGadgetText(#Window_1_String_0)
               If sRetString And FileSize(sRetString) = -2
                 gConf\sPureBasic_Path = sRetString
-                gConf\sPath_PBCOMPILER = gConf\sPureBasic_Path+"compilers"+#System_Separator+"pbcompiler"+#System_ExtExec
-                SetGadgetText(#Window_1_String_1, gConf\sPath_PBCOMPILER)
-                
-                gConf\sPath_FASM = gConf\sPureBasic_Path+"compilers"+#System_Separator+"fasm"+#System_ExtExec
-                SetGadgetText(#Window_1_String_2, gConf\sPath_FASM)
-                
-                CompilerSelect #PB_Compiler_OS
-                  CompilerCase #PB_OS_Windows;{
-                    gConf\sPath_OBJ2LIB = gConf\sPureBasic_Path+"compilers"+#System_Separator+"polib"+#System_ExtExec
-                    gConf\sPath_PBLIBMAKER = gConf\sPureBasic_Path+"SDK"+#System_Separator+"LibraryMaker"+#System_ExtExec
-                  ;}
-                  CompilerCase #PB_OS_Linux;{
-                    gConf\sPath_OBJ2LIB = "/usr/bin/ar"
-                    gConf\sPath_PBLIBMAKER = gConf\sPureBasic_Path+"compilers"+#System_Separator+"pblibrarymaker"+#System_ExtExec
-                  ;}
-                CompilerEndSelect
-                SetGadgetText(#Window_1_String_3, gConf\sPath_OBJ2LIB)
-                SetGadgetText(#Window_1_String_4, gConf\sPath_PBLIBMAKER)
               EndIf
             ;}
             Case #Window_1_String_1 ;{ PbCompiler

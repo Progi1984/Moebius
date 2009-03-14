@@ -1,14 +1,17 @@
 ;@desc Opens the main window for Moebius
 ProcedureDLL WinMain_Create()
+  ; Loading Preferences
   If OpenPreferences(sPath+"Prefs"+#System_Separator+"MoebiusGUI_Prefs.ini")
     PreferenceGroup("Main")
       gGUIPrefs\lAlwaysAskBeforeLoadingProject = ReadPreferenceLong("AlwaysAskBeforeLoadingProject", #False)
       gGUIPrefs\sLanguage = ReadPreferenceString("Language", "French")
-      Language_Load(gGUIPrefs\sLanguage)
     ClosePreferences()
   Else
-    Language_Load("French")
+    gGUIPrefs\lAlwaysAskBeforeLoadingProject = #False
+    gGUIPrefs\sLanguage = "French"
   EndIf
+  Language_Load(gGUIPrefs\sLanguage)
+  
   If OpenWindow(#Window_0, 353, 5, 600, 575, LanguageItems(1),  #PB_Window_SystemMenu | #PB_Window_TitleBar | #PB_Window_ScreenCentered)
     Frame3DGadget(#Window_0_Frame3D_0, 10, 10, 580, 70, LanguageItems(2)+" 1 : Purebasic") ;{
       TextGadget(#Window_0_Text_0, 80, 40, 40, 20, LanguageItems(3)+" : ")
