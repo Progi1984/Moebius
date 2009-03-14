@@ -316,7 +316,7 @@ Repeat
                       gConf\sPath_PBLIBMAKER = gConf\sPureBasic_Path+"compilers"+#System_Separator+"pblibrarymaker"+#System_ExtExec
                     ;}
                     CompilerCase #PB_OS_Windows ;{
-                      gConf\sPath_PBLIBMAKER = gConf\sPureBasic_Path+"compilers"+#System_Separator+"LibraryMaker"+#System_ExtExec
+                      gConf\sPath_PBLIBMAKER = gConf\sPureBasic_Path+"SDK"+#System_Separator+"LibraryMaker"+#System_ExtExec
                     ;}
                   CompilerEndSelect
                   SetGadgetText(#Window_1_String_4, gConf\sPath_PBLIBMAKER)
@@ -365,15 +365,15 @@ Repeat
                 SetGadgetText(#Window_1_String_4, gConf\sPath_PBLIBMAKER)
               EndIf
             ;}
-            Case #Window_1_Button_5 ;{ Sauver
-              WinParamsPB_SaveIni()
-            ;}
             Case #Window_1_Button_6 ;{ Validate Purebasic paths
               WinParamsPB_Validate(#True)
-              If bPBParams_Valid = 5 ; enable step 2
+              If bPBParams_Valid = 5
+                WinParamsPB_SaveIni()
+                MessageRequester(LanguageItems(1), LanguageItems(43))
                 M_GUI_EnableStep(#False, #True, #False)
+                M_GUI_CloseWindow(1)
               EndIf
-              M_GUI_CloseWindow(1)
+              
             ;}
             Case #Window_1_Button_7 ;{ Fermer
               If bPBParams_Valid = 5 ; enable step 2

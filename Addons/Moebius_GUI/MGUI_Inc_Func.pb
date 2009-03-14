@@ -178,7 +178,7 @@ ProcedureDLL WinParamsPB_Create()
     TextGadget(#Window_1_Text_9, 486, 126, 28, 28, "")
       SetGadgetColor(#Window_1_Text_9, #PB_Gadget_BackColor, RGB(255, 0, 0))
     
-    ButtonGadget(#Window_1_Button_5, 220, 160, 90, 30, LanguageItems(25))
+    ;ButtonGadget(#Window_1_Button_5, 220, 160, 90, 30, LanguageItems(25))
     ButtonGadget(#Window_1_Button_6, 320, 160, 90, 30, LanguageItems(18))
     ButtonGadget(#Window_1_Button_7, 420, 160, 90, 30, LanguageItems(28))
 

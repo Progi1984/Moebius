@@ -57,7 +57,7 @@
       #Window_1_Button_2
       #Window_1_Button_3
       #Window_1_Button_4
-      #Window_1_Button_5
+      ;#Window_1_Button_5
       #Window_1_Button_6
       #Window_1_Button_7
       #Window_1_String_0
