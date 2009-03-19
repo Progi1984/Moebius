@@ -1,6 +1,6 @@
 ;@desc Extracts information for the future creation of the DESC File
 ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
-  Protected Inc.l, IncA.l, lPos.l, lNbLines.l
+  Protected Inc.l, IncA.l, lPos.l, lNbLines.l, lMaxInc.l
   Protected CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned2.s, sFuncName.s, sFuncNameCleared.s, sReturnValField.s, sParamItem.s
   Protected sIsParameterDefautValueStart.s, sIsParameterDefautValueEnd.s, sCallingConvention.s
   Protected bFunctionEverAdded.b, bFunctionEverAdded_NbParams.b, bHasNumberInLastPlace.b
@@ -134,7 +134,8 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
               If Right(LL_DLLFunctions()\Params, 1) = ")"
                 LL_DLLFunctions()\Params = Left(LL_DLLFunctions()\Params, Len(LL_DLLFunctions()\Params)-1)
               Else
-                For IncA = Len(LL_DLLFunctions()\Params) To 0 Step -1
+                lMaxInc = Len(LL_DLLFunctions()\Params)
+                For IncA = lMaxInc To 0 Step -1
                   If Mid(LL_DLLFunctions()\Params, IncA, 1) = ")"
                     Break
                   EndIf
@@ -190,7 +191,8 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
             ;}
             ;{ Type of Parameters
               If Trim(LL_DLLFunctions()\Params) <> ""
-                For IncA = 1 To LL_DLLFunctions()\ParamsNumber
+                lMaxInc = LL_DLLFunctions()\ParamsNumber
+                For IncA = 1 To lMaxInc
                   sParamItem = Trim(StringField(LL_DLLFunctions()\Params, IncA, ","))
                   ; If an another functions exists with the same name AND if it has less parameters than the previous
                   If IncA > bFunctionEverAdded_NbParams And bFunctionEverAdded > -1
@@ -562,46 +564,48 @@ ProcedureDLL Moebius_Compile_Step2_CreateSharedFunction(CodeContent.s)
   ;{ Extracting SharedCode from MainFile & Deleting unuseful code
     lNbLines = CountString(CodeContent, #System_EOL)
     For lInc = 0 To lNbLines
-    sCodeField = StringField(CodeContent, lInc+1, #System_EOL)
-    sCodeField = ReplaceString(sCodeField, Chr(13), "")
-    sCodeField = ReplaceString(sCodeField, Chr(10), "")
-    sCodeField = Trim(sCodeField)
-    Select StringField(sCodeField, 1, " ")
-      Case "pb_public";{
-        lInc+1
-      ;}
-      Case "section";{
-        ; we verify if we are at the start of code
-        If bInSharedCode = - 1
-          CompilerSelect #PB_Compiler_OS
-            CompilerCase #PB_OS_Windows : sTmp = StringField(CodeContent, lInc+4, #System_EOL)
-            CompilerCase #PB_OS_Linux   : sTmp = StringField(CodeContent, lInc+3, #System_EOL)
-          CompilerEndSelect
-          sTmp = ReplaceString(sTmp, Chr(13), "")
-          sTmp = ReplaceString(sTmp, Chr(10), "")
-          sTmp = Trim(sTmp)
-          ; "public main" for Linux
-          ; "PureBasicStart:" for Windows
-          If sTmp = "public main" Or sTmp = "PureBasicStart:"
-            bInSharedCode = #False
-          EndIf
-        ElseIf bInSharedCode = #False ; we start the shared code
-          bInSharedCode = #True
-        EndIf
-      ;}
-      Default;{
-        If bInSharedCode = #True
-          ; we remove lines began by "PB"
-          If Left(StringField(sCodeField, 1, " "), 2) = "PB"
-          ; we remove labels with _PB_ExecutableType
-          ElseIf StringField(sCodeField, 1, ":") = "_PB_ExecutableType"
-          Else
-            sCodeShared + sCodeField + #System_EOL
-          EndIf
-        EndIf
-      ;}
-    EndSelect
-  Next
+      sCodeField = StringField(CodeContent, lInc+1, #System_EOL)
+      sCodeField = ReplaceString(sCodeField, Chr(13), "")
+      sCodeField = ReplaceString(sCodeField, Chr(10), "")
+      sCodeField = Trim(sCodeField)
+      If sCodeField <> ""
+        Select StringField(sCodeField, 1, " ")
+          Case "pb_public";{
+            lInc+1
+          ;}
+          Case "section";{
+            ; we verify if we are at the start of code
+            If bInSharedCode = - 1
+              CompilerSelect #PB_Compiler_OS
+                CompilerCase #PB_OS_Windows : sTmp = StringField(CodeContent, lInc+4, #System_EOL)
+                CompilerCase #PB_OS_Linux   : sTmp = StringField(CodeContent, lInc+3, #System_EOL)
+              CompilerEndSelect
+              sTmp = ReplaceString(sTmp, Chr(13), "")
+              sTmp = ReplaceString(sTmp, Chr(10), "")
+              sTmp = Trim(sTmp)
+              ; "public main" for Linux
+              ; "PureBasicStart:" for Windows
+              If sTmp = "public main" Or sTmp = "PureBasicStart:"
+                bInSharedCode = #False
+              EndIf
+            ElseIf bInSharedCode = #False ; we start the shared code
+              bInSharedCode = #True
+            EndIf
+          ;}
+          Default;{
+            If bInSharedCode = #True
+              ; we remove lines began by "PB"
+              If Left(StringField(sCodeField, 1, " "), 2) = "PB"
+              ; we remove labels with _PB_ExecutableType
+              ElseIf StringField(sCodeField, 1, ":") = "_PB_ExecutableType"
+              Else
+                sCodeShared + sCodeField + #System_EOL
+              EndIf
+            EndIf
+          ;}
+        EndSelect
+      EndIf
+    Next
   ;}
   Output_Add("Search extrn", #Output_Log, 4)
   ;{ Search extrn
@@ -687,7 +691,7 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step2()
   Protected CodeContent.s, CodeField.s, TrCodeField.s, CodeCleaned.s
   Protected sASMContent.s, sTmpString.s
-  Protected IncA.l, IncB.l, lPos.l, lPosLast.l, lFile.l, lNbLines.l
+  Protected IncA.l, IncB.l, lPos.l, lPosLast.l, lFile.l, lNbLines.l, lMaxInc.l
   Protected bFound.b, bLastIsLabel.b, bIsDLLFunction.b, bExistsInitFunction.b
   Protected cNbParams.c
   
@@ -725,7 +729,8 @@ ProcedureDLL Moebius_Compile_Step2()
   ;{ create ASM Files
     ;{ Private functions
       ; replace pb name functions by asm name functions
-      For IncA = 0 To ListSize(LL_DLLFunctions())-1
+      lMaxInc = ListSize(LL_DLLFunctions())-1
+      For IncA = 0 To lMaxInc
         SelectElement(LL_DLLFunctions(), IncA)
         CodeField     = LL_DLLFunctions()\FuncName         ; Function Name
         TrCodeField   = LL_DLLFunctions()\Win_ASMNameFunc  ; ASM Function Name
