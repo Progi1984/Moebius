@@ -170,7 +170,7 @@ Repeat
               ; Launchs a thread for compilation
               CreateThread(@Moebius_MainThread(),0)
             ;}
-            Case #Window_0_Button_6 ;{ Pr�f�rences
+            Case #Window_0_Button_6 ;{ Preferences
               bAnotherWindowOpened + 1
               WinPrefs_Create()
             ;}

@@ -138,8 +138,8 @@
     ; adds "New" Item
     AddGadgetItem(#Window_0_Combo_1, 0, "=== "+LanguageItems(0)+" ===")
     ; Load all groups name in profiles files, if existant
-    If FileSize("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
-      If OpenPreferences("Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
+    If FileSize(sPath+"Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini") > 0
+      If OpenPreferences(sPath+"Prefs"+#System_Separator+"MoebiusGUI_Profiles.ini")
         If ExaminePreferenceGroups() > 0
           While NextPreferenceGroup()
             AddGadgetItem(#Window_0_Combo_1, -1, PreferenceGroupName())
