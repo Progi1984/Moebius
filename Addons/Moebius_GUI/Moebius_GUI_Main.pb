@@ -93,7 +93,14 @@ Repeat
                 Else
                   bIsCHM = #True
                 EndIf
-                gConf\sSourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
+                If GetGadgetText(#Window_0_String_3) = ""
+                  gConf\sSourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
+                Else
+                  gConf\sSourceDir = GetGadgetText(#Window_0_String_3)
+                  If Right(gConf\sSourceDir, 1) <> #System_Separator
+                    gConf\sSourceDir + #System_Separator
+                  EndIf
+                EndIf
                 gProject\sDirProject = gConf\sSourceDir + gProject\sLibName + #System_Separator
                 M_Moebius_InitDir(bIsCHM, #False, bIsOutput)
                 M_GUI_EnableStep(#False, #True, #False)
