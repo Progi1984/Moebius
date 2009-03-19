@@ -827,7 +827,7 @@ ProcedureDLL Moebius_Compile_Step2()
                         EndIf 
                         Moebius_Compile_Step2_AddExtrn(TrCodeField)
                       EndIf
-                      ; Looking for "what ?"
+                      ; Looking for labels
                       lPos = FindString(TrCodeField, "l_", 1)
                       If lPos > 0
                         TrCodeField = Right(TrCodeField, Len(TrCodeField) - lPos +1)
@@ -835,7 +835,10 @@ ProcedureDLL Moebius_Compile_Step2()
                         If lPos > 0
                           TrCodeField = Left(TrCodeField, lPos-1)
                         EndIf 
-                        Moebius_Compile_Step2_AddExtrn(TrCodeField)
+                        ; check if no labels is defined in the code for avoiding "error: symbol already defined."
+                        If FindString(LL_DLLFunctions()\Code, TrCodeField+":"+#System_EOL, 1) = 0
+                          Moebius_Compile_Step2_AddExtrn(TrCodeField)
+                        EndIf
                       EndIf
                     EndIf
                   EndIf
