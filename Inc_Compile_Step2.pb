@@ -547,8 +547,8 @@ ProcedureDLL Moebius_Compile_Step2_CreateSharedFunction()
   ;}
   Output_Add("Extracting SharedCode from MainFile & Deleting unuseful code", #Output_Log, 4)
   ;{ Extracting SharedCode from MainFile & Deleting unuseful code
-    For Inc = 0 To gReadFileInfo\ArrayTableSize >> 2 - 1
-      sCodeField = Trim(*DimLines\TextLine[Inc])
+    For lInc = 0 To gReadFileInfo\ArrayTableSize >> 2 - 1
+      sCodeField = Trim(*DimLines\TextLine[lInc])
       If sCodeField <> ""
         Select StringField(sCodeField, 1, " ")
           Case "pb_public";{
@@ -558,8 +558,8 @@ ProcedureDLL Moebius_Compile_Step2_CreateSharedFunction()
             ; we verify if we are at the start of code
             If bInSharedCode = - 1
               CompilerSelect #PB_Compiler_OS
-                CompilerCase #PB_OS_Windows : sTmp = Trim(*DimLines\TextLine[Inc+3])
-                CompilerCase #PB_OS_Linux   : sTmp = Trim(*DimLines\TextLine[Inc+2])
+                CompilerCase #PB_OS_Windows : sTmp = Trim(*DimLines\TextLine[lInc+3])
+                CompilerCase #PB_OS_Linux   : sTmp = Trim(*DimLines\TextLine[lInc+2])
               CompilerEndSelect
               ; "public main" for Linux
               ; "PureBasicStart:" for Windows
