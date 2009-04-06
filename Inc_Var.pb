@@ -62,6 +62,23 @@
       l.l
     EndStructureUnion
   EndStructure
+  Structure S_ReadFile_BuildArrayInfo
+    FileName.S
+    ExecStatus.I
+    
+    *SeqBegin
+    *SeqEnd
+    SeqSize.I ; En octet
+    
+    *ArrayTable
+    *ArrayTableEnd
+    ArrayTableSize.I ; (nombre de pointeurs)
+    
+    LineMeanLength.I ; Taille moyenne d'une ligne  
+  EndStructure 
+  Structure S_TextLineInfo
+    TextLine.s[1 << 24]
+  EndStructure
 ;}
 ;{ Linked lists
   Global NewList LL_DLLFunctions.S_DLLFunctions()
@@ -85,11 +102,19 @@
   Global lTimeStart.l
   Global gState.l
   Global gError.l
+  Global *DimLines.S_TextLineInfo
+  Global gReadFileInfo.S_ReadFile_BuildArrayInfo
 ;}
 ;{ Constants
   #DQuote = Chr(34)
   #Output_Log = $001
   #Output_Bat = $002
+  
+  #FileRead_FileOpened   = 1
+  #FileRead_MemAllocated = 2
+  #FileRead_FileLoaded   = 4
+  #FileRead_TableCreated = 8 
+  
   Enumeration 
     #State_StepStart
     #State_Step0

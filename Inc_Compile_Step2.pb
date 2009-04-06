@@ -1,26 +1,21 @@
 ;@desc Extracts information for the future creation of the DESC File
-ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
+ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations()
   Protected Inc.l, IncA.l, lPos.l, lNbLines.l, lMaxInc.l
   Protected CodeField.s, TrCodeField.s, sTmpString.s, CodeCleaned2.s, sFuncName.s, sFuncNameCleared.s, sReturnValField.s, sParamItem.s
   Protected sIsParameterDefautValueStart.s, sIsParameterDefautValueEnd.s, sCallingConvention.s
   Protected bFunctionEverAdded.b, bFunctionEverAdded_NbParams.b, bHasNumberInLastPlace.b
-  lNbLines = CountString(CodeContent, #System_EOL)
-  For Inc = 0 To lNbLines
-    ; cleans the code line
-    CodeField = StringField(CodeContent, Inc+1, #System_EOL)
-    TrCodeField = ReplaceString(CodeField, Chr(13), "")
-    TrCodeField = ReplaceString(TrCodeField, Chr(10), "")
-    TrCodeField = Trim(TrCodeField)
+
+  For Inc = 0 To gReadFileInfo\ArrayTableSize >> 2 - 1
+    TrCodeField = Trim(*DimLines\TextLine[Inc])
     If Left(TrCodeField, 1) =";"
       TrCodeField = Right(TrCodeField, Len(TrCodeField) - 2)
       If TrCodeField <> ""
         CodeCleaned2 = Trim(StringField(TrCodeField, 1, " "))
         CodeCleaned2 = Trim(StringField(CodeCleaned2, 1, "."))
         CodeCleaned2 = Trim(CodeCleaned2)
-        sTmpString  = StringField(CodeContent, Inc+2, #System_EOL)
+        
+        sTmpString  = *DimLines\TextLine[Inc+1]
         sTmpString  = StringField(sTmpString, 1, " ")
-        sTmpString  = ReplaceString(sTmpString, Chr(13), "")
-        sTmpString  = ReplaceString(sTmpString, Chr(10), "")
         sTmpString  = Trim(sTmpString)
         ; if the line begins by "procedure*"
         If (LCase(CodeCleaned2) = "proceduredll" Or LCase(CodeCleaned2) = "procedurecdll" Or LCase(CodeCleaned2) = "procedurec" Or LCase(CodeCleaned2) = "procedure") And sTmpString  = "macro"
@@ -293,17 +288,13 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations(CodeContent.s)
   Next
 EndProcedure
 ;@desc Permits in functions of some code to extract, remove some code & informations
-ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
+ProcedureDLL Moebius_Compile_Step2_ModifyASM()
   Protected Inc.l, lNbLines.l
   Protected CodeField.s, TrCodeField.s, CodeCleaned.s, sNameOfFunction.s, sTmpString.s
   Protected bFound.b, bNotCapture.b, bInFunction.b, bInBSSSection.b, bInSharedCode.b, bInSystemLib.b, bInImportLib.b, bInPBLib.b
 
-  lNbLines = CountString(CodeContent, #System_EOL)
-  For Inc = 0 To lNbLines
-    CodeField = StringField(CodeContent, Inc+1, #System_EOL)
-    TrCodeField = ReplaceString(CodeField, Chr(13), "")
-    TrCodeField = ReplaceString(TrCodeField, Chr(10), "")
-    TrCodeField = Trim(TrCodeField)
+  For Inc = 0 To gReadFileInfo\ArrayTableSize >> 2 - 1
+    TrCodeField = Trim(*DimLines\TextLine[Inc])
     If Left(TrCodeField, 4) = "_PB_" And TrCodeField <> "_PB_EOP:" And TrCodeField <> "_PB_EOP_NoValue:" And TrCodeField <> "_PB_BSSSection:"    
       ; In the case of functions not defined in ProcedureDLL
       If AddElement(LL_Functions())
@@ -354,10 +345,7 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
         ;}
         Case "macro" ;{ Extracts the name of function
           bNotCapture = #False
-          sNameOfFunction = StringField(CodeContent, Inc, #System_EOL)
-          sNameOfFunction = ReplaceString(sNameOfFunction, Chr(13), "")
-          sNameOfFunction = ReplaceString(sNameOfFunction, Chr(10), "")
-          sNameOfFunction = Trim(sNameOfFunction)
+          sNameOfFunction = Trim(*DimLines\TextLine[Inc-1])
           sNameOfFunction = StringField(sNameOfFunction, 3, " ")
           sNameOfFunction = StringField(sNameOfFunction, 1, "(")
           sNameOfFunction = StringField(sNameOfFunction, 1, ".")
@@ -365,10 +353,7 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM(CodeContent.s)
             If LL_DLLFunctions()\FuncName = sNameOfFunction
               bInFunction = #True
               ; Extracts the ASM Name of function
-              LL_DLLFunctions()\Win_ASMNameFunc = StringField(CodeContent, Inc+2, #System_EOL)
-              LL_DLLFunctions()\Win_ASMNameFunc = ReplaceString(LL_DLLFunctions()\Win_ASMNameFunc, Chr(13), "")
-              LL_DLLFunctions()\Win_ASMNameFunc = ReplaceString(LL_DLLFunctions()\Win_ASMNameFunc, Chr(10), "")
-              LL_DLLFunctions()\Win_ASMNameFunc = Trim(LL_DLLFunctions()\Win_ASMNameFunc)
+              LL_DLLFunctions()\Win_ASMNameFunc = Trim(*DimLines\TextLine[Inc+1])
               LL_DLLFunctions()\Win_ASMNameFunc = ReplaceString(LL_DLLFunctions()\Win_ASMNameFunc, ":", "")
               Break
             EndIf
@@ -543,7 +528,7 @@ ProcedureDLL Moebius_Compile_Step2_AddExtrn(Part.s)
   EndIf
 EndProcedure
 ;@desc Create Shared Code
-ProcedureDLL Moebius_Compile_Step2_CreateSharedFunction(CodeContent.s)
+ProcedureDLL Moebius_Compile_Step2_CreateSharedFunction()
   Protected sCodeShared.s, sCodeField.s, sTmp.s
   Protected lFile.l, lInc.l, lNbLines.l
   Protected bInSharedCode.b = #False - 1
@@ -562,12 +547,8 @@ ProcedureDLL Moebius_Compile_Step2_CreateSharedFunction(CodeContent.s)
   ;}
   Output_Add("Extracting SharedCode from MainFile & Deleting unuseful code", #Output_Log, 4)
   ;{ Extracting SharedCode from MainFile & Deleting unuseful code
-    lNbLines = CountString(CodeContent, #System_EOL)
-    For lInc = 0 To lNbLines
-      sCodeField = StringField(CodeContent, lInc+1, #System_EOL)
-      sCodeField = ReplaceString(sCodeField, Chr(13), "")
-      sCodeField = ReplaceString(sCodeField, Chr(10), "")
-      sCodeField = Trim(sCodeField)
+    For Inc = 0 To gReadFileInfo\ArrayTableSize >> 2 - 1
+      sCodeField = Trim(*DimLines\TextLine[Inc])
       If sCodeField <> ""
         Select StringField(sCodeField, 1, " ")
           Case "pb_public";{
@@ -577,12 +558,9 @@ ProcedureDLL Moebius_Compile_Step2_CreateSharedFunction(CodeContent.s)
             ; we verify if we are at the start of code
             If bInSharedCode = - 1
               CompilerSelect #PB_Compiler_OS
-                CompilerCase #PB_OS_Windows : sTmp = StringField(CodeContent, lInc+4, #System_EOL)
-                CompilerCase #PB_OS_Linux   : sTmp = StringField(CodeContent, lInc+3, #System_EOL)
+                CompilerCase #PB_OS_Windows : sTmp = Trim(*DimLines\TextLine[Inc+3])
+                CompilerCase #PB_OS_Linux   : sTmp = Trim(*DimLines\TextLine[Inc+2])
               CompilerEndSelect
-              sTmp = ReplaceString(sTmp, Chr(13), "")
-              sTmp = ReplaceString(sTmp, Chr(10), "")
-              sTmp = Trim(sTmp)
               ; "public main" for Linux
               ; "PureBasicStart:" for Windows
               If sTmp = "public main" Or sTmp = "PureBasicStart:"
@@ -691,7 +669,7 @@ EndProcedure
 ProcedureDLL Moebius_Compile_Step2()
   Protected CodeContent.s, CodeField.s, TrCodeField.s, CodeCleaned.s
   Protected sASMContent.s, sTmpString.s
-  Protected IncA.l, IncB.l, lPos.l, lPosLast.l, lFile.l, lNbLines.l, lMaxInc.l
+  Protected IncA.l, IncB.l, lPos.l, lPosLast.l, lFile.l, lNbLines.l, lMaxInc.l, lCodeContent.l, lCodeContentSize.l
   Protected bFound.b, bLastIsLabel.b, bIsDLLFunction.b, bExistsInitFunction.b
   Protected cNbParams.c
   
@@ -699,15 +677,12 @@ ProcedureDLL Moebius_Compile_Step2()
   
   Output_Add("Load the content of purebasic.asm in a string", #Output_Log, 2)
   ;{ load the content of purebasic.asm in a string
-    If FileSize(gProject\sDirProject+"purebasic.asm") > 0
-      If ReadFile(0, gProject\sDirProject+"purebasic.asm")
-        CodeContent = Space(Lof(0)+1)
-        ReadData(0,@CodeContent, Lof(0))
-        CloseFile(0)
-      EndIf
-    Else
-      ProcedureReturn #Error_016
-    EndIf
+    gReadFileInfo\LineMeanLength = 20
+    gReadFileInfo\FileName = gProject\sDirProject+"purebasic.asm"
+    LoadStringArray(gReadFileInfo)
+
+    *DimLines = gReadFileInfo\ArrayTable 
+
   ;}
   
   Output_Add("Create Functions List from Pure & User Libraries", #Output_Log, 2)
@@ -717,12 +692,12 @@ ProcedureDLL Moebius_Compile_Step2()
   
   Output_Add("Extracts information for the future creation of the DESC File", #Output_Log, 2)
   ;{ extracts some informations from the asm file
-    Moebius_Compile_Step2_ExtractMainInformations(CodeContent)
+    Moebius_Compile_Step2_ExtractMainInformations()
   ;}
-
+  
   Output_Add("Remove some ASM code", #Output_Log, 2)
   ;{ remove some asm code from the main file
-    Moebius_Compile_Step2_ModifyASM(CodeContent)
+    Moebius_Compile_Step2_ModifyASM()
   ;}
   
   Output_Add("Create ASM Files", #Output_Log, 2)
@@ -968,7 +943,7 @@ ProcedureDLL Moebius_Compile_Step2()
 
   Output_Add("Shared Code", #Output_Log, 2)
   ;{ Shared Code
-    Moebius_Compile_Step2_CreateSharedFunction(CodeContent.s)
+    Moebius_Compile_Step2_CreateSharedFunction()
   ;}
   ProcedureReturn #Error_000
 EndProcedure

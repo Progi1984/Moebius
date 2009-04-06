@@ -179,3 +179,72 @@ ProcedureDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
     EndIf
   EndIf
 EndProcedure
+;@author Ollivier
+ProcedureDLL.l LoadStringArray(*Info.S_ReadFile_BuildArrayInfo)
+  Protected *SeqBegin
+  Protected *SeqEnd
+  Protected *TextLine
+  Protected *TableEnd
+  Protected FileHnd.I
+  Protected ExecStatus.I
+  Protected SeqSize.q
+  
+  FileHnd = OpenFile(#PB_Any, *Info\FileName)
+  If FileHnd
+    ExecStatus | #FileRead_FileOpened
+    SeqSize = Lof(FileHnd)
+    *SeqBegin = AllocateMemory(SeqSize)
+    If *SeqBegin
+      ExecStatus | #FileRead_MemAllocated
+      *SeqEnd = *SeqBegin + SeqSize - 1
+      If ReadData(FileHnd, *SeqBegin, SeqSize)
+        ExecStatus | #FileRead_FileLoaded
+        CloseFile(FileHnd)
+        *Info\SeqBegin = *SeqBegin
+        *Info\SeqEnd = *SeqEnd
+        If *Info\LineMeanLength = 0
+          *Info\LineMeanLength = 10 ; Moyenne par défaut
+        EndIf
+        *Info\ArrayTableSize = ((*SeqEnd - *SeqBegin) / *Info\LineMeanLength) << 2
+        ;Debug *Info\ArrayTableSize
+        If *Info\ArrayTableSize < 1 << 8
+          *Info\ArrayTableSize = 1 << 8
+        EndIf
+        ;Debug *Info\ArrayTableSize
+        *Info\ArrayTable = AllocateMemory(*Info\ArrayTableSize)
+        If *Info\ArrayTable
+          ExecStatus | #FileRead_TableCreated
+          *TextLine = *Info\ArrayTable
+          ! mov eax, 13           
+          ! mov edi, [p.p_SeqBegin]
+          ! mov ebp, [p.p_SeqEnd]
+          ! mov edx, [p.p_TextLine]
+          
+          ! mov ecx, ebp ; ecx = EndSeq
+          ! sub ecx, edi ;     - BeginSeq
+          ! inc ecx      ;     + 1
+          LoadStringArrayLoop:
+          ! mov ebx, edi ; Retient le début de la chaîne
+          ! cld          ; Fixe le sens croissant (convention)
+          ! repne scasb  ; Recherche le 13
+          
+          ! mov byte [edi - 1], 0 ; Remplace le 13 par le 0
+          ! inc edi      ; Passe le 10
+          
+          ! mov [edx], ebx ; Copie l'adresse de début de ligne
+          ! add edx, 4 ; ... Et passe au pointeur suivant
+          
+          ! cmp edi, ebp ; Fin de séquence ?
+          ! jng l_loadstringarrayloop ; Non, continue
+          
+          ! mov [p.p_TableEnd], edx
+          *Info\ArrayTableEnd = *TableEnd
+          *Info\ArrayTableSize = *TableEnd - *TextLine
+          ;Debug "***" + Str(*Info\ArrayTableSize)
+          *Info\ArrayTable = ReAllocateMemory(*TextLine, *Info\ArrayTableSize)
+        EndIf
+      EndIf
+    EndIf
+  EndIf
+  *Info\ExecStatus = ExecStatus
+EndProcedure
