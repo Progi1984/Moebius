@@ -483,16 +483,19 @@ ProcedureDLL Moebius_Compile_Step2_AddExtrn(Part.s)
     If MatchRegularExpression(0, Part) = #True
       ProcedureReturn #False
     EndIf
+    FreeRegularExpression(0)
   EndIf
   If CreateRegularExpression(1, "^e[a-z]{1}p")
     If MatchRegularExpression(1, Part) = #True
       ProcedureReturn #False
     EndIf
+    FreeRegularExpression(1)
   EndIf
   If CreateRegularExpression(2, "^e[a-z]{1}i")
     If MatchRegularExpression(2, Part) = #True
       ProcedureReturn #False
     EndIf
+    FreeRegularExpression(2)
   EndIf
   ; search if part is numeric
   If IsNumeric(Part) = #True
@@ -680,9 +683,7 @@ ProcedureDLL Moebius_Compile_Step2()
     gReadFileInfo\LineMeanLength = 20
     gReadFileInfo\FileName = gProject\sDirProject+"purebasic.asm"
     LoadStringArray(gReadFileInfo)
-
     *DimLines = gReadFileInfo\ArrayTable 
-
   ;}
   
   Output_Add("Create Functions List from Pure & User Libraries", #Output_Log, 2)
@@ -710,20 +711,21 @@ ProcedureDLL Moebius_Compile_Step2()
         CodeField     = LL_DLLFunctions()\FuncName         ; Function Name
         TrCodeField   = LL_DLLFunctions()\Win_ASMNameFunc  ; ASM Function Name
         bIsDLLFunction= LL_DLLFunctions()\IsDLLFunction
-        ForEach LL_DLLFunctions()
-          If LL_DLLFunctions()\FuncName <> CodeField 
-            If bIsDLLFunction = #False
-              sTmpString = ReplaceString(gProject\sLibName, " ", "_")+"_"+CodeField
-            Else
-              sTmpString ="PB_"+CodeField
-            EndIf
-            If CreateRegularExpression(0, TrCodeField+"(?=\s|])")
+    		If bIsDLLFunction = #False
+    		  sTmpString = ReplaceString(gProject\sLibName, " ", "_")+"_"+CodeField
+    		Else
+    		  sTmpString ="PB_"+CodeField
+    		EndIf
+        If CreateRegularExpression(0, TrCodeField+"(?=\s|])")
+          ForEach LL_DLLFunctions()
+            If LL_DLLFunctions()\FuncName <> CodeField 
               LL_DLLFunctions()\Code  = ReplaceRegularExpression(0, LL_DLLFunctions()\Code, sTmpString)
-            Else
-              Output_Add("ERREUR Regex > "+RegularExpressionError(), #Output_Log, 4)
             EndIf
-          EndIf
-        Next  
+          Next
+          FreeRegularExpression(0)
+        Else
+          Output_Add("ERREUR Regex > "+RegularExpressionError(), #Output_Log, 4)
+        EndIf
       Next  
     ;}
     ;{ Asm code
