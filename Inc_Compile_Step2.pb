@@ -682,6 +682,7 @@ ProcedureDLL.b Moebius_Compile_Step2_CreateASMFiles()
   Protected lMaxInc.l, lIncA.l, lNbLines.l, lPos.l, lFile.l
   Protected cNbParams.c
 
+  Output_Add("Private functions", #Output_Log, 4)
   ;{ Private functions
     ; replace pb name functions by asm name functions
     lMaxInc = ListSize(LL_DLLFunctions())-1
@@ -707,19 +708,21 @@ ProcedureDLL.b Moebius_Compile_Step2_CreateASMFiles()
       EndIf
     Next  
   ;}
+  Output_Add("Asm code", #Output_Log, 4)
   ;{ Asm code
     ForEach LL_DLLFunctions()
+      Output_Add(LL_DLLFunctions()\FuncName+" > loading sASMContent", #Output_Log, 6)
       ClearList(LL_ASM_extrn())
       sASMContent = ""
       ;{ format  
-        sASMContent = "format "+#System_LibFormat + #System_EOL
+        sASMContent + "format "+#System_LibFormat + #System_EOL
       ;}
       sASMContent + "" + #System_EOL
       ;{ main declaration
         If LL_DLLFunctions()\IsDLLFunction = #True
           CompilerSelect #PB_Compiler_OS 
             CompilerCase #PB_OS_Windows ;{
-              If UCase(Right(LL_DLLFunctions()\FuncName,6)) = "_DEBUG"
+              If UCase(Right(LL_DLLFunctions()\FuncName, 6)) = "_DEBUG"
                 sASMContent + "public _PB_"+LL_DLLFunctions()\FuncName + #System_EOL
               Else
                 sASMContent + "public PB_"+LL_DLLFunctions()\FuncName + #System_EOL
@@ -895,7 +898,7 @@ ProcedureDLL.b Moebius_Compile_Step2_CreateASMFiles()
           sASMContent + TrCodeField + #System_EOL
         EndIf
       ;}
-
+      Output_Add(LL_DLLFunctions()\FuncName+" > Writing File", #Output_Log, 6)
       lFile = CreateFile(#PB_Any, gProject\sDirAsm+LL_DLLFunctions()\FuncName+".asm")
       If lFile
         WriteStringN(lFile, sASMContent)
