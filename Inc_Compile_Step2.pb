@@ -1,3 +1,10 @@
+;@desc Load the content of purebasic.asm in memory
+ProcedureDLL Moebius_Compile_Step2_LoadASMFileInMemory()
+  gReadFileInfo\LineMeanLength = 20
+  gReadFileInfo\FileName = gProject\sDirProject+"purebasic.asm"
+  LoadStringArray(gReadFileInfo)
+  *DimLines = gReadFileInfo\ArrayTable 
+EndProcedure
 ;@desc Extracts information for the future creation of the DESC File
 ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations()
   Protected Inc.l, IncA.l, lPos.l, lNbLines.l, lMaxInc.l
@@ -666,24 +673,252 @@ ProcedureDLL Moebius_Compile_Step2_CreateInitFunction()
     CloseFile(lFile)
   EndIf
 EndProcedure
+;@desc Create ASM Files
+;@return #True if the function init has been found
+;@return #False if the function init has not been found
+ProcedureDLL.b Moebius_Compile_Step2_CreateASMFiles()
+  Protected sTmpString.s, CodeField.s, TrCodeField.s, sASMContent.s
+  Protected bIsDLLFunction.b, bExistsInitFunction.b, bLastIsLabel.b
+  Protected lMaxInc.l, lIncA.l, lNbLines.l, lPos.l, lFile.l
+  Protected cNbParams.c
+
+  ;{ Private functions
+    ; replace pb name functions by asm name functions
+    lMaxInc = ListSize(LL_DLLFunctions())-1
+    For lIncA = 0 To lMaxInc
+      SelectElement(LL_DLLFunctions(), lIncA)
+      CodeField     = LL_DLLFunctions()\FuncName         ; Function Name
+      TrCodeField   = LL_DLLFunctions()\Win_ASMNameFunc  ; ASM Function Name
+      bIsDLLFunction= LL_DLLFunctions()\IsDLLFunction
+  		If bIsDLLFunction = #False
+  		  sTmpString = ReplaceString(gProject\sLibName, " ", "_")+"_"+CodeField
+  		Else
+  		  sTmpString ="PB_"+CodeField
+  		EndIf
+      If CreateRegularExpression(0, TrCodeField+"(?=\s|])")
+        ForEach LL_DLLFunctions()
+          If LL_DLLFunctions()\FuncName <> CodeField 
+            LL_DLLFunctions()\Code  = ReplaceRegularExpression(0, LL_DLLFunctions()\Code, sTmpString)
+          EndIf
+        Next
+        FreeRegularExpression(0)
+      Else
+        Output_Add("ERREUR Regex > "+RegularExpressionError(), #Output_Log, 4)
+      EndIf
+    Next  
+  ;}
+  ;{ Asm code
+    ForEach LL_DLLFunctions()
+      ClearList(LL_ASM_extrn())
+      sASMContent = ""
+      ;{ format  
+        sASMContent = "format "+#System_LibFormat + #System_EOL
+      ;}
+      sASMContent + "" + #System_EOL
+      ;{ main declaration
+        If LL_DLLFunctions()\IsDLLFunction = #True
+          CompilerSelect #PB_Compiler_OS 
+            CompilerCase #PB_OS_Windows ;{
+              If UCase(Right(LL_DLLFunctions()\FuncName,6)) = "_DEBUG"
+                sASMContent + "public _PB_"+LL_DLLFunctions()\FuncName + #System_EOL
+              Else
+                sASMContent + "public PB_"+LL_DLLFunctions()\FuncName + #System_EOL
+              EndIf
+            ;}
+            CompilerCase #PB_OS_Linux ;{
+              sASMContent + "public PB_"+LL_DLLFunctions()\FuncName + #System_EOL
+            ;}
+          CompilerEndSelect
+        Else
+          sASMContent + "public "+ReplaceString(gProject\sLibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName + #System_EOL
+        EndIf
+      ;}
+      sASMContent + "" + #System_EOL
+      ;{ extrn
+        lNbLines = CountString(LL_DLLFunctions()\Code, #System_EOL)
+        For lIncA = 0 To lNbLines
+          CodeField = Trim(StringField(LL_DLLFunctions()\Code, lIncA, #System_EOL))
+          CodeField = ReplaceString(CodeField, Chr(13), "")
+          CodeField = ReplaceString(CodeField, Chr(10), "")
+          Select LCase(StringField(CodeField, 1, " "))
+            Case "call", "push";{ some asm calls
+              TrCodeField = StringField(CodeField, CountString(CodeField, " ")+1, " ")
+              If FindString(TrCodeField, "[", 0) > 0 And FindString(TrCodeField, "]", 0) > 0
+                sTmpString = Trim(Mid(TrCodeField, FindString(TrCodeField, "[", 0)+1, FindString(TrCodeField, "]", 0) - FindString(TrCodeField, "[", 0) -1))
+                If sTmpString <> ""
+                  Moebius_Compile_Step2_AddExtrn(sTmpString)
+                EndIf
+              Else
+                Moebius_Compile_Step2_AddExtrn(TrCodeField)
+              EndIf
+            ;}
+            Default;{
+              ; If the cleaned line contained a call which didn't contain any registry
+              If Left(CodeField, 1) <> ";"
+                If FindString(CodeField, "[", 0) > 0 And FindString(CodeField, "]", 0) > 0
+                  TrCodeField = Trim(Mid(CodeField, FindString(CodeField, "[", 0)+1, FindString(CodeField, "]", 0) - FindString(CodeField, "[", 0) -1))
+                  If TrCodeField <> ""
+                    Moebius_Compile_Step2_AddExtrn(TrCodeField)
+                  EndIf
+                Else
+                  TrCodeField = Trim(CodeField)
+                  ; It's not a comment or a label
+                  If Left(TrCodeField, 1) <> ";" And Right(TrCodeField, 1) <> ":"
+                    ; Looking for strings
+                    lPos = FindString(TrCodeField, "_S", 1)
+                    If lPos > 0
+                      TrCodeField = Right(TrCodeField, Len(TrCodeField) - lPos +1)
+                      lPos = FindString(TrCodeField, " ", 1)
+                      If lPos > 0
+                        TrCodeField = Left(TrCodeField, lPos-1)
+                      EndIf 
+                      Moebius_Compile_Step2_AddExtrn(TrCodeField)
+                    EndIf
+                    ; Looking for labels
+                    lPos = FindString(TrCodeField, "l_", 1)
+                    If lPos > 0
+                      TrCodeField = Right(TrCodeField, Len(TrCodeField) - lPos +1)
+                      lPos = FindString(TrCodeField, " ", 1)
+                      If lPos > 0
+                        TrCodeField = Left(TrCodeField, lPos-1)
+                      EndIf 
+                      ; check if no labels is defined in the code for avoiding "error: symbol already defined."
+                      If FindString(LL_DLLFunctions()\Code, TrCodeField+":"+#System_EOL, 1) = 0
+                        Moebius_Compile_Step2_AddExtrn(TrCodeField)
+                      EndIf
+                    EndIf
+                  EndIf
+                EndIf
+              EndIf
+            ;}
+          EndSelect 
+        Next
+        If ListSize(LL_ASM_extrn()) > 0
+          ForEach LL_ASM_extrn()
+            sASMContent + "extrn "+LL_ASM_extrn() + #System_EOL
+          Next
+        EndIf
+        ; InitFunction
+        If LL_DLLFunctions()\FuncRetType = "InitFunction"
+          CompilerSelect #PB_Compiler_OS 
+            CompilerCase #PB_OS_Windows : sASMContent + "extrn _SYS_InitString@0" + #System_EOL
+            CompilerCase #PB_OS_Linux : sASMContent + "extrn SYS_InitString" + #System_EOL
+          CompilerEndSelect
+          bExistsInitFunction = #True
+        EndIf
+      ;}
+      sASMContent + "" + #System_EOL 
+      ;{ code
+        ; InitFunction
+        If LL_DLLFunctions()\FuncRetType = "InitFunction"
+          CompilerSelect #PB_Compiler_OS 
+            CompilerCase #PB_OS_Windows :  LL_DLLFunctions()\Code = "CALL _SYS_InitString@0" + #System_EOL + LL_DLLFunctions()\Code
+            CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code = "CALL SYS_InitString" + #System_EOL + LL_DLLFunctions()\Code
+          CompilerEndSelect
+        EndIf
+        ; Add the label for DLL Function
+        If LL_DLLFunctions()\IsDLLFunction = #True
+          CodeField = LL_DLLFunctions()\Code
+          CodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
+          CompilerSelect #PB_Compiler_OS 
+            CompilerCase #PB_OS_Windows ;{
+              If UCase(Right(LL_DLLFunctions()\FuncName,6)) = "_DEBUG"
+                CodeField + "_PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
+              Else
+                CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
+              EndIf
+            ;}
+            CompilerCase #PB_OS_Linux ;{
+              CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
+            ;}
+          CompilerEndSelect
+          CodeField + Right(LL_DLLFunctions()\Code, Len(LL_DLLFunctions()\Code) - Len(StringField(LL_DLLFunctions()\Code, 1, #System_EOL)))
+          TrCodeField = CodeField
+        Else
+          CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName, ReplaceString(gProject\sLibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
+          If Right(Trim(StringField(CodeField, 1, #System_EOL)), 1) = ":" ; declaration de la function
+            CompilerSelect #PB_Compiler_OS
+              CompilerCase #PB_OS_Windows ;{
+                TrCodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
+              ;}
+              CompilerCase #PB_OS_Linux ;{
+                TrCodeField = ""
+              ;}
+            CompilerEndSelect
+            TrCodeField + ReplaceString(gProject\sLibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
+            TrCodeField + Right(CodeField, Len(CodeField) - Len(StringField(CodeField, 1, #System_EOL)))
+          EndIf
+        EndIf
+        ; If the func has "arrays"' type's params, work on lines
+        If FindString(LCase(LL_DLLFunctions()\ParamsRetType), "array", 1) > 0
+          ; Initialize the var for testing if the line contains a label
+          bLastIsLabel = #True
+          lNbLines = CountString(TrCodeField, #System_EOL)
+          For lIncA = 0 To lNbLines
+            sTmpString = StringField(TrCodeField, lIncA+1, #System_EOL)
+            sTmpString = ReplaceString(sTmpString, Chr(13), "")
+            sTmpString = ReplaceString(sTmpString, Chr(10), "")
+            sTmpString = Trim(sTmpString)
+            If bLastIsLabel = #True
+              If Right(sTmpString, 1) = ":" ; so it's a label
+                bLastIsLabel = #True
+              Else 
+                ; we are just after the two labels (one for PB FuncName and ASM FuncName) 
+                ;+ and we want To add the code For asm arrays
+                Output_Add("Moebius_Compile_Step2_WriteASMForArrays() > "+LL_DLLFunctions()\FuncName, #Output_Log, 2)
+                sASMContent + Moebius_Compile_Step2_WriteASMForArrays() + #System_EOL
+                bLastIsLabel = #False
+              EndIf
+            EndIf
+            sASMContent + sTmpString + #System_EOL
+          Next
+          
+          ; macro final
+          sASMContent + "Macro align value { rb (value-1) - ($-_"+LL_DLLFunctions()\FuncName+" + value-1) mod value }" + #System_EOL
+          CompilerSelect #PB_Compiler_OS 
+            CompilerCase #PB_OS_Windows;{
+              sASMContent + "section '.Arrays' readable writeable" + #System_EOL
+            ;}
+            CompilerCase #PB_OS_Linux;{
+              sASMContent + "section '.Arrays' writeable" + #System_EOL
+            ;}
+          CompilerEndSelect
+          sASMContent + "_"+LL_DLLFunctions()\FuncName+":" + #System_EOL
+          sASMContent + "align 4" + #System_EOL
+          
+          cNbParams = CountString(LCase(LL_DLLFunctions()\ParamsRetType), "array")
+          For lIncA = 0 To cNbParams - 1
+            sASMContent + "_Ptr_Array_"+Str(lIncA)+":" + #System_EOL
+            sASMContent + "rd 1" + #System_EOL
+          Next
+        Else
+          sASMContent + TrCodeField + #System_EOL
+        EndIf
+      ;}
+
+      lFile = CreateFile(#PB_Any, gProject\sDirAsm+LL_DLLFunctions()\FuncName+".asm")
+      If lFile
+        WriteStringN(lFile, sASMContent)
+        CloseFile(lFile)
+      Else
+        ProcedureReturn #Error_017
+      EndIf
+    Next
+  ;}
+  
+  ProcedureReturn bExistsInitFunction
+EndProcedure
 ;@desc This step grabs the ASM file, splits it, rewrites some parts
 ;@return #Error_016 > Error : purebasic.asm Not Found
 ;@return #Error_017 > Error : can't generate the asm files
 ProcedureDLL Moebius_Compile_Step2()
-  Protected CodeContent.s, CodeField.s, TrCodeField.s, CodeCleaned.s
-  Protected sASMContent.s, sTmpString.s
-  Protected IncA.l, IncB.l, lPos.l, lPosLast.l, lFile.l, lNbLines.l, lMaxInc.l, lCodeContent.l, lCodeContentSize.l
-  Protected bFound.b, bLastIsLabel.b, bIsDLLFunction.b, bExistsInitFunction.b
-  Protected cNbParams.c
+  Protected bExistsInitFunction.b
   
   gState = #State_Step2
   
-  Output_Add("Load the content of purebasic.asm in a string", #Output_Log, 2)
-  ;{ load the content of purebasic.asm in a string
-    gReadFileInfo\LineMeanLength = 20
-    gReadFileInfo\FileName = gProject\sDirProject+"purebasic.asm"
-    LoadStringArray(gReadFileInfo)
-    *DimLines = gReadFileInfo\ArrayTable 
+  Output_Add("Load the content of purebasic.asm in memory", #Output_Log, 2)
+  ;{ load the content of purebasic.asm in memory
+    Moebius_Compile_Step2_LoadASMFileInMemory()
   ;}
   
   Output_Add("Create Functions List from Pure & User Libraries", #Output_Log, 2)
@@ -703,237 +938,7 @@ ProcedureDLL Moebius_Compile_Step2()
   
   Output_Add("Create ASM Files", #Output_Log, 2)
   ;{ create ASM Files
-    ;{ Private functions
-      ; replace pb name functions by asm name functions
-      lMaxInc = ListSize(LL_DLLFunctions())-1
-      For IncA = 0 To lMaxInc
-        SelectElement(LL_DLLFunctions(), IncA)
-        CodeField     = LL_DLLFunctions()\FuncName         ; Function Name
-        TrCodeField   = LL_DLLFunctions()\Win_ASMNameFunc  ; ASM Function Name
-        bIsDLLFunction= LL_DLLFunctions()\IsDLLFunction
-    		If bIsDLLFunction = #False
-    		  sTmpString = ReplaceString(gProject\sLibName, " ", "_")+"_"+CodeField
-    		Else
-    		  sTmpString ="PB_"+CodeField
-    		EndIf
-        If CreateRegularExpression(0, TrCodeField+"(?=\s|])")
-          ForEach LL_DLLFunctions()
-            If LL_DLLFunctions()\FuncName <> CodeField 
-              LL_DLLFunctions()\Code  = ReplaceRegularExpression(0, LL_DLLFunctions()\Code, sTmpString)
-            EndIf
-          Next
-          FreeRegularExpression(0)
-        Else
-          Output_Add("ERREUR Regex > "+RegularExpressionError(), #Output_Log, 4)
-        EndIf
-      Next  
-    ;}
-    ;{ Asm code
-      ForEach LL_DLLFunctions()
-        ClearList(LL_ASM_extrn())
-        sASMContent = ""
-
-        ;{ Tests if it's an InitFunction
-        If bExistsInitFunction <> #True
-          If LCase(Right(LL_DLLFunctions()\FuncName,5)) = "_init"
-            bExistsInitFunction = #True
-          EndIf
-        EndIf
-        ;}
-        
-        ;{ format  
-          sASMContent = "format "+#System_LibFormat + #System_EOL
-        ;}
-        sASMContent + "" + #System_EOL
-        ;{ main declaration
-          If LL_DLLFunctions()\IsDLLFunction = #True
-            CompilerSelect #PB_Compiler_OS 
-              CompilerCase #PB_OS_Windows ;{
-                If UCase(Right(LL_DLLFunctions()\FuncName,6)) = "_DEBUG"
-                  sASMContent + "public _PB_"+LL_DLLFunctions()\FuncName + #System_EOL
-                Else
-                  sASMContent + "public PB_"+LL_DLLFunctions()\FuncName + #System_EOL
-                EndIf
-              ;}
-              CompilerCase #PB_OS_Linux ;{
-                sASMContent + "public PB_"+LL_DLLFunctions()\FuncName + #System_EOL
-              ;}
-            CompilerEndSelect
-          Else
-            sASMContent + "public "+ReplaceString(gProject\sLibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName + #System_EOL
-          EndIf
-        ;}
-        sASMContent + "" + #System_EOL
-        ;{ extrn
-          lNbLines = CountString(LL_DLLFunctions()\Code, #System_EOL)
-          For IncA = 0 To lNbLines
-            CodeField = Trim(StringField(LL_DLLFunctions()\Code, IncA, #System_EOL))
-            CodeField = ReplaceString(CodeField, Chr(13), "")
-            CodeField = ReplaceString(CodeField, Chr(10), "")
-            Select LCase(StringField(CodeField, 1, " "))
-              Case "call", "push";{ some asm calls
-                TrCodeField = StringField(CodeField, CountString(CodeField, " ")+1, " ")
-                If FindString(TrCodeField, "[", 0) > 0 And FindString(TrCodeField, "]", 0) > 0
-                  sTmpString = Trim(Mid(TrCodeField, FindString(TrCodeField, "[", 0)+1, FindString(TrCodeField, "]", 0) - FindString(TrCodeField, "[", 0) -1))
-                  If sTmpString <> ""
-                    Moebius_Compile_Step2_AddExtrn(sTmpString)
-                  EndIf
-                Else
-                  Moebius_Compile_Step2_AddExtrn(TrCodeField)
-                EndIf
-              ;}
-              Default;{
-                ; If the cleaned line contained a call which didn't contain any registry
-                If Left(CodeField, 1) <> ";"
-                  If FindString(CodeField, "[", 0) > 0 And FindString(CodeField, "]", 0) > 0
-                    TrCodeField = Trim(Mid(CodeField, FindString(CodeField, "[", 0)+1, FindString(CodeField, "]", 0) - FindString(CodeField, "[", 0) -1))
-                    If TrCodeField <> ""
-                      Moebius_Compile_Step2_AddExtrn(TrCodeField)
-                    EndIf
-                  Else
-                    TrCodeField = Trim(CodeField)
-                    ; It's not a comment or a label
-                    If Left(TrCodeField, 1) <> ";" And Right(TrCodeField, 1) <> ":"
-                      ; Looking for strings
-                      lPos = FindString(TrCodeField, "_S", 1)
-                      If lPos > 0
-                        TrCodeField = Right(TrCodeField, Len(TrCodeField) - lPos +1)
-                        lPos = FindString(TrCodeField, " ", 1)
-                        If lPos > 0
-                          TrCodeField = Left(TrCodeField, lPos-1)
-                        EndIf 
-                        Moebius_Compile_Step2_AddExtrn(TrCodeField)
-                      EndIf
-                      ; Looking for labels
-                      lPos = FindString(TrCodeField, "l_", 1)
-                      If lPos > 0
-                        TrCodeField = Right(TrCodeField, Len(TrCodeField) - lPos +1)
-                        lPos = FindString(TrCodeField, " ", 1)
-                        If lPos > 0
-                          TrCodeField = Left(TrCodeField, lPos-1)
-                        EndIf 
-                        ; check if no labels is defined in the code for avoiding "error: symbol already defined."
-                        If FindString(LL_DLLFunctions()\Code, TrCodeField+":"+#System_EOL, 1) = 0
-                          Moebius_Compile_Step2_AddExtrn(TrCodeField)
-                        EndIf
-                      EndIf
-                    EndIf
-                  EndIf
-                EndIf
-              ;}
-            EndSelect 
-          Next
-          If ListSize(LL_ASM_extrn()) > 0
-            ForEach LL_ASM_extrn()
-              sASMContent + "extrn "+LL_ASM_extrn() + #System_EOL
-            Next
-          EndIf
-          ; InitFunction
-          If LL_DLLFunctions()\FuncRetType = "InitFunction"
-            CompilerSelect #PB_Compiler_OS 
-              CompilerCase #PB_OS_Windows : sASMContent + "extrn _SYS_InitString@0" + #System_EOL
-              CompilerCase #PB_OS_Linux : sASMContent + "extrn SYS_InitString" + #System_EOL
-            CompilerEndSelect
-          EndIf
-        ;}
-        sASMContent + "" + #System_EOL 
-        ;{ code
-          ; InitFunction
-          If LL_DLLFunctions()\FuncRetType = "InitFunction"
-            CompilerSelect #PB_Compiler_OS 
-              CompilerCase #PB_OS_Windows :  LL_DLLFunctions()\Code = "CALL _SYS_InitString@0" + #System_EOL + LL_DLLFunctions()\Code
-              CompilerCase #PB_OS_Linux : LL_DLLFunctions()\Code = "CALL SYS_InitString" + #System_EOL + LL_DLLFunctions()\Code
-            CompilerEndSelect
-          EndIf
-          ; Add the label for DLL Function
-          If LL_DLLFunctions()\IsDLLFunction = #True
-            CodeField = LL_DLLFunctions()\Code
-            CodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
-            CompilerSelect #PB_Compiler_OS 
-              CompilerCase #PB_OS_Windows ;{
-                If UCase(Right(LL_DLLFunctions()\FuncName,6)) = "_DEBUG"
-                  CodeField + "_PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
-                Else
-                  CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
-                EndIf
-              ;}
-              CompilerCase #PB_OS_Linux ;{
-                CodeField + "PB_"+LL_DLLFunctions()\FuncName +":"+#System_EOL
-              ;}
-            CompilerEndSelect
-            CodeField + Right(LL_DLLFunctions()\Code, Len(LL_DLLFunctions()\Code) - Len(StringField(LL_DLLFunctions()\Code, 1, #System_EOL)))
-            TrCodeField = CodeField
-          Else
-            CodeField = ReplaceString(LL_DLLFunctions()\Code, LL_DLLFunctions()\FuncName, ReplaceString(gProject\sLibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
-            If Right(Trim(StringField(CodeField, 1, #System_EOL)), 1) = ":" ; declaration de la function
-              CompilerSelect #PB_Compiler_OS
-                CompilerCase #PB_OS_Windows ;{
-                  TrCodeField = Trim(StringField(CodeField, 1, #System_EOL))+#System_EOL
-                ;}
-                CompilerCase #PB_OS_Linux ;{
-                  TrCodeField = ""
-                ;}
-              CompilerEndSelect
-              TrCodeField + ReplaceString(gProject\sLibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName +":"
-              TrCodeField + Right(CodeField, Len(CodeField) - Len(StringField(CodeField, 1, #System_EOL)))
-            EndIf
-          EndIf
-          ; If the func has "arrays"' type's params, work on lines
-          If FindString(LCase(LL_DLLFunctions()\ParamsRetType), "array", 1) > 0
-            ; Initialize the var for testing if the line contains a label
-            bLastIsLabel = #True
-            lNbLines = CountString(TrCodeField, #System_EOL)
-            For IncA = 0 To lNbLines
-              sTmpString = StringField(TrCodeField, IncA+1, #System_EOL)
-              sTmpString = ReplaceString(sTmpString, Chr(13), "")
-              sTmpString = ReplaceString(sTmpString, Chr(10), "")
-              sTmpString = Trim(sTmpString)
-              If bLastIsLabel = #True
-                If Right(sTmpString, 1) = ":" ; so it's a label
-                  bLastIsLabel = #True
-                Else 
-                  ; we are just after the two labels (one for PB FuncName and ASM FuncName) 
-                  ;+ and we want To add the code For asm arrays
-                  Output_Add("Moebius_Compile_Step2_WriteASMForArrays() > "+LL_DLLFunctions()\FuncName, #Output_Log, 2)
-                  sASMContent + Moebius_Compile_Step2_WriteASMForArrays() + #System_EOL
-                  bLastIsLabel = #False
-                EndIf
-              EndIf
-              sASMContent + sTmpString + #System_EOL
-            Next
-            
-            ; macro final
-            sASMContent + "Macro align value { rb (value-1) - ($-_"+LL_DLLFunctions()\FuncName+" + value-1) mod value }" + #System_EOL
-            CompilerSelect #PB_Compiler_OS 
-              CompilerCase #PB_OS_Windows;{
-                sASMContent + "section '.Arrays' readable writeable" + #System_EOL
-              ;}
-              CompilerCase #PB_OS_Linux;{
-                sASMContent + "section '.Arrays' writeable" + #System_EOL
-              ;}
-            CompilerEndSelect
-            sASMContent + "_"+LL_DLLFunctions()\FuncName+":" + #System_EOL
-            sASMContent + "align 4" + #System_EOL
-            
-            cNbParams = CountString(LCase(LL_DLLFunctions()\ParamsRetType), "array")
-            For IncA = 0 To cNbParams - 1
-              sASMContent + "_Ptr_Array_"+Str(IncA)+":" + #System_EOL
-              sASMContent + "rd 1" + #System_EOL
-            Next
-          Else
-            sASMContent + TrCodeField + #System_EOL
-          EndIf
-        ;}
-  
-        lFile = CreateFile(#PB_Any, gProject\sDirAsm+LL_DLLFunctions()\FuncName+".asm")
-        If lFile
-          WriteStringN(lFile, sASMContent)
-          CloseFile(lFile)
-        Else
-          ProcedureReturn #Error_017
-        EndIf
-      Next
-    ;}
+    bExistsInitFunction = Moebius_Compile_Step2_CreateASMFiles()
   ;}
 
   Output_Add("Init Function Code", #Output_Log, 2)
