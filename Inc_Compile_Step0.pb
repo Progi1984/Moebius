@@ -1,8 +1,8 @@
 ;@desc Cleans  the directory and prepares the working directory
-;@returnvalue #Error_000  > Success
-;@returnvalue #Error_001  > Error : Can't delete userlibs of old projects
+;@returnvalue #Error_000 > Success
+;@returnvalue #Error_001 > Error : Can't delete userlibs of old projects
 ;@returnvalue #Error_002 > Error : Can't delete the directory ASM of project
-;@returnvalue #Error_003> Error : Can't delete the directory BAT of project
+;@returnvalue #Error_003 > Error : Can't delete the directory BAT of project
 ;@returnvalue #Error_004 > Error : Can't delete the directory LIB of project
 ;@returnvalue #Error_005 > Error : Can't delete the directory OBJ of project
 ;@returnvalue #Error_006 > Error : Can't create the directory of project

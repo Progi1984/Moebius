@@ -299,149 +299,146 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM()
   Protected Inc.l, lNbLines.l
   Protected CodeField.s, TrCodeField.s, CodeCleaned.s, sNameOfFunction.s, sTmpString.s
   Protected bFound.b, bNotCapture.b, bInFunction.b, bInBSSSection.b, bInSharedCode.b, bInSystemLib.b, bInImportLib.b, bInPBLib.b
+  Protected bInHeader.b = #True
 
   For Inc = 0 To gReadFileInfo\ArrayTableSize >> 2 - 1
     TrCodeField = Trim(*DimLines\TextLine[Inc])
-    If Left(TrCodeField, 4) = "_PB_" And TrCodeField <> "_PB_EOP:" And TrCodeField <> "_PB_EOP_NoValue:" And TrCodeField <> "_PB_BSSSection:"    
-      ; In the case of functions not defined in ProcedureDLL
-      If AddElement(LL_Functions())
-        LL_Functions() = Right(CodeField, Len(CodeField)-4)
-        LL_Functions() = Left(TrCodeField, Len(TrCodeField)-1)
-      EndIf
-    Else
-      Select Trim(StringField(TrCodeField, 1, " "))
-        Case "extrn" ;{ Extracts extrn functions
-          Protected Function.s = StringField(TrCodeField, 2, " ")
-          Protected Pos.l = FindString(Function, "_", 2)
-          Protected LibName.s
-          If Pos < Len(Function)-2
-            Function = Right(Function, Len(Function)-Pos)
-          EndIf
-          ; Searchs in libs where the function is contained
-          LibName = Trim(PB_GetLibFromFunctionName(Function))
-          If LibName <> ""
-            bFound = #False
-            ; in lib ?
-            ForEach LL_LibUsed()
-              If LL_LibUsed() = LCase(LibName)
-                bFound = #True
-                Break
-              EndIf
-            Next
-            ; in DLL ?
-            If bFound = #False
+    If PeekB(@TrCodeField) <> ';' Or bInHeader = #True
+      If Left(TrCodeField, 4) = "_PB_" And TrCodeField <> "_PB_EOP:" And TrCodeField <> "_PB_EOP_NoValue:" And TrCodeField <> "_PB_BSSSection:"    
+        ; In the case of functions not defined in ProcedureDLL
+        If AddElement(LL_Functions())
+          LL_Functions() = Right(CodeField, Len(CodeField)-4)
+          LL_Functions() = Left(TrCodeField, Len(TrCodeField)-1)
+        EndIf
+      Else
+        Debug Trim(StringField(TrCodeField, 1, " "))
+        Select Trim(StringField(TrCodeField, 1, " "))
+          Case "extrn" ;{ Extracts extrn functions
+            Debug "extrn > "+TrCodeField
+            Protected Function.s = StringField(TrCodeField, 2, " ")
+            Protected Pos.l = FindString(Function, "_", 2)
+            Protected LibName.s
+            If Pos < Len(Function)-2
+              Function = Right(Function, Len(Function)-Pos)
+            EndIf
+            ; Searchs in libs where the function is contained
+            LibName = Trim(PB_GetLibFromFunctionName(Function))
+            If LibName <> ""
+              bFound = #False
+              ; in DLL ?
               ForEach LL_DLLUsed()
-                If LCase(LL_DLLUsed()) = LCase(LibName)
+                If LL_DLLUsed() = LCase(LibName)
                   bFound = #True
                   Break
                 EndIf
               Next
-            EndIf
-            ; else we add it
-            If bFound = #False
-              If AddElement(LL_LibUsed())
-                LL_LibUsed() = LCase(LibName)
+              ; in Lib ?
+              If bFound = #False
+                M_AddInLLWithDichotomicSearch(LL_LibUsed(), LL_LibUsed(), LibName)
               EndIf
             EndIf
-          EndIf
-        ;}
-        Case "public" ;{
-          If bNotCapture = #False
-            ; not add in funccode
-          EndIf
-        ;}
-        Case "macro" ;{ Extracts the name of function
-          bNotCapture = #False
-          sNameOfFunction = Trim(*DimLines\TextLine[Inc-1])
-          sNameOfFunction = StringField(sNameOfFunction, 3, " ")
-          sNameOfFunction = StringField(sNameOfFunction, 1, "(")
-          sNameOfFunction = StringField(sNameOfFunction, 1, ".")
-          ForEach LL_DLLFunctions()
-            If LL_DLLFunctions()\FuncName = sNameOfFunction
-              bInFunction = #True
-              ; Extracts the ASM Name of function
-              LL_DLLFunctions()\Win_ASMNameFunc = Trim(*DimLines\TextLine[Inc+1])
-              LL_DLLFunctions()\Win_ASMNameFunc = ReplaceString(LL_DLLFunctions()\Win_ASMNameFunc, ":", "")
-              Break
+          ;}
+          Case "public" ;{
+            If bNotCapture = #False
+              ; not add in funccode
             EndIf
-          Next
-        ;}
-        Case "main:" ;{
-          bNotCapture = #True
-        ;}
-        Case "JMP" ;{
-          If bNotCapture = #True
+          ;}
+          Case "macro" ;{ Extracts the name of function
             bNotCapture = #False
-          Else
-            If bInFunction = #True
-              ; add code in func code
-              LL_DLLFunctions()\Code + TrCodeField + #System_EOL
+            sNameOfFunction = Trim(*DimLines\TextLine[Inc-1])
+            sNameOfFunction = StringField(sNameOfFunction, 3, " ")
+            sNameOfFunction = StringField(sNameOfFunction, 1, "(")
+            sNameOfFunction = StringField(sNameOfFunction, 1, ".")
+            ForEach LL_DLLFunctions()
+              If LL_DLLFunctions()\FuncName = sNameOfFunction
+                bInFunction = #True
+                ; Extracts the ASM Name of function
+                LL_DLLFunctions()\Win_ASMNameFunc = Trim(*DimLines\TextLine[Inc+1])
+                LL_DLLFunctions()\Win_ASMNameFunc = ReplaceString(LL_DLLFunctions()\Win_ASMNameFunc, ":", "")
+                Break
+              EndIf
+            Next
+          ;}
+          Case "main:" ;{
+            bNotCapture = #True
+          ;}
+          Case "JMP" ;{
+            If bNotCapture = #True
+              bNotCapture = #False
+            Else
+              If bInFunction = #True
+                ; add code in func code
+                LL_DLLFunctions()\Code + TrCodeField + #System_EOL
+              EndIf
             EndIf
-          EndIf
-        ;}
-        Case "}" ;{ finish the code function
-          If bInFunction = #True
-            bInFunction = #False
-          EndIf
-        ;}
-        Case "RET" ;{
-          If bNotCapture = #False And bInFunction = #True
-            ; we add the line to the funccode
-            LL_DLLFunctions()\Code + TrCodeField
-            If LL_DLLFunctions()\IsDLLFunction = #True 
-              If LL_DLLFunctions()\FuncRetType = "String" 
-                ; if it's a string return function, we add +4 to the RET value
-                If #PB_Compiler_OS = #PB_OS_Windows
-                  LL_DLLFunctions()\Code + " + 4"
+          ;}
+          Case "}" ;{ finish the code function
+            If bInFunction = #True
+              bInFunction = #False
+            EndIf
+          ;}
+          Case "RET" ;{
+            If bNotCapture = #False And bInFunction = #True
+              ; we add the line to the funccode
+              LL_DLLFunctions()\Code + TrCodeField
+              If LL_DLLFunctions()\IsDLLFunction = #True 
+                If LL_DLLFunctions()\FuncRetType = "String" 
+                  ; if it's a string return function, we add +4 to the RET value
+                  If #PB_Compiler_OS = #PB_OS_Windows
+                    LL_DLLFunctions()\Code + " + 4"
+                  EndIf
+                EndIf
+              EndIf
+              ; we add the end line
+              LL_DLLFunctions()\Code + #System_EOL
+            EndIf
+          ;}
+          Case ";" ;{
+            If StringField(TrCodeField, 2, " ") = ":System" ; in system declarations
+              bInSystemLib = #True
+              bInImportLib = #False
+              bInPBLib     = #False
+            ElseIf StringField(TrCodeField, 2, " ") = ":Import"; in import declarations
+              bInSystemLib = #False
+              bInImportLib = #True
+              bInPBLib     = #False
+            ElseIf TrCodeField = "; The header must remain intact for Re-Assembly" ; in pb asm code
+              bInSystemLib = #False
+              bInImportLib = #False
+              bInPBLib     = #True
+            Else
+              If Left(StringField(TrCodeField, 2, " "), 1) = ":"
+                bInSystemLib = #False
+                bInImportLib = #False
+                bInPBLib     = #False
+              Else
+                ; add the lib, import or dll
+                If bInSystemLib = #True And StringField(TrCodeField, 2, " ") <> ""
+                  AddElement(LL_DLLUsed())
+                  LL_DLLUsed() = StringField(TrCodeField, 2, " ")
+                  Output_Add("LL_DLLUsed() > "+LL_DLLUsed(), #Output_Log, 4)
+                ElseIf bInImportLib = #True And StringField(TrCodeField, 2, " ") <> ""
+                  AddElement(LL_ImportUsed())
+                  LL_ImportUsed() = Trim(RemoveString(TrCodeField, ";"))
+                  Output_Add("LL_ImportUsed() > "+LL_ImportUsed(), #Output_Log, 4)
+                ElseIf bInPBLib = #True And StringField(TrCodeField, 2, " ") <> ""
+                  AddElement(LL_LibUsed())
+                  LL_LibUsed() = Trim(LCase(RemoveString(TrCodeField, ";")))
+                  Output_Add("LL_LibUsed() > "+LL_LibUsed(), #Output_Log, 4)
                 EndIf
               EndIf
             EndIf
-            ; we add the end line
-            LL_DLLFunctions()\Code + #System_EOL
-          EndIf
-        ;}
-        Case ";" ;{
-          If StringField(TrCodeField, 2, " ") = ":System" ; in system declarations
-            bInSystemLib = #True
-            bInImportLib = #False
-            bInPBLib     = #False
-          ElseIf StringField(TrCodeField, 2, " ") = ":Import"; in import declarations
-            bInSystemLib = #False
-            bInImportLib = #True
-            bInPBLib     = #False
-          ElseIf TrCodeField = "; The header must remain intact for Re-Assembly" ; in pb asm code
-            bInSystemLib = #False
-            bInImportLib = #False
-            bInPBLib     = #True
-          Else
-            If Left(StringField(TrCodeField, 2, " "), 1) = ":"
-              bInSystemLib = #False
-              bInImportLib = #False
-              bInPBLib     = #False
-            Else
-              ; add the lib, import or dll
-              If bInSystemLib = #True And StringField(TrCodeField, 2, " ") <> ""
-                AddElement(LL_DLLUsed())
-                LL_DLLUsed() = StringField(TrCodeField, 2, " ")
-                Output_Add("LL_DLLUsed() > "+LL_DLLUsed(), #Output_Log, 4)
-              ElseIf bInImportLib = #True And StringField(TrCodeField, 2, " ") <> ""
-                AddElement(LL_ImportUsed())
-                LL_ImportUsed() = Trim(RemoveString(TrCodeField, ";"))
-                Output_Add("LL_ImportUsed() > "+LL_ImportUsed(), #Output_Log, 4)
-              ElseIf bInPBLib = #True And StringField(TrCodeField, 2, " ") <> ""
-                AddElement(LL_LibUsed())
-                LL_LibUsed() = Trim(LCase(RemoveString(TrCodeField, ";")))
-                Output_Add("LL_LibUsed() > "+LL_LibUsed(), #Output_Log, 4)
-              EndIf
+          ;}
+          Case "format" ;{
+            bInHeader = #False
+          ;}
+          Default ;{ In the function, getting the code
+            If bNotCapture = 0 And bInFunction = #True 
+              LL_DLLFunctions()\Code + TrCodeField + #System_EOL
             EndIf
-          EndIf
-        ;}
-        Default ;{ In the function, getting the code
-          If bNotCapture = 0 And bInFunction = #True 
-            LL_DLLFunctions()\Code + TrCodeField + #System_EOL
-          EndIf
-        ;}
-      EndSelect
+          ;}
+        EndSelect
+      EndIf
     EndIf
   Next
 EndProcedure
@@ -522,20 +519,23 @@ ProcedureDLL Moebius_Compile_Step2_AddExtrn(Part.s)
   If IsNumeric(TrCodeField) = #True
     ProcedureReturn #False
   EndIf
-  ; add if part doesn't exist
-  bFound = #False
-  ForEach LL_ASM_extrn()
-    If LL_ASM_extrn() = TrCodeField
-      bFound = #True
-      Break
-    EndIf
-  Next
-  If bFound = #False
-    If AddElement(LL_ASM_extrn())
-      LL_ASM_extrn() = TrCodeField
-    EndIf
-    ProcedureReturn #True
-  EndIf
+  ;-Recherche s�quentielle
+;   ; add if part doesn't exist
+;   bFound = #False
+;   ForEach LL_ASM_extrn()
+;     If LL_ASM_extrn() = TrCodeField
+;       bFound = #True
+;       Break
+;     EndIf
+;   Next
+;   If bFound = #False
+;     If AddElement(LL_ASM_extrn())
+;       LL_ASM_extrn() = TrCodeField
+;     EndIf
+;     ProcedureReturn #True
+;   EndIf
+  ;-Recherche dichotomique
+  M_AddInLLWithDichotomicSearch(LL_ASM_extrn(), LL_ASM_extrn(), TrCodeField)
 EndProcedure
 ;@desc Create Shared Code
 ProcedureDLL Moebius_Compile_Step2_CreateSharedFunction()

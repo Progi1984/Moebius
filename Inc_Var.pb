@@ -217,4 +217,38 @@
     hFileBatch = #False
     gState = #State_StepStart
   EndMacro
+  Macro M_AddInLLWithDichotomicSearch(LinkedList, StringCompared, StringSearched, Add = #True)
+    Define.s DichoSearch_sValue
+    Define.q DichoSearch_qIndStart, DichoSearch_qIndEnd, DichoSearch_qIndMid
+    Define.b DichoSearch_bFound
+    Define.l DichoSearch_lCompare
+    ResetList(LinkedList)
+    DichoSearch_bFound = #False
+    DichoSearch_qIndStart = 0
+    DichoSearch_qIndEnd = ListSize(LinkedList) -1
+    If DichoSearch_qIndEnd >= 0
+      While DichoSearch_qIndStart <= DichoSearch_qIndEnd
+        DichoSearch_qIndMid = (DichoSearch_qIndStart + DichoSearch_qIndEnd +1) >>1
+        SelectElement(LinkedList, DichoSearch_qIndMid)
+        DichoSearch_sValue = StringCompared
+        DichoSearch_lCompare = CompareMemoryString(@DichoSearch_sValue, @StringSearched, #PB_String_NoCase)
+        If DichoSearch_lCompare = 0
+          DichoSearch_bFound = #True
+          DichoSearch_qIndStart = DichoSearch_qIndEnd + 1
+        ElseIf DichoSearch_lCompare > 0
+          DichoSearch_qIndEnd = DichoSearch_qIndMid -1
+        ElseIf DichoSearch_lCompare < 0
+          DichoSearch_qIndStart = DichoSearch_qIndMid +1
+        EndIf
+      Wend
+    EndIf
+    If Add = #True
+      If DichoSearch_bFound = #False
+        AddElement(LinkedList)
+        LinkedList = StringSearched
+        SortList(LinkedList, #PB_Sort_Ascending | #PB_Sort_NoCase)
+      EndIf
+    EndIf
+  EndMacro
+
 ;}

@@ -139,14 +139,42 @@ ProcedureDLL.s PB_GetLibFromFunctionName(Function.s)
   If Right(sTrFunction, 1) =  "a"
     sTrFunction = Left(sTrFunction, Len(sTrFunction) - 1)
   EndIf
-  FirstElement(LL_PBFunctions())
-  ForEach LL_PBFunctions()
-    If LCase(LL_PBFunctions()\FuncName) = sTrFunction
-      sLibContaining = LL_PBFunctions()\LibContaining
-      Break
-    EndIf
-  Next
-  ProcedureReturn sLibContaining
+;   FirstElement(LL_PBFunctions())
+;   ForEach LL_PBFunctions()
+;     If LCase(LL_PBFunctions()\FuncName) = sTrFunction
+;       sLibContaining = LL_PBFunctions()\LibContaining
+;       Break
+;     EndIf
+;   Next
+  Protected qIndEnd.q, qIndStart.q, qIndMid.q
+  Protected lCompare.l
+  Protected sValue.s
+  Protected bFound.b
+  ResetList(LL_PBFunctions())
+  bFound = #False
+  qIndStart = 0
+  qIndEnd = ListSize(LL_PBFunctions()) -1
+  If qIndEnd >= 0
+    While qIndStart <= qIndEnd
+      qIndMid = (qIndStart + qIndEnd +1) >>1
+      SelectElement(LL_PBFunctions(), qIndMid)
+      sValue = LL_PBFunctions()\FuncName
+      lCompare = CompareMemoryString(@sValue, @sTrFunction, #PB_String_NoCase)
+      If lCompare = 0
+        bFound = #True
+        sLibContaining = LL_PBFunctions()\LibContaining
+        qIndStart = qIndEnd + 1
+      ElseIf lCompare > 0
+        qIndEnd = qIndMid -1
+      ElseIf lCompare < 0
+        qIndStart = qIndMid +1
+      EndIf
+    Wend
+  EndIf
+  If bFound = #True
+    ProcedureReturn sLibContaining
+  EndIf
+  ;ProcedureReturn sLibContaining
 EndProcedure
 ;@desc Create Functions List from Pure & User Libraries
 ProcedureDLL PB_CreateFunctionsList()
@@ -186,6 +214,8 @@ ProcedureDLL PB_CreateFunctionsList()
         NextDir = NextDirectoryEntry(0)
       Until NextDir = #False
     EndIf
+    
+    SortList(LL_PBFunctions(), #PB_Sort_Ascending | #PB_Sort_NoCase)
   EndIf
 EndProcedure
 ;@desc Retrieves Purebasic folder [empty string if not installed]
