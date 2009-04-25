@@ -62,5 +62,10 @@ ProcedureDLL Moebius_Compile_Step0()
   EndIf
   ; Initializes batch and log files
   Output_Init()
+  ; Initializes regural expressions
+  CreateRegularExpression(#Regex_enx, "^e[a-z]{1}x")
+  CreateRegularExpression(#Regex_enp, "^e[a-z]{1}p")
+  CreateRegularExpression(#Regex_eni, "^e[a-z]{1}i")
+  
   ProcedureReturn #Error_000
 EndProcedure

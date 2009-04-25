@@ -35,5 +35,11 @@ ProcedureDLL Moebius_Compile_Step6()
   
   ; we close logs & batchs
   Output_End()
+  
+  ; frees regural expressions
+  FreeRegularExpression(#Regex_enx)
+  FreeRegularExpression(#Regex_enp)
+  FreeRegularExpression(#Regex_eni)
+  
   ProcedureReturn #Error_000
 EndProcedure

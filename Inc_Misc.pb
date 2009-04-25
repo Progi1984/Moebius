@@ -179,72 +179,168 @@ ProcedureDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
     EndIf
   EndIf
 EndProcedure
-;@author Ollivier
-ProcedureDLL.l LoadStringArray(*Info.S_ReadFile_BuildArrayInfo)
-  Protected *SeqBegin
-  Protected *SeqEnd
-  Protected *TextLine
-  Protected *TableEnd
-  Protected FileHnd.I
-  Protected ExecStatus.I
-  Protected SeqSize.q
-  
-  FileHnd = OpenFile(#PB_Any, *Info\FileName)
-  If FileHnd
-    ExecStatus | #FileRead_FileOpened
-    SeqSize = Lof(FileHnd)
-    *SeqBegin = AllocateMemory(SeqSize)
-    If *SeqBegin
-      ExecStatus | #FileRead_MemAllocated
-      *SeqEnd = *SeqBegin + SeqSize - 1
-      If ReadData(FileHnd, *SeqBegin, SeqSize)
-        ExecStatus | #FileRead_FileLoaded
-        CloseFile(FileHnd)
-        *Info\SeqBegin = *SeqBegin
-        *Info\SeqEnd = *SeqEnd
-        If *Info\LineMeanLength = 0
-          *Info\LineMeanLength = 10 ; Moyenne par défaut
+;@author Gnozal
+ProcedureDLL.s PeekLine(*BufMem = 0, BufLen = 0)
+  Protected *ptrChar.Character, *ptrStr.Character, *ptrEof
+  Protected lLength.l
+  Protected cChar.c, cCharBis.c
+  Static MemOffset, MemLen, *MemBuf
+  Static bSystem.b
+  If *BufMem And BufLen
+    *MemBuf = *BufMem
+    MemLen = BufLen
+    MemOffset = 0
+  EndIf
+  If *MemBuf And MemLen
+    *ptrChar = *MemBuf + MemOffset
+    *ptrEof = *MemBuf + MemLen
+    *ptrStr = *ptrChar
+    If MemOffset < MemLen
+      While *ptrChar< *ptrEof
+        cChar = *ptrChar\c
+        *ptrChar = *ptrChar + SizeOf(Character)
+        If cChar = 13
+          Break
         EndIf
-        *Info\ArrayTableSize = ((*SeqEnd - *SeqBegin) / *Info\LineMeanLength) << 2
-        ;Debug *Info\ArrayTableSize
-        If *Info\ArrayTableSize < 1 << 8
-          *Info\ArrayTableSize = 1 << 8
+        If cChar = 10
+          Break
         EndIf
-        ;Debug *Info\ArrayTableSize
-        *Info\ArrayTable = AllocateMemory(*Info\ArrayTableSize)
-        If *Info\ArrayTable
-          ExecStatus | #FileRead_TableCreated
-          *TextLine = *Info\ArrayTable
-          ! mov eax, 13           
-          ! mov edi, [p.p_SeqBegin]
-          ! mov ebp, [p.p_SeqEnd]
-          ! mov edx, [p.p_TextLine]
-          
-          ! mov ecx, ebp ; ecx = EndSeq
-          ! sub ecx, edi ;     - BeginSeq
-          ! inc ecx      ;     + 1
-          LoadStringArrayLoop:
-          ! mov ebx, edi ; Retient le début de la chaîne
-          ! cld          ; Fixe le sens croissant (convention)
-          ! repne scasb  ; Recherche le 13
-          
-          ! mov byte [edi - 1], 0 ; Remplace le 13 par le 0
-          ! inc edi      ; Passe le 10
-          
-          ! mov [edx], ebx ; Copie l'adresse de début de ligne
-          ! add edx, 4 ; ... Et passe au pointeur suivant
-          
-          ! cmp edi, ebp ; Fin de séquence ?
-          ! jng l_loadstringarrayloop ; Non, continue
-          
-          ! mov [p.p_TableEnd], edx
-          *Info\ArrayTableEnd = *TableEnd
-          *Info\ArrayTableSize = *TableEnd - *TextLine
-          ;Debug "***" + Str(*Info\ArrayTableSize)
-          *Info\ArrayTable = ReAllocateMemory(*TextLine, *Info\ArrayTableSize)
+        lLength + 1             
+      Wend
+      If *ptrChar < *ptrEof
+        cCharBis = *ptrChar\c
+        If cCharBis + cChar = 23
+          *ptrChar = *ptrChar + SizeOf(Character)
         EndIf
       EndIf
+      MemOffset = *ptrChar - *MemBuf
+      ProcedureReturn PeekS(*ptrStr, lLength)
+    Else
+      ProcedureReturn Chr(1)
     EndIf
+  Else
+    ProcedureReturn Chr(1)
   EndIf
-  *Info\ExecStatus = ExecStatus
+EndProcedure 
+;@author Xombie
+;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
+ProcedureDLL.l sbCreate(BlockSize.l)
+   Protected *sbClass.S_StringBuilder
+   *sbClass = AllocateMemory(SizeOf(S_StringBuilder))
+   If *sbClass\InitDone : FreeMemory(*sbClass\pString) : EndIf
+   ; If the stringbuilder is already initialized, free the memory of the string.
+   ; BlockSize min. 1024 ($400) Byte
+   If BlockSize < $400 : BlockSize = $400 : EndIf
+   ; BlockSize max. 1 MByte ($100000) Byte
+   If BlockSize > $100000 : BlockSize = $100000 : EndIf
+   If BlockSize <> (BlockSize & $FC00)
+      BlockSize = (BlockSize & $FC00) + 1024
+   EndIf
+   *sbClass\BlockSize = BlockSize
+   *sbClass\StringSize = 0
+   *sbClass\pString = AllocateMemory(BlockSize)
+   ; Allocate the memory needed for our string
+   If *sbClass\pString <> 0
+      ; Allocation went fine, let the structure know we initialized everything fine.
+      *sbClass\InitDone = #True
+      *sbClass\MemSize = *sbClass\BlockSize
+      ; Set our memory size used to the size of the block.
+   Else
+      ; Problem with allocation - let it know we did not initialize
+      *sbClass\InitDone = #False
+      *sbClass\MemSize = 0
+   EndIf
+   ProcedureReturn *sbClass
+   ; Return the pointer to our new stringbuilder class.
 EndProcedure
+;@author Xombie
+;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
+ProcedureDLL sbClear(*inSBClass.S_StringBuilder)
+   If *inSBClass\InitDone
+      FreeMemory(*inSBClass\pString)
+      *inSBClass\pString = 0
+      *inSBClass\StringSize = 0
+      *inSBClass\BlockSize = 0
+      *inSBClass\InitDone = #False
+      *inSBClass\MemSize = 0
+   EndIf
+EndProcedure
+;@author Xombie
+;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
+ProcedureDLL sbDestroy(*inSBClass.S_StringBuilder)
+   If *inSBClass\InitDone
+      FreeMemory(*inSBClass\pString)
+      *inSBClass\pString = 0
+      *inSBClass\StringSize = 0
+      *inSBClass\BlockSize = 0
+      *inSBClass\InitDone = #False
+      *inSBClass\MemSize = 0
+   EndIf
+   FreeMemory(*inSBClass)
+EndProcedure
+;@author Xombie
+;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
+ProcedureDLL sbAdd(*inSBClass.S_StringBuilder, inString.l)
+   Protected StrLen.l
+   Protected pNewString.l
+   Protected NewMemSize.l
+   Protected NewStringSize.l
+   StrLen = MemoryStringLength(inString)
+   NewStringSize = StrLen + *inSBClass\StringSize
+   If NewStringSize + 1 > *inSBClass\MemSize
+      NewMemSize = *inSBClass\MemSize + *inSBClass\BlockSize
+      pNewString=AllocateMemory(NewMemSize)
+      If pNewString = 0 : ProcedureReturn #False : EndIf
+      CopyMemory(*inSBClass\pString, pNewString, *inSBClass\StringSize)
+      FreeMemory(*inSBClass\pString)
+      *inSBClass\pString = pNewString
+      *inSBClass\MemSize = NewMemSize
+   EndIf
+   CopyMemory(inString, *inSBClass\pString + *inSBClass\StringSize, StrLen)
+   *inSBClass\StringSize = NewStringSize
+EndProcedure
+;@author Xombie
+;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
+ProcedureDLL sbAddLiteral(*inSBClass.S_StringBuilder, inString.s)
+   Protected sAddress.l
+   Protected StrLen.l
+   Protected pNewString.l
+   Protected NewMemSize.l
+   Protected NewStringSize.l
+   sAddress = @inString
+   StrLen = MemoryStringLength(sAddress)
+   NewStringSize = StrLen + *inSBClass\StringSize
+   If NewStringSize + 1 > *inSBClass\MemSize
+      NewMemSize = *inSBClass\MemSize + *inSBClass\BlockSize
+      pNewString=AllocateMemory(NewMemSize)
+      If pNewString = 0 : ProcedureReturn #False : EndIf
+      CopyMemory(*inSBClass\pString, pNewString, *inSBClass\StringSize)
+      FreeMemory(*inSBClass\pString)
+      *inSBClass\pString = pNewString
+      *inSBClass\MemSize = NewMemSize
+   EndIf
+   CopyMemory(sAddress, *inSBClass\pString + *inSBClass\StringSize, StrLen)
+   *inSBClass\StringSize = NewStringSize
+EndProcedure
+;@author Xombie
+;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
+ProcedureDLL.s sbGetString(*inSBClass.S_StringBuilder)
+   Protected WholeString.s
+   WholeString = PeekS(*inSBClass\pString)
+   ProcedureReturn WholeString
+EndProcedure
+;@author Xombie
+;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
+ProcedureDLL.s sbGetStringAndDestroy(*inSBClass.S_StringBuilder)
+   Protected WholeString.s
+   WholeString = PeekS(*inSBClass\pString)
+   sbDestroy(*inSBClass)
+   ProcedureReturn WholeString
+EndProcedure
+;@author Xombie
+;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
+ProcedureDLL.l sbLength(*inSBClass.S_StringBuilder)
+  Protected iLength.l
+  iLength = *inSBClass\StringSize
+  ProcedureReturn iLength
+EndProcedure 

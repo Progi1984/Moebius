@@ -1,4 +1,4 @@
-;{ Structures
+;-{ Structures }
   Structure S_DLLFunctions
     FuncName.s
     FuncRetType.s
@@ -62,25 +62,25 @@
       l.l
     EndStructureUnion
   EndStructure
-  Structure S_ReadFile_BuildArrayInfo
-    FileName.S
-    ExecStatus.I
-    
-    *SeqBegin
-    *SeqEnd
-    SeqSize.I ; En octet
-    
-    *ArrayTable
-    *ArrayTableEnd
-    ArrayTableSize.I ; (nombre de pointeurs)
-    
-    LineMeanLength.I ; Taille moyenne d'une ligne  
-  EndStructure 
-  Structure S_TextLineInfo
-    TextLine.s[1 << 24]
+  Structure S_CodeLine
+    function.s
+    line.s
   EndStructure
+  Structure S_LabelsList
+    function.s
+    label.s
+  EndStructure
+  Structure S_StringBuilder
+    pString.l
+    StringSize.l
+    MemSize.l
+    BlockSize.l
+    InitDone.l
+    ; Initialized to 0 (FALSE) at creation.  Means by default
+    ; we have not initialized the structure/class.
+  EndStructure 
 ;}
-;{ Linked lists
+;-{ Linked lists }
   Global NewList LL_DLLFunctions.S_DLLFunctions()
   Global NewList LL_PBFunctions.S_PBFunctionInfo()
   Global NewList LL_Functions.s()
@@ -89,11 +89,13 @@
   Global NewList LL_ImportUsed.s()
   Global NewList LL_ASM_extrn.s()
   Global NewList LL_Logs.s()
+  Global NewList LL_Lines.S_CodeLine()
+  Global NewList LL_LabelsInFunctions.S_LabelsList()
 ;}
-;{ Arrays
+;-{ Arrays }
   Global Dim D_Parameters.s(9)
 ;}
-;{ Globals
+;-{ Globals }
   Global gProject.S_Project
   Global gConf.S_PBConf
   Global hCompiler.l
@@ -102,19 +104,14 @@
   Global lTimeStart.l
   Global gState.l
   Global gError.l
-  Global *DimLines.S_TextLineInfo
-  Global gReadFileInfo.S_ReadFile_BuildArrayInfo
+  Global gFileMemContent.l
+  Global gFileMemContentLen.l
 ;}
-;{ Constants
+;-{ Constants }
   #DQuote = Chr(34)
   #Output_Log = $001
   #Output_Bat = $002
-  
-  #FileRead_FileOpened   = 1
-  #FileRead_MemAllocated = 2
-  #FileRead_FileLoaded   = 4
-  #FileRead_TableCreated = 8 
-  
+ 
   Enumeration 
     #State_StepStart
     #State_Step0
@@ -163,8 +160,14 @@
     #Error_033
     #Error_Last
   EndEnumeration
+  Enumeration 
+    #Regex_enx
+    #Regex_enp
+    #Regex_eni
+    #Regex_Last
+  EndEnumeration
 ;}
-;{ Macros
+;-{ Macros }
   Macro M_SetConstantPrefs(Name, ValL, ValS, ValSl)
     #Name#_l = ValL
     #Name#_s = ValS
@@ -250,5 +253,4 @@
       EndIf
     EndIf
   EndMacro
-
 ;}
