@@ -596,10 +596,16 @@ ProcedureDLL Moebius_Compile_Step2_AddExtrn(sPart.s)
           EndIf
         EndIf
       Until (bFound = #True) Or (qIndStart >= qIndEnd)
+    ElseIf qIndEnd = 0
+      SelectElement(LL_ASM_extrn(), qIndEnd)
+      If LL_ASM_extrn() = sPartCleaned
+        bFound = #True
+      EndIf
     EndIf
     If bFound = #False
       If AddElement(LL_ASM_extrn())
         LL_ASM_extrn() = sPartCleaned
+        SortList(LL_ASM_extrn(), #PB_Sort_Ascending | #PB_Sort_NoCase)
       EndIf
     EndIf
   ;}
@@ -735,7 +741,6 @@ ProcedureDLL Moebius_Compile_Step2_CreateSharedFunction()
     sbDestroy(lASMShared)
   ;}
   Output_Add("Finish to write the SharedFunction in file", #Output_Log, 4)
-  Debug "AAA"
 EndProcedure
 ;@desc Create Init Function Code
 ProcedureDLL Moebius_Compile_Step2_CreateInitFunction()
@@ -871,8 +876,8 @@ ProcedureDLL.b Moebius_Compile_Step2_CreateASMFiles()
         For lIncA = 0 To lListSizeLines -1
           SelectElement(LL_Lines(), lIncA)
           If LL_Lines()\Function = LL_DLLFunctions()\FuncName
-            sLineCurrentTrimmed = LCase(Trim(LL_Lines()\Line))
-            Select StringField(sLineCurrentTrimmed, 1, " ")
+            sLineCurrentTrimmed = Trim(LL_Lines()\Line)
+            Select LCase(StringField(sLineCurrentTrimmed, 1, " "))
               Case "call", "push" ;{ some asm calls
                 sLinePart = StringField(sLineCurrentTrimmed, CountString(sLineCurrentTrimmed, " ")+1, " ")
                 If FindString(sLinePart, "[", 0) > 0 And FindString(sLinePart, "]", 0) > 0
@@ -1142,8 +1147,7 @@ ProcedureDLL Moebius_Compile_Step2()
 
   Output_Add("Shared Code", #Output_Log, 2)
   ;{ Shared Code
-    Debug Moebius_Compile_Step2_CreateSharedFunction()
-    Debug "BBB"
+    Moebius_Compile_Step2_CreateSharedFunction()
   ;}
   ProcedureReturn #Error_000
 EndProcedure
