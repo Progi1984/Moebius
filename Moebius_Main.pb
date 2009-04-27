@@ -26,5 +26,7 @@ CompilerIf Defined(Moebius_App, #PB_Constant) = #False
   Moebius_MainThread(0)
 CompilerEndIf
 
-; /l "Sample_00" /f /pbi "Prefs/Moebius_Windows.ini" "C:\Documents and Settings\franklin\Bureau\nono2009_source\nono2009.pb"
-; -l "Sample_11" -f -pbi "Prefs/Moebius_Linux.ini" "/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Sample_Lib/Sample_11.pb"
+; /b /l "Sample_00" /f /pbi "Prefs/Moebius_Windows.ini" "C:\Documents and Settings\franklin\Bureau\nono2009_source\nono2009.pb"
+; /b /l "Sample_00" /f /pbi "Prefs/Moebius_Windows.ini" "K:\Proj_Moebius\Sample_Lib\Sample_00.pb"
+; -b -l "Sample_05" -f -pbi "Prefs/Moebius_Linux.ini" "/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Sample_Lib/Sample_05.pb"
+; -b -l "Sample_11" -f -pbi "Prefs/Moebius_Linux.ini" "/home/franklin/Bureau/DD_PureBasic/Proj_Moebius/Sample_Lib/Sample_11.pb"

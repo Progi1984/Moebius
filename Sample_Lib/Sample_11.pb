@@ -13,7 +13,7 @@ CompilerIf #PB_Compiler_OS = #PB_OS_Windows
     Object_InitThreadMemory (Size.l, InitFunction, EndFunction) As "_PB_Object_InitThreadMemory@12"
   EndImport
 CompilerElse
-  Import "/media/DISK/Programs/purebasic/compilers/objectmanager.a"
+  ImportC "/media/DISK/Programs/purebasic/compilers/objectmanager.a"
     Object_GetOrAllocateID  (Objects, Object.l) As "PB_Object_GetOrAllocateID"
     Object_GetObject        (Objects, Object.l) As "PB_Object_GetObject"
     Object_IsObject         (Objects, Object.l) As "PB_Object_IsObject"
@@ -61,7 +61,7 @@ EndMacro
 
 ProcedureDLL S11Free(Id.l)
   Protected *RObject.S_S11
-   If *RObject
+  If *RObject
     S11_FREEID(Id)
   EndIf
   ProcedureReturn #True

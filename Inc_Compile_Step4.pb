@@ -124,6 +124,7 @@ ProcedureDLL Moebius_Compile_Step4()
           sProgReturn = "Error in RunProgram"
           lError = #Error_023
         EndIf
+        sProgRequest = #DQuote + gConf\sPath_OBJ2LIB + #DQuote + " " + sProgRequest
       ;}
       CompilerCase #PB_OS_Linux;{
         sProgRequest = "ar rvs "
@@ -146,3 +147,4 @@ ProcedureDLL Moebius_Compile_Step4()
     EndIf
   ;}
 EndProcedure
+;- sContent de desc in sb
