@@ -1,7 +1,7 @@
 ;@desc Opens the main window for Moebius
 ProcedureDLL WinMain_Create()
   ; Loading Preferences
-  If FileSize(sPath+"Prefs"+#System_Separator+"MoebiusGUI_Prefs.ini") > 0 
+  If FileSize(sPath+"Prefs"+#System_Separator+"MoebiusGUI_Prefs.ini") < 0 
     CreatePreferences(sPath+"Prefs"+#System_Separator+"MoebiusGUI_Prefs.ini")
       PreferenceGroup("Main")
       WritePreferenceLong("AlwaysAskBeforeLoadingProject", #False)
