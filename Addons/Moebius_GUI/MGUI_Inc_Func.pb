@@ -13,7 +13,7 @@ ProcedureDLL WinMain_Create()
       gGUIPrefs\lAlwaysAskBeforeLoadingProject = ReadPreferenceLong("AlwaysAskBeforeLoadingProject", #False)
       gGUIPrefs\sLanguage = ReadPreferenceString("Language", "French")
     ClosePreferences()
-  Else
+  EndIf
   Language_Load(gGUIPrefs\sLanguage)
   
   If OpenWindow(#Window_0, 353, 5, 600, 575, LanguageItems(1),  #PB_Window_SystemMenu | #PB_Window_TitleBar | #PB_Window_ScreenCentered)
