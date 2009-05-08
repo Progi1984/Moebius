@@ -129,6 +129,11 @@ EndProcedure
 ;@desc List all functions contained in purelibraries & {System}Libraries
 ProcedureDLL.s PB_GetLibFromFunctionName(Function.s)
   Protected sTrFunction.s, sLibContaining.s
+  Protected qIndEnd.q, qIndStart.q, qIndMid.q
+  Protected lCompare.l
+  Protected sValue.s
+  Protected bFound.b
+
   sTrFunction = LCase(Trim(Function))
   If Left(sTrFunction, 1) = "_"
     sTrFunction = Right(sTrFunction, Len(sTrFunction) - 1)
@@ -139,17 +144,6 @@ ProcedureDLL.s PB_GetLibFromFunctionName(Function.s)
   If Right(sTrFunction, 1) =  "a"
     sTrFunction = Left(sTrFunction, Len(sTrFunction) - 1)
   EndIf
-;   FirstElement(LL_PBFunctions())
-;   ForEach LL_PBFunctions()
-;     If LCase(LL_PBFunctions()\FuncName) = sTrFunction
-;       sLibContaining = LL_PBFunctions()\LibContaining
-;       Break
-;     EndIf
-;   Next
-  Protected qIndEnd.q, qIndStart.q, qIndMid.q
-  Protected lCompare.l
-  Protected sValue.s
-  Protected bFound.b
   ResetList(LL_PBFunctions())
   bFound = #False
   qIndStart = 0

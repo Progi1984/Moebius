@@ -302,18 +302,16 @@ EndProcedure
 ;@author Xombie
 ;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
 ProcedureDLL sbAddLiteral(*inSBClass.S_StringBuilder, inString.s)
-   Protected sAddress.l
-   Protected StrLen.l
-   Protected pNewString.l
-   Protected NewMemSize.l
-   Protected NewStringSize.l
+   Protected sAddress.l, StrLen.l, pNewString.l, NewMemSize.l, NewStringSize.l
    sAddress = @inString
    StrLen = MemoryStringLength(sAddress)
    NewStringSize = StrLen + *inSBClass\StringSize
-   If NewStringSize + 1 > *inSBClass\MemSize
+   If (NewStringSize + 1) > *inSBClass\MemSize
       NewMemSize = *inSBClass\MemSize + *inSBClass\BlockSize
-      pNewString=AllocateMemory(NewMemSize)
-      If pNewString = 0 : ProcedureReturn #False : EndIf
+      pNewString = AllocateMemory(NewMemSize)
+      If pNewString = 0
+        ProcedureReturn #False
+      EndIf
       CopyMemory(*inSBClass\pString, pNewString, *inSBClass\StringSize)
       FreeMemory(*inSBClass\pString)
       *inSBClass\pString = pNewString

@@ -339,7 +339,7 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM()
                 bFound = #False
                 ; in DLL ?
                 ForEach LL_DLLUsed()
-                  If LL_DLLUsed() = LCase(sLibName)
+                  If LCase(LL_DLLUsed()) = LCase(sLibName)
                     bFound = #True
                     Break
                   EndIf
@@ -453,7 +453,6 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM()
               bInHeader = #False
             ;}
             Default ;{ In the function, getting the code
-              ;Debug sLineCurrentTrimmed
               If bNotCapture = 0 And bInFunction = #True 
                 AddElement(LL_Lines())
                 LL_Lines()\Function = LL_DLLFunctions()\FuncName
@@ -499,8 +498,6 @@ ProcedureDLL.s Moebius_Compile_Step2_WriteASMForArrays()
     sParamItem = Trim(StringField(sParamsList, lIncA, ","))
     If sParamItem = "array"
       ; Offset
-      Debug lIncA
-      Debug lOffset
       If lIncA = 1 
         lOffset = 4
       Else
@@ -515,7 +512,6 @@ ProcedureDLL.s Moebius_Compile_Step2_WriteASMForArrays()
         Next
         lOffset + 4
       EndIf
-      Debug lOffset
       sbAddLiteral(lReturnString, "MOV  edx, dword [esp+"+Str(lOffset)+"]" + #System_EOL)
       sbAddLiteral(lReturnString, "MOV  dword [_ptr_array_"+Str(bNbArrays)+"], edx " + #System_EOL)
       sbAddLiteral(lReturnString, "MOV  dword [esp+"+Str(lOffset)+"], _ptr_array_"+Str(bNbArrays) + #System_EOL)
@@ -634,111 +630,120 @@ ProcedureDLL Moebius_Compile_Step2_CreateSharedFunction()
   ;{ Extracting SharedCode from MainFile & Deleting unuseful code
     sLineCurrentTrimmed = Trim(PeekLine(gFileMemContent, gFileMemContentLen))
     lCodeShared = sbCreate(2048)
-    Repeat
-      If sLineCurrentTrimmed <> ""
-        Select StringField(sLineCurrentTrimmed, 1, " ")
-          Case "pb_public";{
-            sLineCurrentTrimmed = Trim(PeekLine())
-          ;}
-          Case "public" ; don't write labels
-          Case "section";{
-            ; we verify if we are at the start of code
-            If bInSharedCode = - 1
-              sNextString_1 = Trim(PeekLine())
-              sNextString_2 = Trim(PeekLine())
-              sNextString_3 = Trim(PeekLine())
-              CompilerSelect #PB_Compiler_OS
-                CompilerCase #PB_OS_Windows : sASMMainFunction = sNextString_3
-                CompilerCase #PB_OS_Linux   : sASMMainFunction = sNextString_2
-              CompilerEndSelect
-              ; "public main" for Linux
-              ; "PureBasicStart:" for Windows
-              If sASMMainFunction = "public main" Or sASMMainFunction = "PureBasicStart:"
-                bInSharedCode = #False
+    If lCodeShared
+      Repeat
+        If sLineCurrentTrimmed <> ""
+          Select StringField(sLineCurrentTrimmed, 1, " ")
+            Case "pb_public";{
+              sLineCurrentTrimmed = Trim(PeekLine())
+            ;}
+            Case "public" ; don't write labels
+            Case "section";{
+              ; we verify if we are at the start of code
+              If bInSharedCode = - 1
+                sNextString_1 = Trim(PeekLine())
+                sNextString_2 = Trim(PeekLine())
+                sNextString_3 = Trim(PeekLine())
+                CompilerSelect #PB_Compiler_OS
+                  CompilerCase #PB_OS_Windows : sASMMainFunction = sNextString_3
+                  CompilerCase #PB_OS_Linux   : sASMMainFunction = sNextString_2
+                CompilerEndSelect
+                ; "public main" for Linux
+                ; "PureBasicStart:" for Windows
+                If sASMMainFunction = "public main" Or sASMMainFunction = "PureBasicStart:"
+                  bInSharedCode = #False
+                EndIf
+              ElseIf bInSharedCode = #False ; we start the shared code
+                bInSharedCode = #True
               EndIf
-            ElseIf bInSharedCode = #False ; we start the shared code
-              bInSharedCode = #True
-            EndIf
-          ;}
-          Default;{
-            If bInSharedCode = #True
-              If Left(StringField(sLineCurrentTrimmed, 1, " "), 2) = "PB" 
-                ; we remove lines began by "PB"
-              ElseIf StringField(sLineCurrentTrimmed, 1, ":") = "_PB_ExecutableType"
-                ; we remove labels with _PB_ExecutableType
-              Else
-                sbAddLiteral(lCodeShared, sLineCurrentTrimmed + #System_EOL) 
+            ;}
+            Default;{
+              If bInSharedCode = #True
+                If Left(StringField(sLineCurrentTrimmed, 1, " "), 2) = "PB" 
+                  ; we remove lines began by "PB"
+                ElseIf StringField(sLineCurrentTrimmed, 1, ":") = "_PB_ExecutableType"
+                  ; we remove labels with _PB_ExecutableType
+                Else
+                  sbAddLiteral(lCodeShared, sLineCurrentTrimmed + #System_EOL) 
+                EndIf
               EndIf
+            ;}
+          EndSelect
+        EndIf
+        If sNextString_1 = ""
+          sLineCurrentTrimmed = Trim(PeekLine())
+        Else
+          If sNextString_3 = ""
+            If sNextString_2 = ""
+              sLineCurrentTrimmed = sNextString_1
+              sNextString_1 = ""
+            Else
+              sLineCurrentTrimmed = sNextString_1
+              sNextString_1 = sNextString_2
+              sNextString_2 = ""
             EndIf
-          ;}
-        EndSelect
-      EndIf
-      If sNextString_1 = ""
-        sLineCurrentTrimmed = Trim(PeekLine())
-      Else
-        If sNextString_3 = ""
-          If sNextString_2 = ""
-            sLineCurrentTrimmed = sNextString_1
-            sNextString_1 = ""
           Else
             sLineCurrentTrimmed = sNextString_1
             sNextString_1 = sNextString_2
-            sNextString_2 = ""
+            sNextString_2 = sNextString_3
+            sNextString_3 = ""
           EndIf
-        Else
-          sLineCurrentTrimmed = sNextString_1
-          sNextString_1 = sNextString_2
-          sNextString_2 = sNextString_3
-          sNextString_3 = ""
         EndIf
-      EndIf
-    Until sLineCurrentTrimmed =Chr(1)
-    sCodeShared = sbGetString(lCodeShared) 
-    sbDestroy(lCodeShared) 
+      Until sLineCurrentTrimmed =Chr(1)
+      sCodeShared = sbGetStringAndDestroy(lCodeShared) 
+    EndIf
   ;}
   Output_Add("Search extrn", #Output_Log, 4)
   ;{ Search extrn
     ClearList(LL_ASM_extrn())
-    lCodeShared = AllocateMemory(Len(sCodeShared))
-    PokeS(lCodeShared, sCodeShared, Len(sCodeShared))
-    sLineCurrentTrimmed = Trim(PeekLine(lCodeShared, Len(sCodeShared)))
-    Repeat
-      If FindString(sLineCurrentTrimmed, ":", 0) > 0 
-        If FindString(sLineCurrentTrimmed, "SYS", 0) = 0 
-          If StringField(sLineCurrentTrimmed, 1, " ") <> "file"
-            If StringField(sLineCurrentTrimmed, 1, " ") <> "public"
-              Moebius_Compile_Step2_AddExtrn(StringField(sLineCurrentTrimmed, 1, ":"))
+    lCodeShared = AllocateMemory((Len(sCodeShared) + 1)*SizeOf(Character))
+    If lCodeShared
+      PokeS(lCodeShared, sCodeShared, Len(sCodeShared))
+      sLineCurrentTrimmed = Trim(PeekLine(lCodeShared, Len(sCodeShared)))
+      Repeat
+        If FindString(sLineCurrentTrimmed, ":", 0) > 0 
+          If FindString(sLineCurrentTrimmed, "SYS", 0) = 0 
+            If StringField(sLineCurrentTrimmed, 1, " ") <> "file"
+              If StringField(sLineCurrentTrimmed, 1, " ") <> "public"
+                Moebius_Compile_Step2_AddExtrn(StringField(sLineCurrentTrimmed, 1, ":"))
+              EndIf
+            EndIf
+          EndIf
+        Else
+          If Left(StringField(sLineCurrentTrimmed, 1, " "), 2) = "v_"
+            If FindString(sLineCurrentTrimmed, "rd",0) > 0
+              Moebius_Compile_Step2_AddExtrn(StringField(sLineCurrentTrimmed, 1, " "))
             EndIf
           EndIf
         EndIf
-      Else
-        If Left(StringField(sLineCurrentTrimmed, 1, " "), 2) = "v_"
-          If FindString(sLineCurrentTrimmed, "rd",0) > 0
-            Moebius_Compile_Step2_AddExtrn(StringField(sLineCurrentTrimmed, 1, " "))
-          EndIf
-        EndIf
-      EndIf
-      sLineCurrentTrimmed = Trim(PeekLine())
-    Until sLineCurrentTrimmed = Chr(1)
+        sLineCurrentTrimmed = Trim(PeekLine())
+      Until sLineCurrentTrimmed = Chr(1)
+      FreeMemory(lCodeShared)
+    EndIf
   ;}
   Output_Add("Begin to write the SharedFunction in file", #Output_Log, 4)
   ;{ Write the SharedFunction in file
-    lASMShared.l = sbCreate(2048)
-    sbAddLiteral(lASMShared, "format "+#System_LibFormat + #System_EOL) 
-    sbAddLiteral(lASMShared, #System_EOL) 
-    ForEach LL_ASM_extrn()
-      sbAddLiteral(lASMShared, "public "+LL_ASM_extrn() + #System_EOL) 
-    Next
-    sbAddLiteral(lASMShared, #System_EOL) 
-    sbAddLiteral(lASMShared, sCodeShared) 
-    
     lFile = CreateFile(#PB_Any, gProject\sDirProject+"ASM"+#System_Separator+LL_DLLFunctions()\FuncName+".asm")
     If lFile
-      WriteStringN(lFile, sbGetString(lASMShared))
+      Output_Add("Write Header", #Output_Log, 6)
+      lASMShared = sbCreate(2048)
+      If lASMShared
+        sbAddLiteral(lASMShared, "format "+ #System_LibFormat + #System_EOL) 
+        sbAddLiteral(lASMShared, #System_EOL) 
+        WriteStringN(lFile, sbGetStringAndDestroy(lASMShared))
+      EndIf 
+      Output_Add("Write Extrn", #Output_Log, 6)
+      lASMShared = sbCreate(2048)
+      If lASMShared
+        ForEach LL_ASM_extrn()
+          sbAddLiteral(lASMShared, "public "+LL_ASM_extrn() + #System_EOL) 
+        Next
+        WriteStringN(lFile, sbGetStringAndDestroy(lASMShared))
+      EndIf
+      Output_Add("Write SharedCode", #Output_Log, 6)
+      WriteStringN(lFile, sCodeShared)
       CloseFile(lFile)
-    EndIf
-    
-    sbDestroy(lASMShared)
+    EndIf  
   ;}
   Output_Add("Finish to write the SharedFunction in file", #Output_Log, 4)
 EndProcedure
@@ -796,7 +801,6 @@ ProcedureDLL.b Moebius_Compile_Step2_CreateASMFiles()
         Output_Add("ERREUR Regex > "+RegularExpressionError(), #Output_Log, 8)
       EndIf
     Next
-    
     Output_Add("Replace pb name functions by asm name functions", #Output_Log, 6)
     lMaxInc = ListSize(LL_DLLFunctions())-1
     ForEach LL_Lines()
@@ -813,7 +817,6 @@ ProcedureDLL.b Moebius_Compile_Step2_CreateASMFiles()
         EndIf
       Next
     Next
-    
     Output_Add("Free Regex", #Output_Log, 6)
     For lIncA = 0 To lMaxInc
       FreeRegularExpression(lIncA+#Regex_Last)
@@ -934,20 +937,32 @@ ProcedureDLL.b Moebius_Compile_Step2_CreateASMFiles()
                                 sValue = LL_LabelsInFunctions()\Label
                                 lCompare = CompareMemoryString(@sValue, @sSearchedLabel, #PB_String_NoCase)
                                 If lCompare = 0
-                                  bFound = #True
+                                  If LL_LabelsInFunctions()\function = LL_DLLFunctions()\FuncName
+                                    If sValue = sSearchedLabel
+                                      bFound = #True
+                                    Else
+                                      qIndStart = qIndStart + 1
+                                    EndIf
+                                  Else
+                                    qIndStart = qIndStart + 1
+                                  EndIf
                                 ElseIf lCompare > 0 ; svalue > sSearchedLabel
                                   qIndEnd = qIndMid -1
                                   SelectElement(LL_LabelsInFunctions(), qIndEnd)
-                                  If LL_LabelsInFunctions()\Label = sSearchedLabel
-                                    qIndMid = qIndEnd
-                                    bFound = #True
+                                  If LL_LabelsInFunctions()\function = LL_DLLFunctions()\FuncName
+                                    If LL_LabelsInFunctions()\Label = sSearchedLabel
+                                      qIndMid = qIndEnd
+                                      bFound = #True
+                                    EndIf
                                   EndIf
                                 ElseIf lCompare < 0 ; svalue < sSearchedLabel
                                   qIndStart = qIndMid +1
                                   SelectElement(LL_LabelsInFunctions(), qIndStart)
-                                  If LL_LabelsInFunctions()\Label = sSearchedLabel
-                                    qIndMid = qIndStart
-                                    bFound = #True
+                                  If LL_LabelsInFunctions()\function = LL_DLLFunctions()\FuncName
+                                    If LL_LabelsInFunctions()\Label = sSearchedLabel
+                                      qIndMid = qIndStart
+                                      bFound = #True
+                                    EndIf
                                   EndIf
                                 EndIf
                               Until (bFound = #True) Or (qIndStart >= qIndEnd)
