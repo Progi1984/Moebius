@@ -4,7 +4,7 @@
 ;@return : #Error_022 > Error : Can't create the file ObjList.txt
 ;@return : #Error_023 > Error : polib can't be launched
 ;@return : #Error_024 > Error : the library isn't generated
-ProcedureDLL Moebius_Compile_Step4()
+ProcedureDLL Moebius_Userlib_Step4()
   Protected StringTmp.s, sDescContent.s, sProgRequest.s, sProgReturn.s
   Protected lDescFile.l, lNbImportLib.l, lError.l
   

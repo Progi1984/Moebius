@@ -1,7 +1,7 @@
 ;@desc FASM compiles the ASM files To OBJ
 ;@return #Error_018 > Error : FASM has returned an error
 ;@return #Error_019 > Error : FASM can't be launched
-ProcedureDLL Moebius_Compile_Step3()
+ProcedureDLL Moebius_Userlib_Step3()
   Protected lPgm_Fasm.l
   Protected sFASMError.s, sFASMString.s, sReadPgm.s
   

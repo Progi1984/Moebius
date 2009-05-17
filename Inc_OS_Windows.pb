@@ -5,6 +5,7 @@
 #Switch_Executable = "/EXE"
 #Switch_StandBy = "/STANDBY"
 #Switch_SubSystem = "/SUBSYSTEM"
+#Switch_Resident = "/RESIDENT"
 
 #Switch_NoUnicodeWarning = "/NOUNICODEWARNING"
 
@@ -41,4 +42,5 @@ M_SetConstantPrefs(Switch_Param_Subsytem, 16, "/s", "/SUBSYSTEM")
 M_SetConstantPrefs(Switch_Param_LogFileName, 17, "/log", "/LOGFILENAME")
 M_SetConstantPrefs(Switch_Param_ProjectDir, 18, "/d", "/PROJECTDIR")
 M_SetConstantPrefs(Switch_Param_LogFileInStream, 19, "/fs", "/LOGFILEINSTREAM")
-M_SetConstantPrefs(Switch_Param_Last, 20, "", "")
+M_SetConstantPrefs(Switch_Param_TypeOutput, 20, "/to", "/TYPEOUTPUT")
+M_SetConstantPrefs(Switch_Param_Last, 21, "", "")

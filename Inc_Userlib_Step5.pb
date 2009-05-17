@@ -3,7 +3,7 @@
 ;@return #Error_026 > The userlib isn't generated
 ;@return #Error_027 > The userlib can't be renamed
 ;@return #Error_028 > PBCompiler can't be restarted
-ProcedureDLL Moebius_Compile_Step5()
+ProcedureDLL Moebius_Userlib_Step5()
   Protected DirUserLibrary.s = gConf\sPureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator
   Protected lPgm_LibMaker ; #Error_025
   gState = #State_Step5

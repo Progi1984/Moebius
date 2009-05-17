@@ -1,5 +1,5 @@
 ;@desc Load the content of purebasic.asm in memory
-ProcedureDLL Moebius_Compile_Step2_LoadASMFileInMemory()
+ProcedureDLL Moebius_Userlib_Step2_LoadASMFileInMemory()
   Protected lFileID.l = ReadFile(#PB_Any, gProject\sDirProject+"purebasic.asm")
   If lFileID
     gFileMemContentLen = Lof(lFileID)
@@ -14,7 +14,7 @@ ProcedureDLL Moebius_Compile_Step2_LoadASMFileInMemory()
   EndIf 
 EndProcedure
 ;@desc Extracts information for the future creation of the DESC File
-ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations()
+ProcedureDLL Moebius_Userlib_Step2_ExtractMainInformations()
   Protected Inc.l, IncA.l, lPos.l, lNbLines.l, lMaxInc.l
   Protected sLineCurrentTrimmed.s, sWordLineCurrent.s, sLineNext.s, sWordLineNext.s, sFuncName.s, sFuncNameCleared.s, sReturnValField.s, sParamItem.s
   Protected sIsParameterDefautValueStart.s, sIsParameterDefautValueEnd.s, sCallingConvention.s
@@ -308,7 +308,7 @@ ProcedureDLL Moebius_Compile_Step2_ExtractMainInformations()
   Until sLineCurrentTrimmed = Chr(1)
 EndProcedure
 ;@desc Permits in functions of some code to extract, remove some code & informations
-ProcedureDLL Moebius_Compile_Step2_ModifyASM()
+ProcedureDLL Moebius_Userlib_Step2_ModifyASM()
   Protected Inc.l, lNbLines.l
   Protected sLineCurrentTrimmed.s, sNameOfFunction.s, sLinePrevious.s, sLineNext.s
   Protected bFound.b, bNotCapture.b, bInFunction.b, bInBSSSection.b, bInSharedCode.b, bInSystemLib.b, bInImportLib.b, bInPBLib.b, bLineNext.b
@@ -486,7 +486,7 @@ ProcedureDLL Moebius_Compile_Step2_ModifyASM()
   SortStructuredList(LL_LabelsInFunctions(), #PB_Sort_Ascending | #PB_Sort_NoCase, OffsetOf(S_LabelsList\label), #PB_Sort_String)
 EndProcedure
 ;@desc Write some asm code for arrays in asm code
-ProcedureDLL.s Moebius_Compile_Step2_WriteASMForArrays()
+ProcedureDLL.s Moebius_Userlib_Step2_WriteASMForArrays()
   Protected lIncA.l, lIncB.l, lOffset.l, lNbParams.l, lReturnString.l
   Protected sParamItem.s,  sParamsList.s, sReturnString.s
   Protected bNbArrays.b
@@ -523,7 +523,7 @@ ProcedureDLL.s Moebius_Compile_Step2_WriteASMForArrays()
   ProcedureReturn sReturnString
 EndProcedure
 ;@desc Adds some extern and verify some contrainsts
-ProcedureDLL Moebius_Compile_Step2_AddExtrn(sPart.s)
+ProcedureDLL Moebius_Userlib_Step2_AddExtrn(sPart.s)
   Protected bFound.b
   Protected qIndStart.q, qIndEnd.q, qIndMid.q
   Protected sValue.s, sPartCleaned.s
@@ -607,7 +607,7 @@ ProcedureDLL Moebius_Compile_Step2_AddExtrn(sPart.s)
   ;}
 EndProcedure
 ;@desc Create Shared Code
-ProcedureDLL Moebius_Compile_Step2_CreateSharedFunction()
+ProcedureDLL Moebius_Userlib_Step2_CreateSharedFunction()
   Protected sCodeShared.s, sLineCurrentTrimmed.s, sASMMainFunction.s
   Protected sNextString_1.s, sNextString_2.s, sNextString_3.s
   Protected lFile.l, lInc.l, lNbLines.l, lCodeShared.l, l, lASMShared.l
@@ -705,14 +705,14 @@ ProcedureDLL Moebius_Compile_Step2_CreateSharedFunction()
           If FindString(sLineCurrentTrimmed, "SYS", 0) = 0 
             If StringField(sLineCurrentTrimmed, 1, " ") <> "file"
               If StringField(sLineCurrentTrimmed, 1, " ") <> "public"
-                Moebius_Compile_Step2_AddExtrn(StringField(sLineCurrentTrimmed, 1, ":"))
+                Moebius_Userlib_Step2_AddExtrn(StringField(sLineCurrentTrimmed, 1, ":"))
               EndIf
             EndIf
           EndIf
         Else
           If Left(StringField(sLineCurrentTrimmed, 1, " "), 2) = "v_" Or Left(StringField(sLineCurrentTrimmed, 1, " "), 2) = "t_"
             If FindString(sLineCurrentTrimmed, "rd",0) > 0
-              Moebius_Compile_Step2_AddExtrn(StringField(sLineCurrentTrimmed, 1, " "))
+              Moebius_Userlib_Step2_AddExtrn(StringField(sLineCurrentTrimmed, 1, " "))
             EndIf
           EndIf
         EndIf
@@ -748,7 +748,7 @@ ProcedureDLL Moebius_Compile_Step2_CreateSharedFunction()
   Output_Add("Finish to write the SharedFunction in file", #Output_Log, 4)
 EndProcedure
 ;@desc Create Init Function Code
-ProcedureDLL Moebius_Compile_Step2_CreateInitFunction()
+ProcedureDLL Moebius_Userlib_Step2_CreateInitFunction()
   Protected lFile.l, lCodeInit.l
   If AddElement(LL_DLLFunctions())
     LL_DLLFunctions()\FuncName = ReplaceString(gProject\sLibName, " ", "_")+"_Init" 
@@ -787,7 +787,7 @@ EndProcedure
 ;@desc Create ASM Files
 ;@return #True if the function init has been found
 ;@return #False if the function init has not been found
-ProcedureDLL.b Moebius_Compile_Step2_CreateASMFiles()
+ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
   Protected sFuncNameReplaced.s, sFuncName.s, sLineCurrentTrimmed.s, sLinePart.s, sValue.s, sSearchedLabel.s
   Protected bExistsInitFunction.b, bLastIsLabel.b, bFound.b
   Protected lMaxInc.l, lIncA.l, lPos.l, lFile.l, lListSizeLines.l, lLastPos.l, lASMContent.l, lCompare.l
@@ -882,10 +882,10 @@ ProcedureDLL.b Moebius_Compile_Step2_CreateASMFiles()
                 If FindString(sLinePart, "[", 0) > 0 And FindString(sLinePart, "]", 0) > 0
                   sLinePart = Trim(Mid(sLinePart, FindString(sLinePart, "[", 0)+1, FindString(sLinePart, "]", 0) - FindString(sLinePart, "[", 0) -1))
                   If sLinePart <> ""
-                    Moebius_Compile_Step2_AddExtrn(sLinePart)
+                    Moebius_Userlib_Step2_AddExtrn(sLinePart)
                   EndIf
                 Else
-                  Moebius_Compile_Step2_AddExtrn(sLinePart)
+                  Moebius_Userlib_Step2_AddExtrn(sLinePart)
                 EndIf
               ;}
               Default ;{
@@ -894,7 +894,7 @@ ProcedureDLL.b Moebius_Compile_Step2_CreateASMFiles()
                   If FindString(sLineCurrentTrimmed, "[", 0) > 0 And FindString(sLineCurrentTrimmed, "]", 0) > 0
                     sLinePart = Trim(Mid(sLineCurrentTrimmed, FindString(sLineCurrentTrimmed, "[", 0)+1, FindString(sLineCurrentTrimmed, "]", 0) - FindString(sLineCurrentTrimmed, "[", 0) -1))
                     If sLinePart <> ""
-                      Moebius_Compile_Step2_AddExtrn(sLinePart)
+                      Moebius_Userlib_Step2_AddExtrn(sLinePart)
                     EndIf
                   Else
                     sLinePart = sLineCurrentTrimmed
@@ -908,7 +908,7 @@ ProcedureDLL.b Moebius_Compile_Step2_CreateASMFiles()
                           If lPos > 0
                             sLinePart = Left(sLinePart, lPos-1)
                           EndIf 
-                          Moebius_Compile_Step2_AddExtrn(sLinePart)
+                          Moebius_Userlib_Step2_AddExtrn(sLinePart)
                         EndIf
                       ;}
                       ;{ Looking for labels
@@ -964,7 +964,7 @@ ProcedureDLL.b Moebius_Compile_Step2_CreateASMFiles()
                               Until (bFound = #True) Or (qIndStart >= qIndEnd)
                             EndIf
                             If bFound = #False
-                              Moebius_Compile_Step2_AddExtrn(sLinePart)
+                              Moebius_Userlib_Step2_AddExtrn(sLinePart)
                             Else
                               bFound - 1
                             EndIf
@@ -1064,8 +1064,8 @@ ProcedureDLL.b Moebius_Compile_Step2_CreateASMFiles()
                   Else 
                     ; we are just after the two labels (one for PB FuncName and ASM FuncName) 
                     ;+ and we want To add the code For asm arrays
-                    Output_Add("Moebius_Compile_Step2_WriteASMForArrays() > "+LL_DLLFunctions()\FuncName, #Output_Log, 2)
-                    sbAddLiteral(lASMContent, Moebius_Compile_Step2_WriteASMForArrays() + #System_EOL)
+                    Output_Add("Moebius_Userlib_Step2_WriteASMForArrays() > "+LL_DLLFunctions()\FuncName, #Output_Log, 2)
+                    sbAddLiteral(lASMContent, Moebius_Userlib_Step2_WriteASMForArrays() + #System_EOL)
                     bLastIsLabel = #False
                   EndIf
                 EndIf
@@ -1119,14 +1119,14 @@ EndProcedure
 ;@desc This step grabs the ASM file, splits it, rewrites some parts
 ;@return #Error_016 > Error : purebasic.asm Not Found
 ;@return #Error_017 > Error : can't generate the asm files
-ProcedureDLL Moebius_Compile_Step2()
+ProcedureDLL Moebius_Userlib_Step2()
   Protected bExistsInitFunction.b
   
   gState = #State_Step2
   
   Output_Add("Load the content of purebasic.asm in memory", #Output_Log, 2)
   ;{ load the content of purebasic.asm in memory
-    Moebius_Compile_Step2_LoadASMFileInMemory()
+    Moebius_Userlib_Step2_LoadASMFileInMemory()
   ;}
   
   Output_Add("Create Functions List from Pure & User Libraries", #Output_Log, 2)
@@ -1136,29 +1136,29 @@ ProcedureDLL Moebius_Compile_Step2()
   
   Output_Add("Extracts information for the future creation of the DESC File", #Output_Log, 2)
   ;{ extracts some informations from the asm file
-    Moebius_Compile_Step2_ExtractMainInformations()
+    Moebius_Userlib_Step2_ExtractMainInformations()
   ;}
   
   Output_Add("Remove some ASM code", #Output_Log, 2)
   ;{ remove some asm code from the main file
-    Moebius_Compile_Step2_ModifyASM()
+    Moebius_Userlib_Step2_ModifyASM()
   ;}
   
   Output_Add("Create ASM Files", #Output_Log, 2)
   ;{ create ASM Files
-    bExistsInitFunction = Moebius_Compile_Step2_CreateASMFiles()
+    bExistsInitFunction = Moebius_Userlib_Step2_CreateASMFiles()
   ;}
 
   Output_Add("Init Function Code", #Output_Log, 2)
   ;{ Init Function
     If bExistsInitFunction = #False
-      Moebius_Compile_Step2_CreateInitFunction()
+      Moebius_Userlib_Step2_CreateInitFunction()
     EndIf
   ;}
 
   Output_Add("Shared Code", #Output_Log, 2)
   ;{ Shared Code
-    Moebius_Compile_Step2_CreateSharedFunction()
+    Moebius_Userlib_Step2_CreateSharedFunction()
   ;}
   ProcedureReturn #Error_000
 EndProcedure

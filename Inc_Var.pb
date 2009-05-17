@@ -32,9 +32,11 @@
   EndStructure
   Structure S_Project
     sFileName.s           ; PB Filename for compiling
+    bTypeOutput.b
+    sFileOutput.s         ; filename (without path) of the library
+    
     sFileDesc.s           ; Desc File
     sFileCHM.s
-    sFileOutput.s         ; filename (without path) of the library
     sFileLog.s
     
     sLibName.s            ; library name
@@ -112,7 +114,7 @@
   #Output_Log = $001
   #Output_Bat = $002
  
-  Enumeration 
+  Enumeration 0
     #State_StepStart
     #State_Step0
     #State_Step1
@@ -160,11 +162,15 @@
     #Error_033
     #Error_Last
   EndEnumeration
-  Enumeration 
+  Enumeration 0
     #Regex_enx
     #Regex_enp
     #Regex_eni
     #Regex_Last
+  EndEnumeration
+  Enumeration 0
+    #TypeOutput_UserLib
+    #TypeOutput_Resident
   EndEnumeration
 ;}
 ;-{ Macros }

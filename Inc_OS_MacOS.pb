@@ -41,4 +41,6 @@ M_SetConstantPrefs(Switch_Param_Subsytem, 16, "-s", "--subsystem")
 M_SetConstantPrefs(Switch_Param_LogFileName, 17, "-log", "--logfilename")
 M_SetConstantPrefs(Switch_Param_ProjectDir, 18, "-d", "--projectdir")
 M_SetConstantPrefs(Switch_Param_LogFileInStream, 19, "-fs", "--logfileinstream")
-M_SetConstantPrefs(Switch_Param_Last, 20, "", "")
+M_SetConstantPrefs(Switch_Param_LogFileInStream, 20, "-to", "--typeoutput")
+M_SetConstantPrefs(Switch_Param_Last, 21, "", "")
+

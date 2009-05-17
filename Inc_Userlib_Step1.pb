@@ -4,7 +4,7 @@
 ;@returnvalue #Error_013 > Error : Program not launched
 ;@returnvalue #Error_014 > Error : Compiler Error
 ;@returnvalue #Error_015 > Error : Compiler Exit Code Error
-ProcedureDLL Moebius_Compile_Step1()
+ProcedureDLL Moebius_Userlib_Step1()
   Protected sExeFile.s = "" ; the name of the executable's output
   Protected sCompilerOutput.s = "" ; the output for the compiler
   Protected lCompiler.l ; the pointer for the compiler

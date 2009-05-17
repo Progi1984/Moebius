@@ -11,7 +11,7 @@
 ;@returnvalue #Error_009 > Error : Can't create the directory "Project\LOGS"
 ;@returnvalue #Error_010 > Error : Can't create the directory "Project\LIB"
 ;@returnvalue #Error_011 > Error : Can't create the directory "Project\OBJ"
-ProcedureDLL Moebius_Compile_Step0()
+ProcedureDLL Moebius_Userlib_Step0()
   gState = #State_Step0
 
   ;Cleans the old userlib

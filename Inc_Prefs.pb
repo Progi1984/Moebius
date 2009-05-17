@@ -69,92 +69,97 @@ ProcedureDLL Moebius_ReadParameters()
   gProject\bThreadSafe  = #False
   gProject\bBatFile  = #False
   gProject\sSubsystem  = ""
+  gProject\bTypeOutput = #TypeOutput_UserLib  
   
   ; now we read command line
   For IncA = 0 To CountProgramParameters()-1
-      Select ProgramParameter(IncA)
-        Case #Switch_Param_Help_s, #Switch_Param_Help_sl  ;{
-          gProject\sFileCHM = ProgramParameter(IncA + 1)
-          bDecl_Switch_Param_Help = #True
-          IncA = IncA + 1
-        ;}
-        Case #Switch_Param_DontBuildLib_s, #Switch_Param_DontBuildLib_sl  ;{
-          gProject\bDontBuildLib = #True
-        ;}
-        Case #Switch_Param_DontKeepSrcFiles_s, #Switch_Param_DontKeepSrcFiles_sl  ;{
-          gProject\bDontKeepSrcFiles = #False
-        ;}
-        Case #Switch_Param_LibName_s, #Switch_Param_LibName_sl  ;{
-          gProject\sLibName = ProgramParameter(IncA + 1)
-          gConf\sSourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
-          gProject\sDirProject = gConf\sSourceDir + gProject\sLibName + #System_Separator
-          M_Moebius_InitDir(bDecl_Switch_Param_Help, bDecl_Switch_Param_LogFileName, bDecl_Switch_Param_OutputLib)
-          IncA = IncA + 1
-        ;}
-        Case #Switch_Param_LogFile_s, #Switch_Param_LogFile_sl  ;{
-          gProject\bLogFile = #True
-        ;}
-        Case #Switch_Param_OutputLib_s, #Switch_Param_OutputLib_sl  ;{
-          gProject\sFileOutput = ProgramParameter(IncA + 1)
-          bDecl_Switch_Param_OutputLib = #True
-          IncA = IncA + 1
-        ;}
-        Case #Switch_Param_Unicode_s, #Switch_Param_Unicode_sl  ;{
-          gProject\bUnicode = #True
-        ;}
-        Case #Switch_Param_ThreadSafe_s, #Switch_Param_ThreadSafe_sl  ;{
-          gProject\bThreadSafe = #True
-        ;}
-        Case #Switch_Param_BatchFile_s, #Switch_Param_BatchFile_sl  ;{
-          gProject\bBatFile = #True
-        ;}
-        Case #Switch_Param_PB_Path_s, #Switch_Param_PB_Path_sl;{
-          gConf\sPureBasic_Path = ProgramParameter(IncA + 1)
-          IncA = IncA + 1
-        ;}
-        Case #Switch_Param_PB_Compiler_s, #Switch_Param_PB_Compiler_sl;{
-          gConf\sPath_PBCOMPILER = ProgramParameter(IncA + 1)
-          IncA = IncA + 1
-        ;}
-        Case #Switch_Param_PB_Obj2Lib_s, #Switch_Param_PB_Obj2Lib_sl;{
-          gConf\sPath_OBJ2LIB = ProgramParameter(IncA + 1)
-          IncA = IncA + 1
-        ;}
-        Case #Switch_Param_PB_Fasm_s, #Switch_Param_PB_Fasm_sl;{
-          gConf\sPath_FASM = ProgramParameter(IncA + 1)
-          IncA = IncA + 1
-        ;}
-        Case #Switch_Param_PB_LibMaker_s, #Switch_Param_PB_LibMaker_sl;{
-          gConf\sPath_PBLIBMAKER = ProgramParameter(IncA + 1)
-          IncA = IncA + 1
-        ;}
-        Case #Switch_Param_PB_Ini_s, #Switch_Param_PB_Ini_sl;{
-          gConf\sIni_Purebasic = ProgramParameter(IncA + 1)
-          IncA = IncA + 1
-        ;}
-        Case #Switch_Param_Project_Ini_s, #Switch_Param_Project_Ini_sl;{
-          gConf\sIni_Project = ProgramParameter(IncA + 1)
-          IncA = IncA + 1
-        ;}
-        Case #Switch_Param_Subsytem_s, #Switch_Param_Subsytem_sl;{
-          gProject\sSubsystem = ProgramParameter(IncA + 1)
-          IncA = IncA + 1
-        ;}
-        Case #Switch_Param_LogFileName_s, #Switch_Param_LogFileName_sl;{
-          gProject\sFileLog = ProgramParameter(IncA + 1)
-          bDecl_Switch_Param_LogFileName = #True
-          IncA = IncA + 1
-        ;}
-        Case #Switch_Param_ProjectDir_s, #Switch_Param_ProjectDir_sl ;{
-          gConf\sSourceDir = ProgramParameter(IncA + 1)
-          gProject\sDirProject = gConf\sSourceDir + gProject\sLibName + #System_Separator
-          M_Moebius_InitDir(bDecl_Switch_Param_Help, bDecl_Switch_Param_LogFileName, bDecl_Switch_Param_OutputLib)
-          gProject\sFileCHM  = gProject\sLibName + #System_ExtHelp
-          IncA = IncA + 1
-        ;}
-        Case #Switch_Param_LogFileInStream_s, #Switch_Param_LogFileInStream_sl ;{
-          gProject\bLogInStreaming = #True
-        ;}
-      EndSelect
+    Select ProgramParameter(IncA)
+      Case #Switch_Param_Help_s, #Switch_Param_Help_sl  ;{
+        gProject\sFileCHM = ProgramParameter(IncA + 1)
+        bDecl_Switch_Param_Help = #True
+        IncA = IncA + 1
+      ;}
+      Case #Switch_Param_DontBuildLib_s, #Switch_Param_DontBuildLib_sl  ;{
+        gProject\bDontBuildLib = #True
+      ;}
+      Case #Switch_Param_DontKeepSrcFiles_s, #Switch_Param_DontKeepSrcFiles_sl  ;{
+        gProject\bDontKeepSrcFiles = #False
+      ;}
+      Case #Switch_Param_LibName_s, #Switch_Param_LibName_sl  ;{
+        gProject\sLibName = ProgramParameter(IncA + 1)
+        gConf\sSourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator
+        gProject\sDirProject = gConf\sSourceDir + gProject\sLibName + #System_Separator
+        M_Moebius_InitDir(bDecl_Switch_Param_Help, bDecl_Switch_Param_LogFileName, bDecl_Switch_Param_OutputLib)
+        IncA = IncA + 1
+      ;}
+      Case #Switch_Param_LogFile_s, #Switch_Param_LogFile_sl  ;{
+        gProject\bLogFile = #True
+      ;}
+      Case #Switch_Param_OutputLib_s, #Switch_Param_OutputLib_sl  ;{
+        gProject\sFileOutput = ProgramParameter(IncA + 1)
+        bDecl_Switch_Param_OutputLib = #True
+        IncA = IncA + 1
+      ;}
+      Case #Switch_Param_Unicode_s, #Switch_Param_Unicode_sl  ;{
+        gProject\bUnicode = #True
+      ;}
+      Case #Switch_Param_ThreadSafe_s, #Switch_Param_ThreadSafe_sl  ;{
+        gProject\bThreadSafe = #True
+      ;}
+      Case #Switch_Param_BatchFile_s, #Switch_Param_BatchFile_sl  ;{
+        gProject\bBatFile = #True
+      ;}
+      Case #Switch_Param_PB_Path_s, #Switch_Param_PB_Path_sl;{
+        gConf\sPureBasic_Path = ProgramParameter(IncA + 1)
+        IncA = IncA + 1
+      ;}
+      Case #Switch_Param_PB_Compiler_s, #Switch_Param_PB_Compiler_sl;{
+        gConf\sPath_PBCOMPILER = ProgramParameter(IncA + 1)
+        IncA = IncA + 1
+      ;}
+      Case #Switch_Param_PB_Obj2Lib_s, #Switch_Param_PB_Obj2Lib_sl;{
+        gConf\sPath_OBJ2LIB = ProgramParameter(IncA + 1)
+        IncA = IncA + 1
+      ;}
+      Case #Switch_Param_PB_Fasm_s, #Switch_Param_PB_Fasm_sl;{
+        gConf\sPath_FASM = ProgramParameter(IncA + 1)
+        IncA = IncA + 1
+      ;}
+      Case #Switch_Param_PB_LibMaker_s, #Switch_Param_PB_LibMaker_sl;{
+        gConf\sPath_PBLIBMAKER = ProgramParameter(IncA + 1)
+        IncA = IncA + 1
+      ;}
+      Case #Switch_Param_PB_Ini_s, #Switch_Param_PB_Ini_sl;{
+        gConf\sIni_Purebasic = ProgramParameter(IncA + 1)
+        IncA = IncA + 1
+      ;}
+      Case #Switch_Param_Project_Ini_s, #Switch_Param_Project_Ini_sl;{
+        gConf\sIni_Project = ProgramParameter(IncA + 1)
+        IncA = IncA + 1
+      ;}
+      Case #Switch_Param_Subsytem_s, #Switch_Param_Subsytem_sl;{
+        gProject\sSubsystem = ProgramParameter(IncA + 1)
+        IncA = IncA + 1
+      ;}
+      Case #Switch_Param_LogFileName_s, #Switch_Param_LogFileName_sl;{
+        gProject\sFileLog = ProgramParameter(IncA + 1)
+        bDecl_Switch_Param_LogFileName = #True
+        IncA = IncA + 1
+      ;}
+      Case #Switch_Param_ProjectDir_s, #Switch_Param_ProjectDir_sl ;{
+        gConf\sSourceDir = ProgramParameter(IncA + 1)
+        gProject\sDirProject = gConf\sSourceDir + gProject\sLibName + #System_Separator
+        M_Moebius_InitDir(bDecl_Switch_Param_Help, bDecl_Switch_Param_LogFileName, bDecl_Switch_Param_OutputLib)
+        gProject\sFileCHM  = gProject\sLibName + #System_ExtHelp
+        IncA = IncA + 1
+      ;}
+      Case #Switch_Param_LogFileInStream_s, #Switch_Param_LogFileInStream_sl ;{
+        gProject\bLogInStreaming = #True
+      ;}
+      Case #Switch_Param_TypeOutput_s, #Switch_Param_TypeOutput_sl ;{
+        gProject\bTypeOutput = Val(ProgramParameter(IncA + 1))
+        IncA = IncA + 1
+      ;}
+    EndSelect
   Next
 EndProcedure 
