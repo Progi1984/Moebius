@@ -710,7 +710,7 @@ ProcedureDLL Moebius_Compile_Step2_CreateSharedFunction()
             EndIf
           EndIf
         Else
-          If Left(StringField(sLineCurrentTrimmed, 1, " "), 2) = "v_"
+          If Left(StringField(sLineCurrentTrimmed, 1, " "), 2) = "v_" Or Left(StringField(sLineCurrentTrimmed, 1, " "), 2) = "t_"
             If FindString(sLineCurrentTrimmed, "rd",0) > 0
               Moebius_Compile_Step2_AddExtrn(StringField(sLineCurrentTrimmed, 1, " "))
             EndIf
@@ -799,21 +799,32 @@ ProcedureDLL.b Moebius_Compile_Step2_CreateASMFiles()
     ForEach LL_DLLFunctions()
       If CreateRegularExpression(ListIndex(LL_DLLFunctions())+#Regex_Last, LL_DLLFunctions()\Win_ASMNameFunc+"(?=\s|])") = 0
         Output_Add("ERREUR Regex > "+RegularExpressionError(), #Output_Log, 8)
+      Else
+        Output_Add(Str(ListIndex(LL_DLLFunctions())+#Regex_Last)+">"+LL_DLLFunctions()\Win_ASMNameFunc+"(?=\s|])", #Output_Log, 8)
       EndIf
     Next
     Output_Add("Replace pb name functions by asm name functions", #Output_Log, 6)
-    lMaxInc = ListSize(LL_DLLFunctions())-1
     ForEach LL_Lines()
-      For lIncA = 0 To lMaxInc
-        SelectElement(LL_DLLFunctions(), lIncA)
-        sFuncName     = LL_DLLFunctions()\FuncName
-    		If LL_DLLFunctions()\IsDLLFunction = #False
-    		  sFuncNameReplaced = ReplaceString(gProject\sLibName, " ", "_") + "_" + sFuncName
-    		Else
-    		  sFuncNameReplaced ="PB_"+sFuncName
-    		EndIf
+      ForEach LL_DLLFunctions()
         If LL_Lines()\Function = LL_DLLFunctions()\FuncName
-          LL_Lines()\Line = ReplaceRegularExpression(lIncA+#Regex_Last, LL_Lines()\line, sFuncNameReplaced)
+      		If LL_DLLFunctions()\IsDLLFunction = #False
+      		  sFuncNameReplaced = ReplaceString(gProject\sLibName, " ", "_") + "_" + LL_DLLFunctions()\FuncName
+      		Else
+      		  sFuncNameReplaced ="PB_" + LL_DLLFunctions()\FuncName
+      		EndIf
+          LL_Lines()\Line = ReplaceRegularExpression(ListIndex(LL_DLLFunctions())+#Regex_Last, LL_Lines()\Line, sFuncNameReplaced)
+          Output_Add(Str(ListIndex(LL_DLLFunctions())+#Regex_Last)+">"+sFuncNameReplaced, #Output_Log, 8)
+        Else
+          If FindString(LL_Lines()\Line, "_Procedure", 1) > 0
+            If Right(LL_Lines()\Line, 1) <> ":"
+        		  If LL_DLLFunctions()\IsDLLFunction = #False
+          		  sFuncNameReplaced = ReplaceString(gProject\sLibName, " ", "_") + "_" + LL_DLLFunctions()\FuncName
+          		Else
+          		  sFuncNameReplaced ="PB_" + LL_DLLFunctions()\FuncName
+          		EndIf
+          		LL_Lines()\Line = StrRreplace(LL_Lines()\Line, LL_DLLFunctions()\Win_ASMNameFunc, sFuncNameReplaced)
+            EndIf
+          EndIf
         EndIf
       Next
     Next
@@ -825,21 +836,6 @@ ProcedureDLL.b Moebius_Compile_Step2_CreateASMFiles()
   Output_Add("Asm code", #Output_Log, 4)
   ;{ Asm code
     ; Replace the priv name functions by the replaced name
-    ForEach LL_Lines()
-      If FindString(LL_Lines()\Line, "_Procedure", 1) > 0
-        If Right(LL_Lines()\Line, 1) <> ":"
-          ForEach LL_DLLFunctions()
-            If LL_Lines()\Function <> LL_DLLFunctions()\FuncName
-              If LL_DLLFunctions()\IsDLLFunction = #False
-                LL_Lines()\Line = ReplaceString(LL_Lines()\Line, LL_DLLFunctions()\Win_ASMNameFunc, ReplaceString(gProject\sLibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName)
-              Else
-                LL_Lines()\Line = ReplaceString(LL_Lines()\Line, LL_DLLFunctions()\Win_ASMNameFunc, "PB_"+LL_DLLFunctions()\FuncName)
-              EndIf
-            EndIf
-          Next
-        EndIf
-      EndIf
-    Next
     ForEach LL_DLLFunctions()
       Output_Add(LL_DLLFunctions()\FuncName+" > Loading sASMContent", #Output_Log, 6)
       

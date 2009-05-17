@@ -1,7 +1,7 @@
 ;@desc Cleans the place
 ;@return #Error_029 The directory ASM can't be deleted
 ;@return #Error_030 The directory OBJ can't be deleted
-;@return #Error_031 The directory LIB  can't be deleted
+;@return #Error_031 The directory LIB can't be deleted
 ;@return #Error_032 The directory BAT can't be deleted
 ProcedureDLL Moebius_Compile_Step6()
 

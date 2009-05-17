@@ -342,3 +342,34 @@ ProcedureDLL.l sbLength(*inSBClass.S_StringBuilder)
   iLength = *inSBClass\StringSize
   ProcedureReturn iLength
 EndProcedure 
+;@author : Dobro
+;@url : http://www.purebasic.fr/french/viewtopic.php?t=9395
+ProcedureDLL.s StrRreplace(String.s, StrSearched.s, StrReplaced.s)
+  Static sPart1.s
+  Static lPos.l
+  Protected sPart2.s, sPart3.s, sText.s
+  
+  If lPos = Len(String)
+    sText = sPart1
+    lPos = 0 
+    sPart1 = ""
+    ProcedureReturn sText
+  ElseIf lPos = Len(string) - Len(StrSearched)
+    If Right(String, Len(StrSearched)) = StrSearched
+      String = Left(String, Len(string) - Len(StrSearched)) + StrReplaced
+    EndIf
+  EndIf
+  
+  lPos = lPos+1
+  sPart1 = sPart1 + Mid(String, lPos, 1)
+  sPart2 = Mid(String, lPos, Len(StrSearched))
+  sPart3 = Mid(String, lPos, Len(StrSearched) + 1)
+  If sPart3=StrSearched+"(" Or sPart3=StrSearched+" " Or sPart3=StrSearched+"," Or sPart3=StrSearched+"." Or sPart3=StrSearched+Chr(13) Or sPart3=StrSearched+Chr(10) Or sPart3=StrSearched+";" Or sPart3=StrSearched+"]"
+    sPart1 = Left(sPart1, Len(sPart1) - 1)
+    sPart1 = sPart1 + StrReplaced
+    lPos = lPos + Len(StrSearched) - 1
+  EndIf 
+  sText = StrRreplace(String,StrSearched,StrReplaced)
+  ProcedureReturn sText
+EndProcedure 
+
