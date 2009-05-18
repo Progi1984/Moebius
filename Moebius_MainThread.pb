@@ -57,6 +57,12 @@ ProcedureDLL Moebius_MainThread(Param.l)
       RetValue = Moebius_Resident_Step1()
       If RetValue > #Error_000
         Output_Add("Step1 > Error > "+Str(RetValue), #Output_Log)
+      Else ; ---------------- Step 2
+        Output_Add("Moebius_Resident_Step2()", #Output_Log)
+        RetValue = Moebius_Resident_Step2()
+        If RetValue > #Error_000
+          Output_Add("Step2 > Error > "+Str(RetValue), #Output_Log)
+        EndIf
       EndIf
     EndIf
   EndIf

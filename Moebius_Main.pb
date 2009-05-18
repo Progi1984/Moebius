@@ -19,6 +19,7 @@ XIncludeFile "Inc_Userlib_Step5.pb"
 XIncludeFile "Inc_Userlib_Step6.pb"
 XIncludeFile "Inc_Resident_Step0.pb"
 XIncludeFile "Inc_Resident_Step1.pb"
+XIncludeFile "Inc_Resident_Step2.pb"
 XIncludeFile "Moebius_MainThread.pb"
 
 M_ClearBeforeBuilding()

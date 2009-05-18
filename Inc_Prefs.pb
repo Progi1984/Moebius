@@ -95,7 +95,7 @@ ProcedureDLL Moebius_ReadParameters()
       Case #Switch_Param_LogFile_s, #Switch_Param_LogFile_sl  ;{
         gProject\bLogFile = #True
       ;}
-      Case #Switch_Param_OutputLib_s, #Switch_Param_OutputLib_sl  ;{
+      Case #Switch_Param_OutputFilename_s, #Switch_Param_OutputFilename_sl  ;{
         gProject\sFileOutput = ProgramParameter(IncA + 1)
         bDecl_Switch_Param_OutputLib = #True
         IncA = IncA + 1

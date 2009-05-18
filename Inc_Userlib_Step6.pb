@@ -4,7 +4,6 @@
 ;@return #Error_031 The directory LIB can't be deleted
 ;@return #Error_032 The directory BAT can't be deleted
 ProcedureDLL Moebius_Userlib_Step6()
-
   gState = #State_Step6
 
   ; if we don't keep files, we delete directories and their contents
