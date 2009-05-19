@@ -5,6 +5,7 @@
 #Switch_Executable = "-e"
 #Switch_StandBy = "-sb"
 #Switch_SubSystem = "-s"
+#Switch_Resident = "-r"
 
 #Switch_NoUnicodeWarning = "/NOUNICODEWARNING"
 

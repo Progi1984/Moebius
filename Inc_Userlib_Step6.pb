@@ -28,8 +28,6 @@ ProcedureDLL Moebius_Userlib_Step6()
         ProcedureReturn #Error_032
       EndIf
     EndIf
-  Else
-    ProcedureReturn #Error_000
   EndIf
   
   ; we close logs & batchs
