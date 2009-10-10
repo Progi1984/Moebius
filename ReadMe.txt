@@ -12,4 +12,8 @@ Thanks to :
 		
 Translation :
 	Fangles		English
+	Freak		German
+	Tranquil		German
 	Ts-Soft		German
+	
+	
