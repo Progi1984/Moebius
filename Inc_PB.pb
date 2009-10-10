@@ -216,8 +216,27 @@ EndProcedure
 ;@returnvalue Purebasic Path
 ProcedureDLL.s PB_GetPBFolder()
   CompilerSelect #PB_Compiler_OS
-    CompilerCase #PB_OS_Windows
-    ;{
+    CompilerCase #PB_OS_Linux  ;{
+      Protected hCompiler.l, PBFolder.s
+      hCompiler = RunProgram("which", "pbcompiler ", "", #PB_Program_Open|#PB_Program_Read)
+      PBFolder = ""
+      If hCompiler
+        While ProgramRunning(hCompiler)
+          PBFolder + ReadProgramString(hCompiler) + Chr(13)
+        Wend
+        CloseProgram(hCompiler)
+      Else
+        PBFolder = ""
+      EndIf
+      If PBFolder = "" And GetEnvironmentVariable ( "PUREBASIC_HOME" ) <> ""
+        PBFolder = GetEnvironmentVariable ( "PUREBASIC_HOME" )
+      EndIf
+      ProcedureReturn PBFolder
+    ;}
+    CompilerCase #PB_OS_MacOS ;{
+      MessageRequester("Moebius", "Function PB_GetPBFolder() : empty")
+    ;}
+    CompilerCase #PB_OS_Windows ;{
       Protected hKey1.l, Type.l, Res.l, Folder.s, lpbData.l, cbData.l, WindowsVersion.l
       cbData = (#MAX_PATH * 2) + 2
       lpbData = AllocateMemory(cbData)
@@ -248,24 +267,6 @@ ProcedureDLL.s PB_GetPBFolder()
         lpbData=0
       EndIf
       ProcedureReturn Folder
-    ;}
-    CompilerCase #PB_OS_Linux
-    ;{
-      Protected hCompiler.l, PBFolder.s
-      hCompiler = RunProgram("which", "pbcompiler ", "", #PB_Program_Open|#PB_Program_Read)
-      PBFolder = ""
-      If hCompiler
-        While ProgramRunning(hCompiler)
-          PBFolder + ReadProgramString(hCompiler) + Chr(13)
-        Wend
-        CloseProgram(hCompiler)
-      Else
-        PBFolder = ""
-      EndIf
-      If PBFolder = "" And GetEnvironmentVariable ( "PUREBASIC_HOME" ) <> ""
-        PBFolder = GetEnvironmentVariable ( "PUREBASIC_HOME" )
-      EndIf
-      ProcedureReturn PBFolder
     ;}
   CompilerEndSelect
 EndProcedure
