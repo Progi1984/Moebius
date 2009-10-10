@@ -188,11 +188,11 @@
     gProject\sDirAsm  = gProject\sDirProject + "ASM" + #System_Separator
     gProject\sDirObj  = gProject\sDirProject + "OBJ" + #System_Separator
     gProject\sDirLib  = gProject\sDirProject + "LIB" + #System_Separator
-      gProject\sFileDesc = gProject\sDirLib + gProject\sLibName+".desc"      
+    gProject\sFileDesc = gProject\sDirLib + gProject\sLibName+".desc"      
     If isCHM = #False
       gProject\sFileCHM  = gProject\sLibName + #System_ExtHelp
       CompilerIf Defined(Moebius_App, #PB_Constant) = #True
-        SetGadgetText(#Window_0_String_2, gProject\sFileCHM)
+        SetGadgetText(#String_12, gProject\sFileCHM)
       CompilerEndIf
     EndIf
     If isLog = #False
@@ -209,8 +209,14 @@
     ; Clear the log editor
     CompilerIf Defined(Moebius_App, #PB_Constant) = #True
       gStateOld = #State_StepStart
-      If IsGadget(#Window_0_Editor_0)
-        ClearGadgetItems(#Window_0_Editor_0)
+      If gProject\bTypeOutput =  #TypeOutput_Resident
+        If IsGadget(#Editor_00)
+          ClearGadgetItems(#Editor_00)
+        EndIf
+      ElseIf gProject\bTypeOutput =  #TypeOutput_UserLib
+        If IsGadget(#Editor_01)
+          ClearGadgetItems(#Editor_01)
+        EndIf
       EndIf
     CompilerEndIf
     ; Clear variables before any compilation
