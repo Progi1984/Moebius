@@ -799,8 +799,6 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
     ForEach LL_DLLFunctions()
       If CreateRegularExpression(ListIndex(LL_DLLFunctions())+#Regex_Last, LL_DLLFunctions()\Win_ASMNameFunc+"(?=\s|])") = 0
         Output_Add("ERREUR Regex > "+RegularExpressionError(), #Output_Log, 8)
-      Else
-        Output_Add(Str(ListIndex(LL_DLLFunctions())+#Regex_Last)+">"+LL_DLLFunctions()\Win_ASMNameFunc+"(?=\s|])", #Output_Log, 8)
       EndIf
     Next
     Output_Add("Replace pb name functions by asm name functions", #Output_Log, 6)
@@ -813,7 +811,6 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
       		  sFuncNameReplaced ="PB_" + LL_DLLFunctions()\FuncName
       		EndIf
           LL_Lines()\Line = ReplaceRegularExpression(ListIndex(LL_DLLFunctions())+#Regex_Last, LL_Lines()\Line, sFuncNameReplaced)
-          Output_Add(Str(ListIndex(LL_DLLFunctions())+#Regex_Last)+">"+sFuncNameReplaced, #Output_Log, 8)
         Else
           If FindString(LL_Lines()\Line, "_Procedure", 1) > 0
             If Right(LL_Lines()\Line, 1) <> ":"
