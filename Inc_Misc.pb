@@ -54,60 +54,62 @@ ProcedureDLL Output_Init()
     lTimeStart = Date()
     If gProject\bLogInStreaming = #False
       hFileLog = OpenFile(#PB_Any, gProject\sFileLog)
-      If gProject\bTypeOutput = #TypeOutput_UserLib
-        WriteStringN(hFileLog, "PARAM >gProject\sFileName ="+gProject\sFileName)
-        WriteStringN(hFileLog, "PARAM >gProject\sFileDesc ="+gProject\sFileDesc)
-        WriteStringN(hFileLog, "PARAM >gProject\sFileCHM ="+gProject\sFileCHM)
-        WriteStringN(hFileLog, "PARAM >gProject\sFileOutput ="+gProject\sFileOutput)
-        WriteStringN(hFileLog, "PARAM >gProject\sFileLog ="+gProject\sFileLog)
-        
-        WriteStringN(hFileLog, "PARAM >gProject\sLibName ="+gProject\sLibName)
-        WriteStringN(hFileLog, "PARAM >gProject\sSubsystem ="+gProject\sSubsystem)
-        
-        WriteStringN(hFileLog, "PARAM >gProject\sDirProject ="+gProject\sDirProject)
-        WriteStringN(hFileLog, "PARAM >gProject\sDirAsm ="+gProject\sDirAsm)
-        WriteStringN(hFileLog, "PARAM >gProject\sDirObj ="+gProject\sDirObj)
-        WriteStringN(hFileLog, "PARAM >gProject\sDirLib ="+gProject\sDirLib)
-        WriteStringN(hFileLog, "PARAM >gProject\sDirBat ="+gProject\sDirBat)
-        WriteStringN(hFileLog, "PARAM >gProject\sDirLogs ="+gProject\sDirLogs)
-        
-        WriteStringN(hFileLog, "PARAM >gProject\bUnicode ="+Str(gProject\bUnicode))
-        WriteStringN(hFileLog, "PARAM >gProject\bThreadSafe ="+Str(gProject\bThreadSafe))
-        WriteStringN(hFileLog, "PARAM >gProject\bDontBuildLib ="+Str(gProject\bDontBuildLib))
-        WriteStringN(hFileLog, "PARAM >gProject\bDontKeepSrcFiles ="+Str(gProject\bDontKeepSrcFiles))
-        WriteStringN(hFileLog, "PARAM >gProject\bLogFile ="+Str(gProject\bLogFile))
-        WriteStringN(hFileLog, "PARAM >gProject\bLogInStreaming ="+Str(gProject\bLogInStreaming))
-        WriteStringN(hFileLog, "PARAM >gProject\bBatFile ="+Str(gProject\bBatFile))
+      If hFileLog
+        If gProject\bTypeOutput = #TypeOutput_UserLib
+          WriteStringN(hFileLog, "PARAM >gProject\sFileName ="+gProject\sFileName)
+          WriteStringN(hFileLog, "PARAM >gProject\sFileDesc ="+gProject\sFileDesc)
+          WriteStringN(hFileLog, "PARAM >gProject\sFileCHM ="+gProject\sFileCHM)
+          WriteStringN(hFileLog, "PARAM >gProject\sFileOutput ="+gProject\sFileOutput)
+          WriteStringN(hFileLog, "PARAM >gProject\sFileLog ="+gProject\sFileLog)
+          
+          WriteStringN(hFileLog, "PARAM >gProject\sLibName ="+gProject\sLibName)
+          WriteStringN(hFileLog, "PARAM >gProject\sSubsystem ="+gProject\sSubsystem)
+          
+          WriteStringN(hFileLog, "PARAM >gProject\sDirProject ="+gProject\sDirProject)
+          WriteStringN(hFileLog, "PARAM >gProject\sDirAsm ="+gProject\sDirAsm)
+          WriteStringN(hFileLog, "PARAM >gProject\sDirObj ="+gProject\sDirObj)
+          WriteStringN(hFileLog, "PARAM >gProject\sDirLib ="+gProject\sDirLib)
+          WriteStringN(hFileLog, "PARAM >gProject\sDirBat ="+gProject\sDirBat)
+          WriteStringN(hFileLog, "PARAM >gProject\sDirLogs ="+gProject\sDirLogs)
+          
+          WriteStringN(hFileLog, "PARAM >gProject\bUnicode ="+Str(gProject\bUnicode))
+          WriteStringN(hFileLog, "PARAM >gProject\bThreadSafe ="+Str(gProject\bThreadSafe))
+          WriteStringN(hFileLog, "PARAM >gProject\bDontBuildLib ="+Str(gProject\bDontBuildLib))
+          WriteStringN(hFileLog, "PARAM >gProject\bDontKeepSrcFiles ="+Str(gProject\bDontKeepSrcFiles))
+          WriteStringN(hFileLog, "PARAM >gProject\bLogFile ="+Str(gProject\bLogFile))
+          WriteStringN(hFileLog, "PARAM >gProject\bLogInStreaming ="+Str(gProject\bLogInStreaming))
+          WriteStringN(hFileLog, "PARAM >gProject\bBatFile ="+Str(gProject\bBatFile))
+    
+          WriteStringN(hFileLog, "PARAM >gConf\sPureBasic_Path = "+gConf\sPureBasic_Path)
+          WriteStringN(hFileLog, "PARAM >gConf\sPath_PBCOMPILER = "+gConf\sPath_PBCOMPILER)
+          WriteStringN(hFileLog, "PARAM >gConf\sPath_FASM = "+gConf\sPath_FASM)
+          WriteStringN(hFileLog, "PARAM >gConf\sPath_OBJ2LIB = "+gConf\sPath_OBJ2LIB)
+          WriteStringN(hFileLog, "PARAM >gConf\sPath_PBLIBMAKER = "+gConf\sPath_PBLIBMAKER)
+          WriteStringN(hFileLog, "PARAM >gConf\sSourceDir = "+gConf\sSourceDir)
+          
+          WriteStringN(hFileLog, "PARAM >gConf\sIni_Purebasic = "+gConf\sIni_Purebasic)
+          WriteStringN(hFileLog, "PARAM >gConf\sIni_Project = "+gConf\sIni_Project)
+        ElseIf gProject\bTypeOutput = #TypeOutput_Resident
+          WriteStringN(hFileLog, "PARAM >gProject\sFileName ="+gProject\sFileName)
+          WriteStringN(hFileLog, "PARAM >gProject\sFileOutput ="+gProject\sFileOutput)
+          WriteStringN(hFileLog, "PARAM >gProject\sFileLog ="+gProject\sFileLog)
+          
+          WriteStringN(hFileLog, "PARAM >gProject\sLibName ="+gProject\sLibName)
+          
+          WriteStringN(hFileLog, "PARAM >gProject\sDirProject ="+gProject\sDirProject)
+          WriteStringN(hFileLog, "PARAM >gProject\sDirLogs ="+gProject\sDirLogs)
+          
+          WriteStringN(hFileLog, "PARAM >gProject\bUnicode ="+Str(gProject\bUnicode))
+          WriteStringN(hFileLog, "PARAM >gProject\bLogFile ="+Str(gProject\bLogFile))
+    
+          WriteStringN(hFileLog, "PARAM >gConf\sPureBasic_Path = "+gConf\sPureBasic_Path)
+          WriteStringN(hFileLog, "PARAM >gConf\sPath_PBCOMPILER = "+gConf\sPath_PBCOMPILER)
   
-        WriteStringN(hFileLog, "PARAM >gConf\sPureBasic_Path = "+gConf\sPureBasic_Path)
-        WriteStringN(hFileLog, "PARAM >gConf\sPath_PBCOMPILER = "+gConf\sPath_PBCOMPILER)
-        WriteStringN(hFileLog, "PARAM >gConf\sPath_FASM = "+gConf\sPath_FASM)
-        WriteStringN(hFileLog, "PARAM >gConf\sPath_OBJ2LIB = "+gConf\sPath_OBJ2LIB)
-        WriteStringN(hFileLog, "PARAM >gConf\sPath_PBLIBMAKER = "+gConf\sPath_PBLIBMAKER)
-        WriteStringN(hFileLog, "PARAM >gConf\sSourceDir = "+gConf\sSourceDir)
-        
-        WriteStringN(hFileLog, "PARAM >gConf\sIni_Purebasic = "+gConf\sIni_Purebasic)
-        WriteStringN(hFileLog, "PARAM >gConf\sIni_Project = "+gConf\sIni_Project)
-      ElseIf gProject\bTypeOutput = #TypeOutput_Resident
-        WriteStringN(hFileLog, "PARAM >gProject\sFileName ="+gProject\sFileName)
-        WriteStringN(hFileLog, "PARAM >gProject\sFileOutput ="+gProject\sFileOutput)
-        WriteStringN(hFileLog, "PARAM >gProject\sFileLog ="+gProject\sFileLog)
-        
-        WriteStringN(hFileLog, "PARAM >gProject\sLibName ="+gProject\sLibName)
-        
-        WriteStringN(hFileLog, "PARAM >gProject\sDirProject ="+gProject\sDirProject)
-        WriteStringN(hFileLog, "PARAM >gProject\sDirLogs ="+gProject\sDirLogs)
-        
-        WriteStringN(hFileLog, "PARAM >gProject\bUnicode ="+Str(gProject\bUnicode))
-        WriteStringN(hFileLog, "PARAM >gProject\bLogFile ="+Str(gProject\bLogFile))
-  
-        WriteStringN(hFileLog, "PARAM >gConf\sPureBasic_Path = "+gConf\sPureBasic_Path)
-        WriteStringN(hFileLog, "PARAM >gConf\sPath_PBCOMPILER = "+gConf\sPath_PBCOMPILER)
-
-        WriteStringN(hFileLog, "PARAM >gConf\sIni_Purebasic = "+gConf\sIni_Purebasic)
-        WriteStringN(hFileLog, "PARAM >gConf\sIni_Project = "+gConf\sIni_Project)
+          WriteStringN(hFileLog, "PARAM >gConf\sIni_Purebasic = "+gConf\sIni_Purebasic)
+          WriteStringN(hFileLog, "PARAM >gConf\sIni_Project = "+gConf\sIni_Project)
+        EndIf
+        WriteStringN(hFileLog, "")
       EndIf
-      WriteStringN(hFileLog, "")
     Else
       ClearList(LL_Logs())
     EndIf
@@ -154,13 +156,14 @@ ProcedureDLL Output_End()
     If hFileBatch
       CloseFile(hFileBatch)
       CompilerSelect #PB_Compiler_OS
-        CompilerCase #PB_OS_Linux : RunProgram("chmod", "+x "+"Script"+#System_ExtBatch,gProject\sDirBat)
+        CompilerCase #PB_OS_Linux : RunProgram("chmod", "+x Script"+#System_ExtBatch, gProject\sDirBat)
       CompilerEndSelect
     EndIf
   EndIf
 EndProcedure
 ;@desc Add content to batch or/and log files
 ProcedureDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
+  CreateMutex()
   Protected sLogContent.s = FormatDate("%hh:%ii:%ss", Date())+"  "+Space(lNumTabs) + sContent
   Protected sBatContent.s = sContent
   ; Log
@@ -184,7 +187,15 @@ ProcedureDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
   ; Log InApp
   CompilerIf Defined(Moebius_App, #PB_Constant) = #True
     If bEnableLogEditor = #True
-      AddGadgetItem(#Window_0_Editor_0, -1, sLogContent)
+      If gProject\bTypeOutput = #TypeOutput_Resident
+        If IsGadget(#Editor_00) <> 0
+          AddGadgetItem(#Editor_00, -1, sLogContent)
+        EndIf
+      ElseIf gProject\bTypeOutput = #TypeOutput_UserLib
+        If IsGadget(#Editor_01) <> 0
+          AddGadgetItem(#Editor_01, -1, sLogContent)
+        EndIf
+      EndIf
     EndIf
   CompilerEndIf
   ; Batch
@@ -245,115 +256,135 @@ EndProcedure
 ;@author Xombie
 ;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
 ProcedureDLL.l sbCreate(BlockSize.l)
-   Protected *sbClass.S_StringBuilder
-   *sbClass = AllocateMemory(SizeOf(S_StringBuilder))
-   If *sbClass\InitDone : FreeMemory(*sbClass\pString) : EndIf
-   ; If the stringbuilder is already initialized, free the memory of the string.
-   ; BlockSize min. 1024 ($400) Byte
-   If BlockSize < $400 : BlockSize = $400 : EndIf
-   ; BlockSize max. 1 MByte ($100000) Byte
-   If BlockSize > $100000 : BlockSize = $100000 : EndIf
-   If BlockSize <> (BlockSize & $FC00)
-      BlockSize = (BlockSize & $FC00) + 1024
-   EndIf
-   *sbClass\BlockSize = BlockSize
-   *sbClass\StringSize = 0
-   *sbClass\pString = AllocateMemory(BlockSize)
-   ; Allocate the memory needed for our string
-   If *sbClass\pString <> 0
-      ; Allocation went fine, let the structure know we initialized everything fine.
-      *sbClass\InitDone = #True
-      *sbClass\MemSize = *sbClass\BlockSize
-      ; Set our memory size used to the size of the block.
-   Else
-      ; Problem with allocation - let it know we did not initialize
-      *sbClass\InitDone = #False
-      *sbClass\MemSize = 0
-   EndIf
-   ProcedureReturn *sbClass
-   ; Return the pointer to our new stringbuilder class.
+  Protected *sbClass.S_StringBuilder
+  *sbClass = AllocateMemory(SizeOf(S_StringBuilder))
+  If *sbClass\InitDone
+    If *sbClass\pString
+      FreeMemory(*sbClass\pString)
+    EndIf
+  EndIf
+  ; If the stringbuilder is already initialized, free the memory of the string.
+  ; BlockSize min. 1024 ($400) Byte
+  If BlockSize < $400
+    BlockSize = $400
+  EndIf
+  ; BlockSize max. 1 MByte ($100000) Byte
+  If BlockSize > $100000
+    BlockSize = $100000
+  EndIf
+  If BlockSize <> (BlockSize & $FC00)
+    BlockSize = (BlockSize & $FC00) + 1024
+  EndIf
+  *sbClass\BlockSize = BlockSize
+  *sbClass\StringSize = 0
+  If BlockSize > 0
+    *sbClass\pString = AllocateMemory(BlockSize)
+  EndIf
+  ; Allocate the memory needed for our string
+  If *sbClass\pString <> 0
+    ; Allocation went fine, let the structure know we initialized everything fine.
+    *sbClass\InitDone = #True
+    *sbClass\MemSize = *sbClass\BlockSize
+    ; Set our memory size used to the size of the block.
+  Else
+    ; Problem with allocation - let it know we did not initialize
+    *sbClass\InitDone = #False
+    *sbClass\MemSize = 0
+  EndIf
+  ProcedureReturn *sbClass
+  ; Return the pointer to our new stringbuilder class.
 EndProcedure
 ;@author Xombie
 ;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
 ProcedureDLL sbClear(*inSBClass.S_StringBuilder)
-   If *inSBClass\InitDone
+  If *inSBClass\InitDone
+    If *inSBClass\pString
       FreeMemory(*inSBClass\pString)
-      *inSBClass\pString = 0
-      *inSBClass\StringSize = 0
-      *inSBClass\BlockSize = 0
-      *inSBClass\InitDone = #False
-      *inSBClass\MemSize = 0
-   EndIf
+    EndIf
+    *inSBClass\pString = 0
+    *inSBClass\StringSize = 0
+    *inSBClass\BlockSize = 0
+    *inSBClass\InitDone = #False
+    *inSBClass\MemSize = 0
+  EndIf
 EndProcedure
 ;@author Xombie
 ;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
 ProcedureDLL sbDestroy(*inSBClass.S_StringBuilder)
-   If *inSBClass\InitDone
+  If *inSBClass\InitDone
+    If *inSBClass\pString
       FreeMemory(*inSBClass\pString)
-      *inSBClass\pString = 0
-      *inSBClass\StringSize = 0
-      *inSBClass\BlockSize = 0
-      *inSBClass\InitDone = #False
-      *inSBClass\MemSize = 0
-   EndIf
-   FreeMemory(*inSBClass)
+    EndIf
+    *inSBClass\pString = 0
+    *inSBClass\StringSize = 0
+    *inSBClass\BlockSize = 0
+    *inSBClass\InitDone = #False
+    *inSBClass\MemSize = 0
+  EndIf
+  If *inSBClass
+    FreeMemory(*inSBClass)
+  EndIf
 EndProcedure
 ;@author Xombie
 ;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
 ProcedureDLL sbAdd(*inSBClass.S_StringBuilder, inString.l)
-   Protected StrLen.l
-   Protected pNewString.l
-   Protected NewMemSize.l
-   Protected NewStringSize.l
-   StrLen = MemoryStringLength(inString)
-   NewStringSize = StrLen + *inSBClass\StringSize
-   If NewStringSize + 1 > *inSBClass\MemSize
-      NewMemSize = *inSBClass\MemSize + *inSBClass\BlockSize
-      pNewString=AllocateMemory(NewMemSize)
-      If pNewString = 0 : ProcedureReturn #False : EndIf
-      CopyMemory(*inSBClass\pString, pNewString, *inSBClass\StringSize)
+  Protected StrLen.l
+  Protected pNewString.l
+  Protected NewMemSize.l
+  Protected NewStringSize.l
+  StrLen = MemoryStringLength(inString)
+  NewStringSize = StrLen + *inSBClass\StringSize
+  If NewStringSize + 1 > *inSBClass\MemSize
+    NewMemSize = *inSBClass\MemSize + *inSBClass\BlockSize
+    pNewString = AllocateMemory(NewMemSize)
+    If pNewString = 0
+      ProcedureReturn #False
+    EndIf
+    CopyMemory(*inSBClass\pString, pNewString, *inSBClass\StringSize)
+    If *inSBClass\pString
       FreeMemory(*inSBClass\pString)
-      *inSBClass\pString = pNewString
-      *inSBClass\MemSize = NewMemSize
-   EndIf
-   CopyMemory(inString, *inSBClass\pString + *inSBClass\StringSize, StrLen)
-   *inSBClass\StringSize = NewStringSize
+    EndIf
+    *inSBClass\pString = pNewString
+    *inSBClass\MemSize = NewMemSize
+  EndIf
+  CopyMemory(inString, *inSBClass\pString + *inSBClass\StringSize, StrLen)
+  *inSBClass\StringSize = NewStringSize
 EndProcedure
 ;@author Xombie
 ;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
 ProcedureDLL sbAddLiteral(*inSBClass.S_StringBuilder, inString.s)
-   Protected sAddress.l, StrLen.l, pNewString.l, NewMemSize.l, NewStringSize.l
-   sAddress = @inString
-   StrLen = MemoryStringLength(sAddress)
-   NewStringSize = StrLen + *inSBClass\StringSize
-   If (NewStringSize + 1) > *inSBClass\MemSize
-      NewMemSize = *inSBClass\MemSize + *inSBClass\BlockSize
-      pNewString = AllocateMemory(NewMemSize)
-      If pNewString = 0
-        ProcedureReturn #False
-      EndIf
-      CopyMemory(*inSBClass\pString, pNewString, *inSBClass\StringSize)
+  Protected sAddress.l, StrLen.l, pNewString.l, NewMemSize.l, NewStringSize.l
+  sAddress = @inString
+  StrLen = MemoryStringLength(sAddress)
+  NewStringSize = StrLen + *inSBClass\StringSize
+  If (NewStringSize + 1) > *inSBClass\MemSize
+    NewMemSize = *inSBClass\MemSize + *inSBClass\BlockSize
+    pNewString = AllocateMemory(NewMemSize)
+    If pNewString = 0
+      ProcedureReturn #False
+    EndIf
+    CopyMemory(*inSBClass\pString, pNewString, *inSBClass\StringSize)
+    If *inSBClass\pString
       FreeMemory(*inSBClass\pString)
-      *inSBClass\pString = pNewString
-      *inSBClass\MemSize = NewMemSize
-   EndIf
-   CopyMemory(sAddress, *inSBClass\pString + *inSBClass\StringSize, StrLen)
-   *inSBClass\StringSize = NewStringSize
+    EndIf
+    *inSBClass\pString = pNewString
+    *inSBClass\MemSize = NewMemSize
+  EndIf
+  CopyMemory(sAddress, *inSBClass\pString + *inSBClass\StringSize, StrLen)
+  *inSBClass\StringSize = NewStringSize
 EndProcedure
 ;@author Xombie
 ;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
 ProcedureDLL.s sbGetString(*inSBClass.S_StringBuilder)
-   Protected WholeString.s
-   WholeString = PeekS(*inSBClass\pString)
-   ProcedureReturn WholeString
+  Protected WholeString.s = PeekS(*inSBClass\pString)
+  ProcedureReturn WholeString
 EndProcedure
 ;@author Xombie
 ;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
 ProcedureDLL.s sbGetStringAndDestroy(*inSBClass.S_StringBuilder)
-   Protected WholeString.s
-   WholeString = PeekS(*inSBClass\pString)
-   sbDestroy(*inSBClass)
-   ProcedureReturn WholeString
+  Protected WholeString.s = PeekS(*inSBClass\pString)
+  sbDestroy(*inSBClass)
+  ProcedureReturn WholeString
 EndProcedure
 ;@author Xombie
 ;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
