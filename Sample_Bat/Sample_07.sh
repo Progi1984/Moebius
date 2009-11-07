@@ -1,2 +1,2 @@
 cd ../
-./moebius -l "Sample_07" -f -pbi "Prefs/Moebius_Linux.ini" "Sample_Lib/Sample_07.pb"
+./moebius -log -ln "Sample_07" -pbi "Prefs/Profile_Linux.ini" "Sample_Lib/Sample_07.pb"

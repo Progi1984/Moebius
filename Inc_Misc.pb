@@ -172,10 +172,10 @@ ProcedureDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
       If gProject\bLogInStreaming = #False
         If hFileLog
           WriteStringN(hFileLog, sLogContent)
-          CompilerIf #PB_Compiler_Debugger = #True
-            Debug "LOG > "+sLogContent
-          CompilerEndIf
         EndIf
+        CompilerIf #PB_Compiler_Debugger = #True
+          Debug "LOG > "+sLogContent
+        CompilerEndIf
       Else
         LastElement(LL_Logs())
         If AddElement(LL_Logs())
@@ -185,18 +185,20 @@ ProcedureDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
     EndIf
   EndIf
   ; Log InApp
-  CompilerIf Defined(Moebius_App, #PB_Constant) = #True
-    If bEnableLogEditor = #True
-      If gProject\bTypeOutput = #TypeOutput_Resident
-        If IsGadget(#Editor_00) <> 0
-          AddGadgetItem(#Editor_00, -1, sLogContent)
-        EndIf
-      ElseIf gProject\bTypeOutput = #TypeOutput_UserLib
-        If IsGadget(#Editor_01) <> 0
-          AddGadgetItem(#Editor_01, -1, sLogContent)
+  CompilerIf #PB_Compiler_Version > 440
+    CompilerIf Defined(Moebius_App, #PB_Constant) = #True
+      If bEnableLogEditor = #True
+        If gProject\bTypeOutput = #TypeOutput_Resident
+          If IsGadget(#Editor_00) <> 0
+            AddGadgetItem(#Editor_00, -1, sLogContent)
+          EndIf
+        ElseIf gProject\bTypeOutput = #TypeOutput_UserLib
+          If IsGadget(#Editor_01) <> 0
+            AddGadgetItem(#Editor_01, -1, sLogContent)
+          EndIf
         EndIf
       EndIf
-    EndIf
+    CompilerEndIf
   CompilerEndIf
   ; Batch
   If gProject\bBatFile = #True

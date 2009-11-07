@@ -13,10 +13,9 @@
 ;@returnvalue #Error_011 > Error : Can't create the directory "Project\OBJ"
 ProcedureDLL Moebius_Userlib_Step0()
   gState = #State_Step0
-
   ;Cleans the old userlib
-  If FileSize(gConf\sPureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\sLibName) > 0
-    If DeleteFile(gConf\sPureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+gProject\sLibName) = 0
+  If FileSize(gConf\sPureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+LCase(gProject\sLibName)) > 0
+    If DeleteFile(gConf\sPureBasic_Path + "purelibraries"+#System_Separator+"userlibraries"+#System_Separator+LCase(gProject\sLibName)) = 0
       ProcedureReturn #Error_001
     EndIf
   EndIf

@@ -1,2 +1,2 @@
-cd ..
-moebius /b /l "Sample_11" /f /pbi "Prefs/Moebius_Windows.ini" "Sample_Lib/Sample_11.pb"
+cd ../
+moebius /log /bat /ln "Sample_11" /pbi "Prefs/Profile_Windows.ini" "Sample_Lib/Sample_11.pb"
