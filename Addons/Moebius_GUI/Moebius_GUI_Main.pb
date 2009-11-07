@@ -424,6 +424,7 @@ Repeat
             gProject\bThreadSafe = GetGadgetState(#CheckBox_06)
             gProject\bLogFile = GetGadgetState(#CheckBox_07)
             gProject\bLogInStreaming = GetGadgetState(#CheckBox_07)
+            bEnableLogEditor = 
             gProject\bBatFile = GetGadgetState(#CheckBox_08)
             gProject\bDontBuildLib = GetGadgetState(#CheckBox_09)
             gProject\bDontKeepSrcFiles = 1 - GetGadgetState(#CheckBox_10)
@@ -437,14 +438,13 @@ Repeat
             
             ; No for CHM, ? for Log, Yes for Output
             If GetGadgetText(#String_12) = ""
-              M_Moebius_InitDir(#False, GetGadgetState(#CheckBox_07), #True) 
+              M_Moebius_InitDir(#False, 1- GetGadgetState(#CheckBox_07), #True) 
             Else
-              M_Moebius_InitDir(#True, GetGadgetState(#CheckBox_07), #True) 
+              M_Moebius_InitDir(#True, 1- GetGadgetState(#CheckBox_07), #True) 
             EndIf
             
             M_ClearBeforeBuilding()
             ; Launchs a thread for compilation
-            ;CreateThread(@,0)
             Moebius_MainThread(0)
           EndIf
         ;}
