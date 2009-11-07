@@ -26,6 +26,10 @@ ProcedureDLL Moebius_Resident_Step1()
   If gProject\bUnicode
     sCompilerParam + #Switch_Unicode + " "
   EndIf
+  If gProject\bInlineASM
+    sCompilerParam + #Switch_InlineASM + " "
+  EndIf
+  
   sCompilerParam + #DQuote + sResFile + #DQuote
   
   ; launch the compiler

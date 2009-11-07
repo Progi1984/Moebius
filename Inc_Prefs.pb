@@ -29,6 +29,7 @@ ProcedureDLL Moebius_ReadPrefs()
         gProject\bDontKeepSrcFiles  = ReadPreferenceLong("DontKeepSrcFiles", #False)
         gProject\bUnicode = ReadPreferenceLong("Unicode", #False)
         gProject\bThreadSafe = ReadPreferenceLong("ThreadSafe", #False)
+        gProject\bInlineASM = ReadPreferenceLong("InlineASM", #False)
         gProject\bBatFile  = ReadPreferenceLong("BatFile", #False)
         gProject\bLogFile  = ReadPreferenceLong("LogFile", #False)
       ClosePreferences()
@@ -159,6 +160,9 @@ ProcedureDLL Moebius_ReadParameters()
       Case #Switch_Param_TypeOutput_s, #Switch_Param_TypeOutput_sl ;{
         gProject\bTypeOutput = Val(ProgramParameter(IncA + 1))
         IncA = IncA + 1
+      ;}
+      Case #Switch_Param_InlineASM_s, #Switch_Param_InlineASM_sl ;{
+        gProject\bInlineASM = #True
       ;}
     EndSelect
   Next

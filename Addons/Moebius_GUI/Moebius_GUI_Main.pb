@@ -282,6 +282,7 @@ Repeat
             gProject\sDirProject = GetGadgetText(#String_07)
             gProject\bUnicode = GetGadgetState(#CheckBox_01)
             gProject\bThreadSafe = GetGadgetState(#CheckBox_02)
+            gProject\bInlineASM = GetGadgetState(#CheckBox_11)
             gProject\bLogFile = GetGadgetState(#CheckBox_03)
             gProject\bBatFile = GetGadgetState(#CheckBox_04)
   
@@ -293,9 +294,12 @@ Repeat
             gConf\sSourceDir = GetGadgetText(#String_07)
             
             ; No for CHM, ? for Log, Yes for Output
-            M_Moebius_InitDir(#False, GetGadgetState(#CheckBox_03), #True) 
+            M_Moebius_InitDir(#False, 1 - GetGadgetState(#CheckBox_03), #True) 
             
+            ; Cleans all variables before a new building
             M_ClearBeforeBuilding()
+            ; Output a log in Editorgadget
+            bEnableLogEditor = #True
             ; Launchs a thread for compilation
             CreateThread(@Moebius_MainThread(),0)
           EndIf
@@ -422,6 +426,7 @@ Repeat
             gProject\sDirProject = GetGadgetText(#String_11)
             gProject\bUnicode = GetGadgetState(#CheckBox_05)
             gProject\bThreadSafe = GetGadgetState(#CheckBox_06)
+            gProject\bInlineASM = GetGadgetState(#CheckBox_12)
             gProject\bLogFile = GetGadgetState(#CheckBox_07)
             gProject\bLogInStreaming = GetGadgetState(#CheckBox_07)
             gProject\bBatFile = GetGadgetState(#CheckBox_08)

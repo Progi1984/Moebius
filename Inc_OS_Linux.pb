@@ -43,5 +43,6 @@ M_SetConstantPrefs(Switch_Param_LogFileName, 17, "-logf", "--logfilename")
 M_SetConstantPrefs(Switch_Param_ProjectDir, 18, "-pdir", "--projectdir")
 M_SetConstantPrefs(Switch_Param_LogFileInStream, 19, "-logfs", "--logfileinstream")
 M_SetConstantPrefs(Switch_Param_TypeOutput, 20, "-to", "--typeoutput")
-M_SetConstantPrefs(Switch_Param_Last, 21, "", "")
+M_SetConstantPrefs(Switch_Param_InlineASM, 21, "-i", "--inlineasm")
+M_SetConstantPrefs(Switch_Param_Last, 22, "", "")
 

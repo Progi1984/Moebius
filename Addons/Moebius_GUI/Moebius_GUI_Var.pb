@@ -33,6 +33,8 @@ Enumeration
   #CheckBox_08
   #CheckBox_09
   #CheckBox_10
+  #CheckBox_11
+  #CheckBox_12
   #ComboBox_00
   #ComboBox_01
   #ComboBox_02

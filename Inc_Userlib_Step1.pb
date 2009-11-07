@@ -41,6 +41,9 @@ ProcedureDLL Moebius_Userlib_Step1()
   If gProject\bThreadSafe
     sCompilerParam + #Switch_ThreadSafe+" "
   EndIf
+  If gProject\bInlineASM
+    sCompilerParam + #Switch_InlineASM + " "
+  EndIf
   If gProject\sSubSystem <> ""
     sCompilerParam + #Switch_SubSystem + #DQuote + gProject\sSubSystem + #DQuote
   EndIf

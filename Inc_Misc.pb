@@ -74,6 +74,7 @@ ProcedureDLL Output_Init()
           
           WriteStringN(hFileLog, "PARAM >gProject\bUnicode ="+Str(gProject\bUnicode))
           WriteStringN(hFileLog, "PARAM >gProject\bThreadSafe ="+Str(gProject\bThreadSafe))
+          WriteStringN(hFileLog, "PARAM >gProject\bInlineASM ="+Str(gProject\bInlineASM))
           WriteStringN(hFileLog, "PARAM >gProject\bDontBuildLib ="+Str(gProject\bDontBuildLib))
           WriteStringN(hFileLog, "PARAM >gProject\bDontKeepSrcFiles ="+Str(gProject\bDontKeepSrcFiles))
           WriteStringN(hFileLog, "PARAM >gProject\bLogFile ="+Str(gProject\bLogFile))

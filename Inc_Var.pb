@@ -51,6 +51,7 @@
     
     bUnicode.b
     bThreadSafe.b
+    bInlineASM.b
     bDontBuildLib.b
     bDontKeepSrcFiles.b
     bLogFile.b
