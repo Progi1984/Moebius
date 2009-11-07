@@ -458,6 +458,7 @@ Repeat
           Break
       EndSelect
   EndSelect
+  ; Log & Error Management
   If gStateOld <> gState
     If gState >= #State_StepLast
       CompilerIf #PB_Compiler_Version = 440
@@ -478,7 +479,7 @@ Repeat
         EndIf
       CompilerEndIf
       If gState > #State_StepLast
-        gError = gState - #State_StepLast 
+        gState - #State_StepLast 
         MessageRequester(dimLanguageItems(1), M_GUI_GetStringError(gError))
         gState = #State_StepStart
       EndIf
