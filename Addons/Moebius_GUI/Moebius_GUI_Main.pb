@@ -485,7 +485,15 @@ Repeat
       CompilerEndIf
       If gState > #State_StepLast
         gState - #State_StepLast 
-        MessageRequester(dimLanguageItems(1), M_GUI_GetStringError(gError))
+        Protected psMRContent.s
+        psMRContent = M_GUI_GetStringError(gError)
+        If gsErrorContent <> ""
+          psMRContent + #System_EOL
+          psMRContent + dimLanguageItems(54)+":"
+          psMRContent + #System_EOL
+          psMRContent + gsErrorContent
+        EndIf
+        MessageRequester(dimLanguageItems(1), psMRContent)
         gState = #State_StepStart
       EndIf
     EndIf

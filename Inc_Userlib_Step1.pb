@@ -62,7 +62,12 @@ ProcedureDLL Moebius_Userlib_Step1()
   Else
     ProcedureReturn #Error_013
   EndIf
-
+  If sCompilerOutput <> 
+    gsErrorContent = sCompilerOutput
+  Else
+    gsErrorContent = ""
+  EndIf
+  
   If ProgramExitCode(lCompiler) = 0 Or (#PB_Compiler_Version = 420 And #PB_Compiler_OS = #PB_OS_Linux)
     ; #PB_Compiler_Version = 420 And #PB_Compiler_OS = #PB_OS_Linux => http://www.purebasic.fr/english/viewtopic.php?t=35379
     ; Test if the result is true 

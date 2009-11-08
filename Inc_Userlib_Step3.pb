@@ -25,13 +25,17 @@ ProcedureDLL Moebius_Userlib_Step3()
           sFASMError + Space(2)+sReadPgm+#System_EOL
         EndIf
       Wend
+      
       If sFASMString <> ""
         Output_Add("FASM String", #Output_Log, 2)
         Output_Add(sFASMString, #Output_Log, 0)
       EndIf
       If sFASMError <> ""
+        gsErrorContent = sFASMError
         Output_Add("FASM Error", #Output_Log, 2)
         Output_Add(sFASMError, #Output_Log, 0)
+      Else
+        gsErrorContent = ""
       EndIf
     Else
       Output_Add("Error in RunProgram FASM", #Output_Log, 2)

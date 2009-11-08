@@ -109,6 +109,7 @@
   Global gError.l
   Global gFileMemContent.l
   Global gFileMemContentLen.l
+  Global gsErrorContent.s
 ;}
 ;-{ Constants }
   #DQuote = Chr(34)
