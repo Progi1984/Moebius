@@ -485,7 +485,7 @@ Repeat
       CompilerEndIf
       If gState > #State_StepLast
         gState - #State_StepLast 
-        Protected psMRContent.s
+        Define.s psMRContent
         psMRContent = M_GUI_GetStringError(gError)
         If gsErrorContent <> ""
           psMRContent + #System_EOL

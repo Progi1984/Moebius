@@ -528,6 +528,13 @@ ProcedureDLL Moebius_Userlib_Step2_AddExtrn(sPart.s)
   Protected qIndStart.q, qIndEnd.q, qIndMid.q
   Protected sValue.s, sPartCleaned.s
   Protected lCompare.l
+  ;{ search if it's the same than the ASM Name for Windows
+    CompilerIf #PB_Compiler_OS = #PB_OS_Windows
+      If sPart = LL_DLLFunctions()\Win_ASMNameFunc
+        ProcedureReturn #False
+      EndIf
+    CompilerEndIf
+  ;}
   ;{ search some asm in part
     If MatchRegularExpression(#Regex_enx, sPart) = #True
       ProcedureReturn #False
@@ -878,9 +885,7 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
                 sLinePart = StringField(sLineCurrentTrimmed, CountString(sLineCurrentTrimmed, " ")+1, " ")
                 If FindString(sLinePart, "[", 0) > 0 And FindString(sLinePart, "]", 0) > 0
                   sLinePart = Trim(Mid(sLinePart, FindString(sLinePart, "[", 0)+1, FindString(sLinePart, "]", 0) - FindString(sLinePart, "[", 0) -1))
-                  If sLinePart <> ""
-                    Moebius_Userlib_Step2_AddExtrn(sLinePart)
-                  EndIf
+                  Moebius_Userlib_Step2_AddExtrn(sLinePart)
                 Else
                   Moebius_Userlib_Step2_AddExtrn(sLinePart)
                 EndIf
@@ -895,6 +900,7 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
                     EndIf
                   Else
                     sLinePart = sLineCurrentTrimmed
+                   
                     ; It's not a comment or a label
                     If Left(sLinePart, 1) <> ";" And Right(sLinePart, 1) <> ":"
                       ;{ Looking for strings
@@ -926,6 +932,9 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
                             If qIndEnd >= 0
                               Repeat
                                 qIndMid = qIndStart + ((qIndEnd - qIndStart)/2)
+                                Debug qIndMid
+                                Debug sValue
+                                Debug sSearchedLabel
                                 SelectElement(LL_LabelsInFunctions(), qIndMid)
                                 sValue = LL_LabelsInFunctions()\Label
                                 lCompare = CompareMemoryString(@sValue, @sSearchedLabel, #PB_String_NoCase)
@@ -941,6 +950,9 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
                                   EndIf
                                 ElseIf lCompare > 0 ; svalue > sSearchedLabel
                                   qIndEnd = qIndMid -1
+                                  If qIndEnd < 0 
+                                    qIndEnd = 0
+                                  EndIf
                                   SelectElement(LL_LabelsInFunctions(), qIndEnd)
                                   If LL_LabelsInFunctions()\function = LL_DLLFunctions()\FuncName
                                     If LL_LabelsInFunctions()\Label = sSearchedLabel
@@ -1159,3 +1171,6 @@ ProcedureDLL Moebius_Userlib_Step2()
   ;}
   ProcedureReturn #Error_000
 EndProcedure
+
+; IDE Options = PureBasic 4.40 (Windows - x86)
+; EnableXP

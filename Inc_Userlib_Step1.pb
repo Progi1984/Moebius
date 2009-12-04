@@ -62,7 +62,7 @@ ProcedureDLL Moebius_Userlib_Step1()
   Else
     ProcedureReturn #Error_013
   EndIf
-  If sCompilerOutput <> 
+  If sCompilerOutput <> ""
     gsErrorContent = sCompilerOutput
   Else
     gsErrorContent = ""
