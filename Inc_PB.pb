@@ -228,8 +228,20 @@ ProcedureDLL.s PB_GetPBFolder()
       Else
         PBFolder = ""
       EndIf
-      If PBFolder = "" And GetEnvironmentVariable ( "PUREBASIC_HOME" ) <> ""
-        PBFolder = GetEnvironmentVariable ( "PUREBASIC_HOME" )
+      If PBFolder = "" 
+        If GetEnvironmentVariable ( "PUREBASIC_HOME" ) <> ""
+          PBFolder = GetEnvironmentVariable ( "PUREBASIC_HOME" )
+          If Right(PBFolder, 1) <> #System_Separator
+            PBFolder + #System_Separator
+          EndIf
+        EndIf
+      Else
+        PBFolder = RemoveString(PBFolder, Chr(13))
+        PBFolder = GetPathPart(PBFolder)
+        PBFolder = GetPathPart(Left(PBFolder, Len(PBFolder) - 1))
+        If Right(PBFolder, 1) <> #System_Separator
+            PBFolder + #System_Separator
+        EndIf
       EndIf
       ProcedureReturn PBFolder
     ;}
