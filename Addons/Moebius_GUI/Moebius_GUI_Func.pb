@@ -275,13 +275,7 @@ Procedure MoebiusGUI_OpenWindow()
               Frame3DGadget(#Frame3D_04, 5, 240, 360, 55, dimLanguageItems(23))
                 ComboBoxGadget(#ComboBox_02, 20, 260, 175, 25)
                 ;{ Listing Profiles
-                  AddGadgetItem(#ComboBox_02, 0, "<"+dimLanguageItems(0)+">")
-                  OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesResident.ini")
-                    ExaminePreferenceGroups()
-                    While NextPreferenceGroup()
-                      AddGadgetItem(#ComboBox_02, -1, PreferenceGroupName())
-                    Wend
-                  ClosePreferences()
+                  M_GUI_LoadProfileResidents()
                 ;}
                 ButtonGadget(#Button_09, 205, 260, 75, 25, dimLanguageItems(24))
                 ButtonGadget(#Button_10, 285, 260, 75, 25, dimLanguageItems(25))
@@ -323,13 +317,7 @@ Procedure MoebiusGUI_OpenWindow()
               Frame3DGadget(#Frame3D_06, 5, 240, 360, 55, dimLanguageItems(23))
                 ComboBoxGadget(#ComboBox_03, 20, 260, 175, 25)
                 ;{ Listing Profiles
-                  AddGadgetItem(#ComboBox_03, 0, "<"+dimLanguageItems(0)+">")
-                  OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesUserLib.ini")
-                    ExaminePreferenceGroups()
-                    While NextPreferenceGroup()
-                      AddGadgetItem(#ComboBox_03, -1, PreferenceGroupName())
-                    Wend
-                  ClosePreferences()
+                  M_GUI_LoadProfileUserlibs()
                 ;}
                 ButtonGadget(#Button_16, 205, 260, 75, 25, dimLanguageItems(24))
                 ButtonGadget(#Button_17, 285, 260, 75, 25, dimLanguageItems(25))
@@ -381,11 +369,11 @@ Procedure MoebiusGUI_ValidatePaths(lPath.l)
       EndIf
     ;}
     Case #String_02 ;{ PBFasm
-    If LCase(GetFilePart(GetGadgetText(#String_02))) = "fasm"+#System_ExtExec And FileSize(GetGadgetText(#String_02)) > 0
-      SetGadgetColor(#Image_02, #PB_Gadget_BackColor, RGB(0,255,0))
-    Else
-      SetGadgetColor(#Image_02, #PB_Gadget_BackColor, RGB(255,0,0))
-    EndIf
+      If LCase(GetFilePart(GetGadgetText(#String_02))) = "fasm"+#System_ExtExec And FileSize(GetGadgetText(#String_02)) > 0
+        SetGadgetColor(#Image_02, #PB_Gadget_BackColor, RGB(0,255,0))
+      Else
+        SetGadgetColor(#Image_02, #PB_Gadget_BackColor, RGB(255,0,0))
+      EndIf
     ;}
     Case #String_03 ;{ PBObj2Lib
      ;{

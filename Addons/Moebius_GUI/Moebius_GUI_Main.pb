@@ -254,13 +254,20 @@ Repeat
         ;}
         Case #Button_10       ;{ Save profile
           Define.s dsGroupName
+          Define.b dbNewGroup
           If GetGadgetState(#ComboBox_02) = 0 
             dsGroupName = InputRequester(dimLanguageItems(1), dimLanguageItems(42), "")
           Else
             dsGroupName = GetGadgetItemText(#ComboBox_02, GetGadgetState(#ComboBox_02))
           EndIf
           If dsGroupName <> ""
-            OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesResident.ini")
+            If Not(OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesResident.ini")) = #False
+              ExaminePreferenceGroups()
+              While NextPreferenceGroup()
+                If PreferenceGroupName() = dsGroupName
+                  dbNewGroup = #True
+                EndIf
+              Wend
               PreferenceGroup(dsGroupName)
                 WritePreferenceString("Source", GetGadgetText(#String_08))
                 WritePreferenceLong("Unicode", GetGadgetState(#CheckBox_01))
@@ -270,7 +277,14 @@ Repeat
                 WritePreferenceString("LibName", GetGadgetText(#String_05))
                 WritePreferenceString("OutputFile", GetGadgetText(#String_06))
                 WritePreferenceString("DirProject", GetGadgetText(#String_07))
-            ClosePreferences()
+              ClosePreferences()
+              If dbNewGroup = #True
+                ClearGadgetItems(#ComboBox_02)
+                M_GUI_LoadProfileResidents()
+              EndIf
+            Else
+              MessageRequester(dimLanguageItems(1), "Not Saved")
+            EndIf
           EndIf
         ;}
         Case #Button_11       ;{ Build
@@ -395,13 +409,20 @@ Repeat
         ;}
         Case #Button_17       ;{ Save Profile
           Define.s dsGroupName
+          Define.b dbNewGroup
           If GetGadgetState(#ComboBox_03) = 0 
             dsGroupName = InputRequester(dimLanguageItems(1), dimLanguageItems(42), GetGadgetText(#String_10))
           Else
             dsGroupName = GetGadgetItemText(#ComboBox_03, GetGadgetState(#ComboBox_03))
           EndIf
           If dsGroupName <> ""
-            Debug OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesUserLib.ini")
+            If Not(OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesUserLib.ini")) = #False
+              ExaminePreferenceGroups()
+              While NextPreferenceGroup()
+                If PreferenceGroupName() = dsGroupName
+                  dbNewGroup = #True
+                EndIf
+              Wend
               PreferenceGroup(dsGroupName)
                 WritePreferenceString("Source", GetGadgetText(#String_09))
                 WritePreferenceLong("Unicode", GetGadgetState(#CheckBox_05))
@@ -413,7 +434,14 @@ Repeat
                 WritePreferenceString("LibName", GetGadgetText(#String_10))
                 WritePreferenceString("DirProject", GetGadgetText(#String_11))
                 WritePreferenceString("HelpFile", GetGadgetText(#String_12))
-            ClosePreferences()
+              ClosePreferences()
+              If dbNewGroup = #True
+                ClearGadgetItems(#ComboBox_03)
+                M_GUI_LoadProfileUserlibs()
+              EndIf
+            Else
+              MessageRequester(dimLanguageItems(1), "Not Saved")
+            EndIf
           EndIf
         ;}
         Case #Button_18       ;{ Build

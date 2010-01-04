@@ -227,6 +227,24 @@ EndMacro
 Macro M_GUI_GetStringError(Error)
   dimLanguageItems(100+Error)
 EndMacro
+Macro M_GUI_LoadProfileUserlibs()
+  AddGadgetItem(#ComboBox_03, 0, "<"+dimLanguageItems(0)+">")
+  OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesUserLib.ini")
+    ExaminePreferenceGroups()
+    While NextPreferenceGroup()
+      AddGadgetItem(#ComboBox_03, -1, PreferenceGroupName())
+    Wend
+  ClosePreferences()
+EndMacro
+Macro M_GUI_LoadProfileResidents()
+  AddGadgetItem(#ComboBox_02, 0, "<"+dimLanguageItems(0)+">")
+  OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesResident.ini")
+  ExaminePreferenceGroups()
+    While NextPreferenceGroup()
+      AddGadgetItem(#ComboBox_02, -1, PreferenceGroupName())
+    Wend
+  ClosePreferences()
+EndMacro
 
 ;- Globals
 Global gsPath.s
