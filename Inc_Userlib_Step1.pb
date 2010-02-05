@@ -1,9 +1,9 @@
 ;@desc Compile the program file for extracting all ASM files
-;@returnvalue #Error_000 > Success
-;@returnvalue #Error_012 > Error : Not a purebasic file
-;@returnvalue #Error_013 > Error : Program not launched
-;@returnvalue #Error_014 > Error : Compiler Error
-;@returnvalue #Error_015 > Error : Compiler Exit Code Error
+;@return #Error_000 > Success
+;@return #Error_012 > Error : Not a purebasic file
+;@return #Error_013 > Error : Program not launched
+;@return #Error_014 > Error : Compiler Error
+;@return #Error_015 > Error : Compiler Exit Code Error
 ProcedureDLL Moebius_Userlib_Step1()
   Protected sExeFile.s = "" ; the name of the executable's output
   Protected sCompilerOutput.s = "" ; the output for the compiler

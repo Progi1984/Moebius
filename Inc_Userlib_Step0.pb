@@ -1,16 +1,16 @@
 ;@desc Cleans  the directory and prepares the working directory
-;@returnvalue #Error_000 > Success
-;@returnvalue #Error_001 > Error : Can't delete userlibs of old projects
-;@returnvalue #Error_002 > Error : Can't delete the directory ASM of project
-;@returnvalue #Error_003 > Error : Can't delete the directory BAT of project
-;@returnvalue #Error_004 > Error : Can't delete the directory LIB of project
-;@returnvalue #Error_005 > Error : Can't delete the directory OBJ of project
-;@returnvalue #Error_006 > Error : Can't create the directory of project
-;@returnvalue #Error_007 > Error : Can't create the directory "Project\BAT"
-;@returnvalue #Error_008 > Error : Can't create the directory "Project\ASM"
-;@returnvalue #Error_009 > Error : Can't create the directory "Project\LOGS"
-;@returnvalue #Error_010 > Error : Can't create the directory "Project\LIB"
-;@returnvalue #Error_011 > Error : Can't create the directory "Project\OBJ"
+;@return #Error_000 > Success
+;@return #Error_001 > Error : Can't delete userlibs of old projects
+;@return #Error_002 > Error : Can't delete the directory ASM of project
+;@return #Error_003 > Error : Can't delete the directory BAT of project
+;@return #Error_004 > Error : Can't delete the directory LIB of project
+;@return #Error_005 > Error : Can't delete the directory OBJ of project
+;@return #Error_006 > Error : Can't create the directory of project
+;@return #Error_007 > Error : Can't create the directory "Project\BAT"
+;@return #Error_008 > Error : Can't create the directory "Project\ASM"
+;@return #Error_009 > Error : Can't create the directory "Project\LOGS"
+;@return #Error_010 > Error : Can't create the directory "Project\LIB"
+;@return #Error_011 > Error : Can't create the directory "Project\OBJ"
 ProcedureDLL Moebius_Userlib_Step0()
   gState = #State_Step0
   ;Cleans the old userlib
@@ -68,6 +68,3 @@ ProcedureDLL Moebius_Userlib_Step0()
   
   ProcedureReturn #Error_000
 EndProcedure
-
-; IDE Options = PureBasic 4.40 (Windows - x86)
-; EnableXP

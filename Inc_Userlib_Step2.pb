@@ -1171,6 +1171,3 @@ ProcedureDLL Moebius_Userlib_Step2()
   ;}
   ProcedureReturn #Error_000
 EndProcedure
-
-; IDE Options = PureBasic 4.40 (Windows - x86)
-; EnableXP

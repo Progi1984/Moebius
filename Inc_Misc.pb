@@ -8,7 +8,7 @@
 ;@+ ; - C:\Program files\
 ;@+ ; - C:\Program files\truc\
 ;@+ ; - C:\Program files\truc\bidule
-;@returnvalue 1 if the creation of the directory has a success
+;@return 1 if the creation of the directory has a success
 ;@+ 0 if not
 ProcedureDLL.l CreateDirectoryEx(FolderPath.s)
  Protected Folder.s, Txt.s, Cpt.l
@@ -30,7 +30,7 @@ ProcedureDLL.l CreateDirectoryEx(FolderPath.s)
 EndProcedure 
 ;@author Dr. Dri
 ;@desc Permits to know if a string is a numeric
-;@returnvalue #True if it's a numeric, else #False
+;@return #True if it's a numeric, else #False
 ProcedureDLL.l IsNumeric(String.s)
   Protected Numeric.l, *String.Character
   If String
@@ -257,7 +257,7 @@ ProcedureDLL.s PeekLine(*BufMem = 0, BufLen = 0)
   EndIf
 EndProcedure 
 ;@author Xombie
-;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
+;@link http://www.purebasic.fr/english/viewtopic.php?t=13015
 ProcedureDLL.l sbCreate(BlockSize.l)
   Protected *sbClass.S_StringBuilder
   *sbClass = AllocateMemory(SizeOf(S_StringBuilder))
@@ -298,7 +298,7 @@ ProcedureDLL.l sbCreate(BlockSize.l)
   ; Return the pointer to our new stringbuilder class.
 EndProcedure
 ;@author Xombie
-;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
+;@link http://www.purebasic.fr/english/viewtopic.php?t=13015
 ProcedureDLL sbClear(*inSBClass.S_StringBuilder)
   If *inSBClass\InitDone
     If *inSBClass\pString
@@ -312,7 +312,7 @@ ProcedureDLL sbClear(*inSBClass.S_StringBuilder)
   EndIf
 EndProcedure
 ;@author Xombie
-;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
+;@link http://www.purebasic.fr/english/viewtopic.php?t=13015
 ProcedureDLL sbDestroy(*inSBClass.S_StringBuilder)
   If *inSBClass\InitDone
     If *inSBClass\pString
@@ -329,7 +329,7 @@ ProcedureDLL sbDestroy(*inSBClass.S_StringBuilder)
   EndIf
 EndProcedure
 ;@author Xombie
-;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
+;@link http://www.purebasic.fr/english/viewtopic.php?t=13015
 ProcedureDLL sbAdd(*inSBClass.S_StringBuilder, inString.l)
   Protected StrLen.l
   Protected pNewString.l
@@ -354,7 +354,7 @@ ProcedureDLL sbAdd(*inSBClass.S_StringBuilder, inString.l)
   *inSBClass\StringSize = NewStringSize
 EndProcedure
 ;@author Xombie
-;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
+;@link http://www.purebasic.fr/english/viewtopic.php?t=13015
 ProcedureDLL sbAddLiteral(*inSBClass.S_StringBuilder, inString.s)
   Protected sAddress.l, StrLen.l, pNewString.l, NewMemSize.l, NewStringSize.l
   sAddress = @inString
@@ -377,27 +377,27 @@ ProcedureDLL sbAddLiteral(*inSBClass.S_StringBuilder, inString.s)
   *inSBClass\StringSize = NewStringSize
 EndProcedure
 ;@author Xombie
-;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
+;@link http://www.purebasic.fr/english/viewtopic.php?t=13015
 ProcedureDLL.s sbGetString(*inSBClass.S_StringBuilder)
   Protected WholeString.s = PeekS(*inSBClass\pString)
   ProcedureReturn WholeString
 EndProcedure
 ;@author Xombie
-;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
+;@link http://www.purebasic.fr/english/viewtopic.php?t=13015
 ProcedureDLL.s sbGetStringAndDestroy(*inSBClass.S_StringBuilder)
   Protected WholeString.s = PeekS(*inSBClass\pString)
   sbDestroy(*inSBClass)
   ProcedureReturn WholeString
 EndProcedure
 ;@author Xombie
-;@url http://www.purebasic.fr/english/viewtopic.php?t=13015
+;@link http://www.purebasic.fr/english/viewtopic.php?t=13015
 ProcedureDLL.l sbLength(*inSBClass.S_StringBuilder)
   Protected iLength.l
   iLength = *inSBClass\StringSize
   ProcedureReturn iLength
 EndProcedure 
 ;@author : Dobro
-;@url : http://www.purebasic.fr/french/viewtopic.php?t=9395
+;@link : http://www.purebasic.fr/french/viewtopic.php?t=9395
 ProcedureDLL.s StrRreplace(String.s, StrSearched.s, StrReplaced.s)
   Static sPart1.s
   Static lPos.l

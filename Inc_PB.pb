@@ -213,7 +213,7 @@ ProcedureDLL PB_CreateFunctionsList()
   EndIf
 EndProcedure
 ;@desc Retrieves Purebasic folder [empty string if not installed]
-;@returnvalue Purebasic Path
+;@return Purebasic Path
 ProcedureDLL.s PB_GetPBFolder()
   CompilerSelect #PB_Compiler_OS
     CompilerCase #PB_OS_Linux  ;{
