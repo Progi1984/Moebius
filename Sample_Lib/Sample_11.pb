@@ -1,5 +1,5 @@
 CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-  Import "C:\Program Files\PureBasic\Compilers\ObjectManager.lib"
+  Import #PB_Compiler_Home + "\Compilers\ObjectManager.lib"
     Object_GetOrAllocateID  (Objects, Object.l) As "_PB_Object_GetOrAllocateID@8"
     Object_GetObject        (Objects, Object.l) As "_PB_Object_GetObject@8"
     Object_IsObject         (Objects, Object.l) As "_PB_Object_IsObject@8"
@@ -13,7 +13,7 @@ CompilerIf #PB_Compiler_OS = #PB_OS_Windows
     Object_InitThreadMemory (Size.l, InitFunction, EndFunction) As "_PB_Object_InitThreadMemory@12"
   EndImport
 CompilerElse
-  ImportC "/media/DISK/Programs/purebasic/compilers/objectmanager.a"
+  ImportC #PB_Compiler_Home + "/compilers/objectmanager.a"
     Object_GetOrAllocateID  (Objects, Object.l) As "PB_Object_GetOrAllocateID"
     Object_GetObject        (Objects, Object.l) As "PB_Object_GetObject"
     Object_IsObject         (Objects, Object.l) As "PB_Object_IsObject"
