@@ -412,38 +412,40 @@ ProcedureDLL Moebius_Userlib_Step2_ModifyASM()
               EndIf
             ;}
             Case ";" ;{
-              If StringField(sLineCurrentTrimmed, 2, " ") = ":System" ; in system declarations
-                bInSystemLib = #True
-                bInImportLib = #False
-                bInPBLib     = #False
-              ElseIf StringField(sLineCurrentTrimmed, 2, " ") = ":Import"; in import declarations
-                bInSystemLib = #False
-                bInImportLib = #True
-                bInPBLib     = #False
-              ElseIf sLineCurrentTrimmed = "; The header must remain intact for Re-Assembly" ; in pb asm code
-                bInSystemLib = #False
-                bInImportLib = #False
-                bInPBLib     = #True
-              Else
-                If Left(StringField(sLineCurrentTrimmed, 2, " "), 1) = ":"
-                  bInSystemLib = #False
+              If bInHeader = #True
+                If StringField(sLineCurrentTrimmed, 2, " ") = ":System" ; in system declarations
+                  bInSystemLib = #True
                   bInImportLib = #False
                   bInPBLib     = #False
+                ElseIf StringField(sLineCurrentTrimmed, 2, " ") = ":Import"; in import declarations
+                  bInSystemLib = #False
+                  bInImportLib = #True
+                  bInPBLib     = #False
+                ElseIf sLineCurrentTrimmed = "; The header must remain intact for Re-Assembly" ; in pb asm code
+                  bInSystemLib = #False
+                  bInImportLib = #False
+                  bInPBLib     = #True
                 Else
-                  ; add the lib, import or dll
-                  If StringField(sLineCurrentTrimmed, 2, " ") <> ""
-                    If bInSystemLib = #True 
-                      AddElement(LL_DLLUsed())
-                      LL_DLLUsed() = StringField(sLineCurrentTrimmed, 2, " ")
-                      Output_Add("LL_DLLUsed() > "+LL_DLLUsed(), #Output_Log, 4)
-                    ElseIf bInImportLib = #True
-                      AddElement(LL_ImportUsed())
-                      LL_ImportUsed() = Trim(RemoveString(sLineCurrentTrimmed, ";"))
-                      Output_Add("LL_ImportUsed() > "+LL_ImportUsed(), #Output_Log, 4)
-                    ElseIf bInPBLib = #True
-                      AddElement(LL_LibUsed())
-                      LL_LibUsed() = Trim(LCase(RemoveString(sLineCurrentTrimmed, ";")))
-                      Output_Add("LL_LibUsed() > "+LL_LibUsed(), #Output_Log, 4)
+                  If Left(StringField(sLineCurrentTrimmed, 2, " "), 1) = ":"
+                    bInSystemLib = #False
+                    bInImportLib = #False
+                    bInPBLib     = #False
+                  Else
+                    ; add the lib, import or dll
+                    If StringField(sLineCurrentTrimmed, 2, " ") <> ""
+                      If bInSystemLib = #True 
+                        AddElement(LL_DLLUsed())
+                        LL_DLLUsed() = StringField(sLineCurrentTrimmed, 2, " ")
+                        Output_Add("LL_DLLUsed() > "+LL_DLLUsed(), #Output_Log, 4)
+                      ElseIf bInImportLib = #True
+                        AddElement(LL_ImportUsed())
+                        LL_ImportUsed() = Trim(RemoveString(sLineCurrentTrimmed, ";"))
+                        Output_Add("LL_ImportUsed() > "+LL_ImportUsed(), #Output_Log, 4)
+                      ElseIf bInPBLib = #True
+                        AddElement(LL_LibUsed())
+                        LL_LibUsed() = Trim(LCase(RemoveString(sLineCurrentTrimmed, ";")))
+                        Output_Add("LL_LibUsed() > "+LL_LibUsed(), #Output_Log, 4)
+                      EndIf
                     EndIf
                   EndIf
                 EndIf
