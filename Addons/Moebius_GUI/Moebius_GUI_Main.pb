@@ -280,7 +280,7 @@ Repeat
               ClosePreferences()
               If dbNewGroup = #True
                 ClearGadgetItems(#ComboBox_02)
-                M_GUI_LoadProfileResidents()
+                M_GUI_LoadProfile(#ComboBox_02, Resident)
               EndIf
             Else
               MessageRequester(dimLanguageItems(1), "Not Saved")
@@ -437,7 +437,7 @@ Repeat
               ClosePreferences()
               If dbNewGroup = #True
                 ClearGadgetItems(#ComboBox_03)
-                M_GUI_LoadProfileUserlibs()
+                M_GUI_LoadProfile(#ComboBox_03, Userlib)
               EndIf
             Else
               MessageRequester(dimLanguageItems(1), "Not Saved")
@@ -528,3 +528,14 @@ Repeat
     gStateOld = gState
   EndIf
 ForEver
+
+; IDE Options = PureBasic 4.50 RC 1 (Windows - x86)
+; CursorPosition = 282
+; FirstLine = 280
+; Folding = ----------------
+; EnableXP
+; Executable = ..\..\moebius_gui
+; CompileSourceDirectory
+; EnableExeConstant
+; <<<<<<< .mine
+; >>>>>>> .r230

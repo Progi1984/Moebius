@@ -275,7 +275,7 @@ Procedure MoebiusGUI_OpenWindow()
               Frame3DGadget(#Frame3D_04, 5, 240, 360, 55, dimLanguageItems(23))
                 ComboBoxGadget(#ComboBox_02, 20, 260, 175, 25)
                 ;{ Listing Profiles
-                  M_GUI_LoadProfileResidents()
+                  M_GUI_LoadProfile(#ComboBox_02, Resident)
                 ;}
                 ButtonGadget(#Button_09, 205, 260, 75, 25, dimLanguageItems(24))
                 ButtonGadget(#Button_10, 285, 260, 75, 25, dimLanguageItems(25))
@@ -317,7 +317,7 @@ Procedure MoebiusGUI_OpenWindow()
               Frame3DGadget(#Frame3D_06, 5, 240, 360, 55, dimLanguageItems(23))
                 ComboBoxGadget(#ComboBox_03, 20, 260, 175, 25)
                 ;{ Listing Profiles
-                  M_GUI_LoadProfileUserlibs()
+                  M_GUI_LoadProfile(#ComboBox_03, Userlib)
                 ;}
                 ButtonGadget(#Button_16, 205, 260, 75, 25, dimLanguageItems(24))
                 ButtonGadget(#Button_17, 285, 260, 75, 25, dimLanguageItems(25))
@@ -562,3 +562,8 @@ ProcedureDLL Main_ErrorHandler()
   MessageRequester(dimLanguageItems(1), psErrorMessage)
   End
 EndProcedure
+
+; IDE Options = PureBasic 4.50 RC 1 (Windows - x86)
+; CursorPosition = 90
+; Folding = +d-x-f4jv-48-0-
+; EnableXP

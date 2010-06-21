@@ -227,21 +227,12 @@ EndMacro
 Macro M_GUI_GetStringError(Error)
   dimLanguageItems(100+Error)
 EndMacro
-Macro M_GUI_LoadProfileUserlibs()
-  AddGadgetItem(#ComboBox_03, 0, "<"+dimLanguageItems(0)+">")
-  OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesUserLib.ini")
+Macro M_GUI_LoadProfile(ComboID, ProfileType)
+  AddGadgetItem(ComboID, 0, "<"+dimLanguageItems(0)+">")
+  OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_Profiles#ProfileType.ini")
     ExaminePreferenceGroups()
     While NextPreferenceGroup()
-      AddGadgetItem(#ComboBox_03, -1, PreferenceGroupName())
-    Wend
-  ClosePreferences()
-EndMacro
-Macro M_GUI_LoadProfileResidents()
-  AddGadgetItem(#ComboBox_02, 0, "<"+dimLanguageItems(0)+">")
-  OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesResident.ini")
-  ExaminePreferenceGroups()
-    While NextPreferenceGroup()
-      AddGadgetItem(#ComboBox_02, -1, PreferenceGroupName())
+      AddGadgetItem(ComboID, -1, PreferenceGroupName())
     Wend
   ClosePreferences()
 EndMacro
@@ -257,3 +248,8 @@ CompilerEndIf
 Global gGUIPrefs.S_MoebiusGUIPrefs
 Global bEnableLogEditor.b = #False
 Global Dim dimLanguageItems.s(0)
+; IDE Options = PureBasic 4.50 RC 1 (Windows - x86)
+; CursorPosition = 238
+; FirstLine = 81
+; Folding = g-
+; EnableXP
