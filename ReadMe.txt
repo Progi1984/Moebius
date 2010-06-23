@@ -9,11 +9,12 @@ Thanks to :
 		Link : http://www.purebasic.fr/french/viewtopic.php?t=4667
 	Xombie		for string builder functions
 		Link : http://www.purebasic.fr/english/viewtopic.php?t=13015
+	Seyhajin	for the logo
 		
 Translation :
 	Fangles		English
 	Freak		German
-	Tranquil		German
+	Tranquil	German
 	Ts-Soft		German
 	
 	
