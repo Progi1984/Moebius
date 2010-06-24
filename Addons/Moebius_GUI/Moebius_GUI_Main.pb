@@ -90,25 +90,11 @@ Repeat
           EndIf
         ;}
         Case #Button_05       ;{ Load Profile
-          ; Do you really want to load the profile ?
-          glReturnValue = #False
-          If GetGadgetState(#CheckBox_00) = #True
-            If MessageRequester(dimLanguageItems(1), dimLanguageItems(41), #PB_MessageRequester_YesNo) = #PB_MessageRequester_Yes
-              glReturnValue = #True
-            Else
-              glReturnValue = #False
-            EndIf
-          Else
-            glReturnValue = #True
-          EndIf
-          ; we load the profile
-          If glReturnValue = #True
-            Define.s psDefaultPath
-            ; Loading Profile
-            M_GUI_ProfilePB_Load()
-            ; Validate paths
-            M_GUI_ProfilePB_ValidateAll()
-          EndIf
+          Define.s psDefaultPath
+          ; Loading Profile
+          M_GUI_ProfilePB_Load()
+          ; Validate paths
+          M_GUI_ProfilePB_ValidateAll()
         ;}
         Case #Button_06       ;{ Save Profile
           Define.s dsFilename
@@ -528,14 +514,3 @@ Repeat
     gStateOld = gState
   EndIf
 ForEver
-
-; IDE Options = PureBasic 4.50 RC 1 (Windows - x86)
-; CursorPosition = 282
-; FirstLine = 280
-; Folding = ----------------
-; EnableXP
-; Executable = ..\..\moebius_gui
-; CompileSourceDirectory
-; EnableExeConstant
-; <<<<<<< .mine
-; >>>>>>> .r230

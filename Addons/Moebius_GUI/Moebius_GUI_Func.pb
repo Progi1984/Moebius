@@ -379,19 +379,19 @@ Procedure MoebiusGUI_ValidatePaths(lPath.l)
      ;{
       CompilerSelect #PB_Compiler_OS
         CompilerCase #PB_OS_Linux;{
-          If LCase(GetFilePart(GetGadgetText(#String_03))) = "ar";}
+          If LCase(GetFilePart(GetGadgetText(#String_03))) = "ar" And FileSize(GetGadgetText(#String_03)) > 0 ; }
         ;}
         CompilerCase #PB_OS_Windows;{
-          If LCase(GetFilePart(GetGadgetText(#String_03))) = "polib.exe";}
+          If LCase(GetFilePart(GetGadgetText(#String_03))) = "polib.exe" And FileSize(GetGadgetText(#String_03)) > 0 ;}
         ;}
-      CompilerEndSelect
+      CompilerEndSelect ;}
         SetGadgetColor(#Image_03, #PB_Gadget_BackColor, RGB(0,255,0))
       Else
         SetGadgetColor(#Image_03, #PB_Gadget_BackColor, RGB(255,0,0))
       EndIf
     ;}
     Case #String_04 ;{ PBLibMaker
-      If LCase(GetFilePart(GetGadgetText(#String_04))) = "pblibrarymaker" Or LCase(GetFilePart(GetGadgetText(#String_04))) = "librarymaker.exe"
+      If (LCase(GetFilePart(GetGadgetText(#String_04))) = "pblibrarymaker" Or LCase(GetFilePart(GetGadgetText(#String_04))) = "librarymaker.exe")  And FileSize(GetGadgetText(#String_04)) > 0 
         SetGadgetColor(#Image_04, #PB_Gadget_BackColor, RGB(0,255,0))
       Else
         SetGadgetColor(#Image_04, #PB_Gadget_BackColor, RGB(255,0,0))
@@ -438,13 +438,13 @@ Procedure PureBasic_RegisterPlugin()
   
   CompilerSelect #PB_Compiler_OS
     CompilerCase #PB_OS_Linux ;{
-      psToolsPrefsLocations = GetHomeDirectory()+".purebasic"+#System_Separator+"tools.prefs"
+      psToolsPrefsLocations = GetHomeDirectory() + ".purebasic" + #System_Separator + "tools.prefs"
     ;}
     CompilerCase #PB_OS_MacOS ;{
       MessageRequester(dimLanguageItems(1), "Function PureBasic_RegisterPlugin() : Where is the tools prefs file ?")
     ;}
     CompilerCase #PB_OS_Windows ;{
-      MessageRequester(dimLanguageItems(1), "Function PureBasic_RegisterPlugin() : Where is the tools prefs file ?")
+      psToolsPrefsLocations = GetHomeDirectory() + "Application Data" + #System_Separator + "PureBasic" + #System_Separator + "Tools.prefs"
     ;}
   CompilerEndSelect
   
@@ -562,8 +562,3 @@ ProcedureDLL Main_ErrorHandler()
   MessageRequester(dimLanguageItems(1), psErrorMessage)
   End
 EndProcedure
-
-; IDE Options = PureBasic 4.50 RC 1 (Windows - x86)
-; CursorPosition = 90
-; Folding = +d-x-f4jv-48-0-
-; EnableXP

@@ -248,8 +248,3 @@ CompilerEndIf
 Global gGUIPrefs.S_MoebiusGUIPrefs
 Global bEnableLogEditor.b = #False
 Global Dim dimLanguageItems.s(0)
-; IDE Options = PureBasic 4.50 RC 1 (Windows - x86)
-; CursorPosition = 238
-; FirstLine = 81
-; Folding = g-
-; EnableXP
