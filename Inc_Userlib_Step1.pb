@@ -22,13 +22,11 @@ ProcedureDLL Moebius_Userlib_Step1()
       ProcedureReturn #Error_012
   EndSelect
   CompilerSelect #PB_Compiler_OS
-    CompilerCase #PB_OS_Linux ;{
+    CompilerCase #PB_OS_Linux 
+    CompilerCase #PB_OS_MacOS;{
       ; we define these environment variables for the compiler
       SetEnvironmentVariable("PUREBASIC_HOME", gConf\sPureBasic_Path)
       SetEnvironmentVariable("PATH", GetEnvironmentVariable("PATH") + ":" + gConf\sPureBasic_Path+ "/compilers")
-    ;}
-    CompilerCase #PB_OS_MacOS ;{
-      MessageRequester("Moebius", "Inc_Userlib_Step1.pb l31")
     ;}
   CompilerEndSelect
   

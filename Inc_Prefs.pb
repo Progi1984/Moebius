@@ -43,13 +43,11 @@ ProcedureDLL Moebius_ReadParameters()
   ; Default informations
   gProject\sFileName = Trim(ProgramParameter(CountProgramParameters()-1))
   CompilerSelect #PB_Compiler_OS
-    CompilerCase #PB_OS_Linux;{
+    CompilerCase #PB_OS_Linux
+    CompilerCase #PB_OS_MacOS;{
       If Left(gProject\sFileName,1) <> #System_Separator
         gProject\sFileName = GetCurrentDirectory()+gProject\sFileName
       EndIf
-    ;}
-    CompilerCase #PB_OS_MacOS;{
-      MessageRequester("Moebius", "IncPrefs l52 > " + Left(gProject\sFileName,1))
     ;}
     CompilerCase #PB_OS_Windows;{
       If Mid(gProject\sFileName,3,1) <> #System_Separator

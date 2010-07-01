@@ -216,7 +216,8 @@ EndProcedure
 ;@return Purebasic Path
 ProcedureDLL.s PB_GetPBFolder()
   CompilerSelect #PB_Compiler_OS
-    CompilerCase #PB_OS_Linux  ;{
+    CompilerCase #PB_OS_Linux
+    CompilerCase #PB_OS_MacOS  ;{
       Protected hCompiler.l, PBFolder.s
       hCompiler = RunProgram("which", "pbcompiler ", "", #PB_Program_Open|#PB_Program_Read)
       PBFolder = ""
@@ -244,9 +245,6 @@ ProcedureDLL.s PB_GetPBFolder()
         EndIf
       EndIf
       ProcedureReturn PBFolder
-    ;}
-    CompilerCase #PB_OS_MacOS ;{
-      MessageRequester("Moebius", "Function PB_GetPBFolder() : empty")
     ;}
     CompilerCase #PB_OS_Windows ;{
       Protected hKey1.l, Type.l, Res.l, Folder.s, lpbData.l, cbData.l, WindowsVersion.l

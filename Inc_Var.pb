@@ -162,6 +162,9 @@
     #Error_031
     #Error_032
     #Error_033
+    #Error_034
+    #Error_035
+    #Error_036
     #Error_Last
   EndEnumeration
   Enumeration 0

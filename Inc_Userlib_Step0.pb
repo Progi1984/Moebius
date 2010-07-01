@@ -62,9 +62,18 @@ ProcedureDLL Moebius_Userlib_Step0()
   ; Initializes batch and log files
   Output_Init()
   ; Initializes regural expressions
-  CreateRegularExpression(#Regex_enx, "^((?i)e)[a-z]{1}x")
-  CreateRegularExpression(#Regex_enp, "^((?i)e)[a-z]{1}p")
-  CreateRegularExpression(#Regex_eni, "^((?i)e)[a-z]{1}i")
+  If CreateRegularExpression(#Regex_enx, "^((?i)e)[a-z]{1}x") = 0
+    Output_Add(RegularExpressionError())
+    ProcedureReturn #Error_034
+  EndIf
+  If CreateRegularExpression(#Regex_enp, "^((?i)e)[a-z]{1}p")
+    Output_Add(RegularExpressionError())
+    ProcedureReturn #Error_035
+  EndIf
+  If CreateRegularExpression(#Regex_eni, "^((?i)e)[a-z]{1}i")
+    Output_Add(RegularExpressionError())
+    ProcedureReturn #Error_036
+  EndIf
   
   ProcedureReturn #Error_000
 EndProcedure
