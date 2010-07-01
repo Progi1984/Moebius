@@ -19,6 +19,9 @@ ProcedureDLL Moebius_Resident_Step1()
       SetEnvironmentVariable("PUREBASIC_HOME", gConf\sPureBasic_Path)
       SetEnvironmentVariable("PATH", GetEnvironmentVariable("PATH") + ":" + gConf\sPureBasic_Path+ "/compilers")
     ;}
+    CompilerCase #PB_OS_MacOS ;{
+      MessageRequester("Moebius", "Inc_Resident_Step1.pb l16")
+    ;}
   CompilerEndSelect
   
   ; Define param for compiler

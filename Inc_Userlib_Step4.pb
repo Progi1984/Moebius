@@ -94,6 +94,16 @@ ProcedureDLL Moebius_Userlib_Step4()
   Output_Add("Creating archive", #Output_Log, 2)
   ;{ Generates a file which contains all objects files
     CompilerSelect #PB_Compiler_OS
+      CompilerCase #PB_OS_Linux;{
+        sProgRequest = "ar rvs "
+        sProgRequest + #DQuote+gProject\sDirLib+ M_LibName_Clean(gProject\sLibName) + #System_ExtLib+#DQuote+" "
+        sProgRequest + gProject\sDirObj + "*"
+        
+        sProgReturn = Str(system_(@sProgRequest))
+      ;}
+      CompilerCase #PB_OS_MacOS;{
+        MessageRequester("Moebius", "Inc_Userlib_Step4.pb l96")
+      ;}
       CompilerCase #PB_OS_Windows;{
         Protected lObjFile.l
         Protected lPgm_Polib.l
@@ -125,13 +135,6 @@ ProcedureDLL Moebius_Userlib_Step4()
           lError = #Error_023
         EndIf
         sProgRequest = #DQuote + gConf\sPath_OBJ2LIB + #DQuote + " " + sProgRequest
-      ;}
-      CompilerCase #PB_OS_Linux;{
-        sProgRequest = "ar rvs "
-        sProgRequest + #DQuote+gProject\sDirLib+ M_LibName_Clean(gProject\sLibName) + #System_ExtLib+#DQuote+" "
-        sProgRequest + gProject\sDirObj + "*"
-        
-        sProgReturn = Str(system_(@sProgRequest))
       ;}
     CompilerEndSelect
     Output_Add(sProgRequest, #Output_Log | #Output_Bat, 4)
