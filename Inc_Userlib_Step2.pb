@@ -355,6 +355,7 @@ ProcedureDLL Moebius_Userlib_Step2_ModifyASM()
                 ; not add in funccode
               EndIf
             ;}
+            Case "%macro" ;{ Extracts the name of function
             Case "macro" ;{ Extracts the name of function
               bNotCapture = #False
               sNameOfFunction = sLinePrevious
@@ -390,6 +391,7 @@ ProcedureDLL Moebius_Userlib_Step2_ModifyASM()
                 EndIf
               EndIf
             ;}
+            Case "%endmacro"
             Case "}" ;{ finish the code function
               If bInFunction = #True
                 bInFunction = #False
@@ -655,12 +657,13 @@ ProcedureDLL Moebius_Userlib_Step2_CreateSharedFunction()
                 sNextString_3 = Trim(PeekLine())
                 CompilerSelect #PB_Compiler_OS
                   CompilerCase #PB_OS_Linux   : sASMMainFunction = sNextString_2
-                  CompilerCase #PB_OS_MacOS   : MessageRequester("Moebius", "Inc_Userlib_Step2.pb l656")
+                  CompilerCase #PB_OS_MacOS   : sASMMainFunction = sNextString_2
                   CompilerCase #PB_OS_Windows : sASMMainFunction = sNextString_3
                 CompilerEndSelect
                 ; "public main" for Linux
+                ; "global _main" for MacOs
                 ; "PureBasicStart:" for Windows
-                If sASMMainFunction = "public main" Or sASMMainFunction = "PureBasicStart:"
+                If sASMMainFunction = "public main" Or sASMMainFunction = "global _main" Or sASMMainFunction = "PureBasicStart:"
                   bInSharedCode = #False
                 EndIf
               ElseIf bInSharedCode = #False ; we start the shared code
@@ -738,15 +741,26 @@ ProcedureDLL Moebius_Userlib_Step2_CreateSharedFunction()
       Output_Add("Write Header", #Output_Log, 6)
       lASMShared = sbCreate(2048)
       If lASMShared
-        sbAddLiteral(lASMShared, "format "+ #System_LibFormat + #System_EOL) 
-        sbAddLiteral(lASMShared, #System_EOL) 
+        CompilerIf #PB_Compiler_OS <> #PB_OS_MacOS
+          sbAddLiteral(lASMShared, "format "+ #System_LibFormat + #System_EOL) 
+          sbAddLiteral(lASMShared, #System_EOL) 
+        CompilerElse
+          sbAddLiteral(lASMShared, "%macro extrn 1"+#System_EOL+"extern %1"+#System_EOL+"%endmacro"+#System_EOL) 
+          sbAddLiteral(lASMShared, "%macro Extrn 1"+#System_EOL+"extern %1"+#System_EOL+"%endmacro"+#System_EOL) 
+          sbAddLiteral(lASMShared, "%macro Public 1"+#System_EOL+"global %1"+#System_EOL+"%endmacro"+#System_EOL) 
+          sbAddLiteral(lASMShared, #System_EOL) 
+        CompilerEndIf
         WriteStringN(lFile, sbGetStringAndDestroy(lASMShared))
       EndIf 
       Output_Add("Write Extrn", #Output_Log, 6)
       lASMShared = sbCreate(2048)
       If lASMShared
         ForEach LL_ASM_extrn()
-          sbAddLiteral(lASMShared, "public "+LL_ASM_extrn() + #System_EOL) 
+          CompilerIf #PB_Compiler_OS <> #PB_OS_MacOS
+            sbAddLiteral(lASMShared, "public "+LL_ASM_extrn() + #System_EOL) 
+          CompilerElse
+            sbAddLiteral(lASMShared, "global "+LL_ASM_extrn() + #System_EOL) 
+          CompilerEndIf
         Next
         WriteStringN(lFile, sbGetStringAndDestroy(lASMShared))
       EndIf
@@ -775,16 +789,20 @@ ProcedureDLL Moebius_Userlib_Step2_CreateInitFunction()
     sbAddLiteral(lCodeInit,  "" + #System_EOL)
     CompilerSelect #PB_Compiler_OS 
       CompilerCase #PB_OS_Linux : sbAddLiteral(lCodeInit, "extrn SYS_InitString" + #System_EOL)
-      CompilerCase #PB_OS_MacOS : MessageRequester("Moebius", "Inc_Userlib_Step2.pb l778")
+      CompilerCase #PB_OS_MacOS : sbAddLiteral(lCodeInit, "extern _SYS_InitString" + #System_EOL)
       CompilerCase #PB_OS_Windows : sbAddLiteral(lCodeInit, "extrn _SYS_InitString@0" + #System_EOL)
     CompilerEndSelect
     sbAddLiteral(lCodeInit, "" + #System_EOL)
-    sbAddLiteral(lCodeInit, "public PB_"+ReplaceString(gProject\sLibName, " ", "_")+"_Init"  + #System_EOL )
+    CompilerIf #PB_Compiler_OS <> #PB_OS_MacOS
+      sbAddLiteral(lCodeInit, "public PB_"+ReplaceString(gProject\sLibName, " ", "_")+"_Init"  + #System_EOL )
+    CompilerElse
+      sbAddLiteral(lCodeInit, "global PB_"+ReplaceString(gProject\sLibName, " ", "_")+"_Init"  + #System_EOL )
+    CompilerEndIf
     sbAddLiteral(lCodeInit, "" + #System_EOL)
     sbAddLiteral(lCodeInit, "PB_"+ReplaceString(gProject\sLibName, " ", "_")+"_Init:" + #System_EOL)
     CompilerSelect #PB_Compiler_OS 
       CompilerCase #PB_OS_Linux : sbAddLiteral(lCodeInit, "CALL SYS_InitString" + #System_EOL)
-      CompilerCase #PB_OS_MacOS : MessageRequester("Moebius", "Inc_Userlib_Step2.pb l787")
+      CompilerCase #PB_OS_MacOS : sbAddLiteral(lCodeInit, "CALL _SYS_InitString" + #System_EOL)
       CompilerCase #PB_OS_Windows : sbAddLiteral(lCodeInit, "CALL _SYS_InitString@0" + #System_EOL)
     CompilerEndSelect
     sbAddLiteral(lCodeInit, "RET " + #System_EOL)
@@ -839,7 +857,9 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
     Next
     Output_Add("Free Regex", #Output_Log, 6)
     For lIncA = 0 To lMaxInc
-      FreeRegularExpression(lIncA+#Regex_Last)
+      If IsRegularExpression(lIncA+#Regex_Last) <> 0
+        FreeRegularExpression(lIncA+#Regex_Last)
+      EndIf
     Next
   ;}
   Output_Add("Asm code", #Output_Log, 4)
@@ -865,7 +885,7 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
               sbAddLiteral(lASMContent, "public PB_"+LL_DLLFunctions()\FuncName + #System_EOL)
             ;}
             CompilerCase #PB_OS_MacOS ;{
-              MessageRequester("Moebius", "Inc_Userlib_Step2.pb l863")
+              sbAddLiteral(lASMContent, "global PB_"+LL_DLLFunctions()\FuncName + #System_EOL)
             ;}
             CompilerCase #PB_OS_Windows ;{
               If LCase(Right(LL_DLLFunctions()\FuncName, 6)) = "_debug"
@@ -876,7 +896,11 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
             ;}
           CompilerEndSelect
         Else
-          sbAddLiteral(lASMContent, "public "+ReplaceString(gProject\sLibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName + #System_EOL)
+          CompilerIf #PB_Compiler_OS <> #PB_OS_MacOS
+            sbAddLiteral(lASMContent, "public "+ReplaceString(gProject\sLibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName + #System_EOL)
+          CompilerElse
+            sbAddLiteral(lASMContent, "global "+ReplaceString(gProject\sLibName, " ", "_")+"_"+LL_DLLFunctions()\FuncName + #System_EOL)
+          CompilerEndIf
         EndIf
       ;}
       sbAddLiteral(lASMContent, "" + #System_EOL)
@@ -1001,7 +1025,11 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
         Output_Add("Extrn > Write", #Output_Log, 10)
         If ListSize(LL_ASM_extrn()) > 0
           ForEach LL_ASM_extrn()
-            sbAddLiteral(lASMContent, "extrn "+LL_ASM_extrn() + #System_EOL)
+            CompilerIf #PB_Compiler_OS <> #PB_OS_MacOS
+              sbAddLiteral(lASMContent, "extrn "+LL_ASM_extrn() + #System_EOL)
+            CompilerElse
+              sbAddLiteral(lASMContent, "extern "+LL_ASM_extrn() + #System_EOL)
+            CompilerEndIf
           Next
         EndIf
         
@@ -1010,7 +1038,7 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
         If LL_DLLFunctions()\FuncRetType = "InitFunction"
           CompilerSelect #PB_Compiler_OS 
             CompilerCase #PB_OS_Linux : sbAddLiteral(lASMContent, "extrn SYS_InitString" + #System_EOL)
-            CompilerCase #PB_OS_MacOS : MessageRequester("Moebius", "Inc_Userlib_Step2.pb l1011")
+            CompilerCase #PB_OS_MacOS : sbAddLiteral(lASMContent, "extern _SYS_InitString" + #System_EOL)
             CompilerCase #PB_OS_Windows : sbAddLiteral(lASMContent, "extrn _SYS_InitString@0" + #System_EOL)
           CompilerEndSelect
           bExistsInitFunction = #True
@@ -1104,7 +1132,7 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
                   sbAddLiteral(lASMContent, "section '.arrays' writeable" + #System_EOL)
                 ;}
                 CompilerCase #PB_OS_MacOS;{
-                  MessageRequester("Moebius", "Inc_Userlib_Step2.pb l1102")
+                  sbAddLiteral(lASMContent, "section .arrays" + #System_EOL)
                 ;}
                 CompilerCase #PB_OS_Windows;{
                   sbAddLiteral(lASMContent, "section '.arrays' readable writeable" + #System_EOL)

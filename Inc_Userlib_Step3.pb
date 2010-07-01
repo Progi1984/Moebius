@@ -3,13 +3,22 @@
 ;@return #Error_019 > Error : FASM can't be launched
 ProcedureDLL Moebius_Userlib_Step3()
   Protected lPgm_Fasm.l
-  Protected sFASMError.s, sFASMString.s, sReadPgm.s
+  Protected sFASMError.s, sFASMString.s, sReadPgm.s, sCmdLine.s
   
   gState = #State_Step3
   
   ForEach LL_DLLFunctions()
-    lPgm_Fasm = RunProgram(gConf\sPath_FASM, " "+#DQuote+gProject\sDirAsm+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide | #PB_Program_Error)
-    Output_Add(#DQuote+gConf\sPath_FASM+#DQuote+" "+#DQuote+gProject\sDirAsm+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote, #Output_Log|#Output_Bat, 2)
+    CompilerSelect #PB_Compiler_OS
+      CompilerCase #PB_OS_Linux
+      CompilerCase #PB_OS_Windows ;{
+        sCmdLine = " "+#DQuote+gProject\sDirAsm+LL_DLLFunctions()\FuncName+".asm"+#DQuote+" "+#DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote
+      ;}
+      CompilerCase #PB_OS_MacOS ;{
+        sCmdLine = " -f macho -o "+#DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote+" "+#DQuote+gProject\sDirAsm+LL_DLLFunctions()\FuncName+".asm"+#DQuote
+      ;}
+    CompilerEndSelect
+    lPgm_Fasm = RunProgram(gConf\sPath_FASM, sCmdLine, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide | #PB_Program_Error)
+    Output_Add(#DQuote+gConf\sPath_FASM+#DQuote+sCmdLine, #Output_Log|#Output_Bat, 2)
     If lPgm_Fasm
       sFASMString = ""
       sFASMError = ""

@@ -17,7 +17,7 @@
 
 #System_Separator = "/"
 #System_EOL = Chr(13)
-#System_LibFormat = "MACH-O"
+#System_LibFormat = ""
 #System_OS = "MacOS"
 
 #PB_FileSystem_Normal = 0
