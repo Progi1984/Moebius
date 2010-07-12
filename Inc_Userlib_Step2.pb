@@ -355,7 +355,7 @@ ProcedureDLL Moebius_Userlib_Step2_ModifyASM()
                 ; not add in funccode
               EndIf
             ;}
-            Case "%macro" ;{ Extracts the name of function
+            Case "%macro"
             Case "macro" ;{ Extracts the name of function
               bNotCapture = #False
               sNameOfFunction = sLinePrevious
@@ -715,7 +715,7 @@ ProcedureDLL Moebius_Userlib_Step2_CreateSharedFunction()
       sLineCurrentTrimmed = Trim(PeekLine(lCodeShared, Len(sCodeShared)))
       Repeat
         If FindString(sLineCurrentTrimmed, ":", 0) > 0 
-          If FindString(sLineCurrentTrimmed, "SYS", 0) = 0 
+          If FindString(StringField(sLineCurrentTrimmed, 1, ":"), "SYS", 0) = 0 
             If StringField(sLineCurrentTrimmed, 1, " ") <> "file"
               If StringField(sLineCurrentTrimmed, 1, " ") <> "public"
                 Moebius_Userlib_Step2_AddExtrn(StringField(sLineCurrentTrimmed, 1, ":"))
