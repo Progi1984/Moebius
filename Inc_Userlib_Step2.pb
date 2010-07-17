@@ -572,6 +572,13 @@ ProcedureDLL Moebius_Userlib_Step2_AddExtrn(sPart.s)
       ProcedureReturn #False
     EndIf
   ;}
+  ;{ verify if part must not removed
+  ForEach LL_ASM_extrn_Removed()
+    If sPartCleaned = LL_ASM_extrn_Removed()
+      ProcedureReturn #False
+    EndIf
+  Next
+  ;}
   ;{ add to linked lists only if doesn't exist
     ResetList(LL_ASM_extrn())
     bFound = #False
@@ -869,6 +876,7 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
       Output_Add(LL_DLLFunctions()\FuncName+" > Loading sASMContent", #Output_Log, 6)
       
       ClearList(LL_ASM_extrn())
+      ClearList(LL_ASM_extrn_Removed())
       lASMContent = sbCreate(2048)
       
       Output_Add("Format", #Output_Log, 8)
@@ -920,6 +928,13 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
                   Moebius_Userlib_Step2_AddExtrn(sLinePart)
                 Else
                   Moebius_Userlib_Step2_AddExtrn(sLinePart)
+                EndIf
+              ;}
+              Case "extrn" ;{
+                sLinePart = StringField(sLineCurrentTrimmed, CountString(sLineCurrentTrimmed, " ")+1, " ")
+                If sLinePart <> ""
+                  AddElement(LL_ASM_extrn_Removed())
+                  LL_ASM_extrn_Removed() = sLinePart
                 EndIf
               ;}
               Default ;{

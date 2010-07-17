@@ -91,6 +91,7 @@
   Global NewList LL_DLLUsed.s()
   Global NewList LL_ImportUsed.s()
   Global NewList LL_ASM_extrn.s()
+  Global NewList LL_ASM_extrn_Removed.s()
   Global NewList LL_Logs.s()
   Global NewList LL_Lines.S_CodeLine()
   Global NewList LL_LabelsInFunctions.S_LabelsList()
