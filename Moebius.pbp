@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://www.purebasic.com/namespace" version="1.0" creator="PureBasic 4.60 Beta 3 (Windows - x86)">
+  <section name="config">
+    <options closefiles="1" openmode="3" name="Moebius"/>
+  </section>
+  <section name="data">
+    <explorer view="" pattern="0"/>
+    <log show="1"/>
+    <lastopen date="2011-07-20 11:51" user="flefevre" host="MALH644"/>
+  </section>
+  <section name="files">
+    <file name="Inc_Declare.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="75b19e4b525be7527b8dc3eda3e9dfcc"/>
+    </file>
+    <file name="Inc_Misc.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="5c3d0b1ca27953f8832b216306c9bf23"/>
+    </file>
+    <file name="Inc_OS_Linux.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="1ed2387394bc562821ab6c28cee91a57"/>
+    </file>
+    <file name="Inc_OS_MacOS.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="41eb67e9f06c95a7beb6ea36760b6e5b"/>
+    </file>
+    <file name="Inc_OS_Windows.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="d63d989a90fd66f4896077ccbf5d4d47"/>
+    </file>
+    <file name="Inc_PB.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="ac012df934814b4baf74412dd1547cf8"/>
+    </file>
+    <file name="Inc_Prefs.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="40d802c1270cf5c8aec9a12c1b3816a6"/>
+    </file>
+    <file name="Inc_Resident_Step0.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="05e3e8fa327d23cb19be5457a6dc2a00"/>
+    </file>
+    <file name="Inc_Resident_Step1.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="ed6bfd3ef10b8ac41abe2c7ff02ffb86"/>
+    </file>
+    <file name="Inc_Resident_Step2.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="c519f509935dc390edc70529c641625b"/>
+    </file>
+    <file name="Inc_Userlib_Step0.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="5b5f621707376a6c1317a50bfcc61d4e"/>
+    </file>
+    <file name="Inc_Userlib_Step1.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="60f4350bcb43ba58eec20fe277c91289"/>
+    </file>
+    <file name="Inc_Userlib_Step2.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="1d865ad9f275dca03bca1b175ee9bdca"/>
+    </file>
+    <file name="Inc_Userlib_Step3.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="180d2557855ccb28ef0bc618460d138f"/>
+    </file>
+    <file name="Inc_Userlib_Step4.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="864d8f3bbc118925d939adc0ac4edece"/>
+    </file>
+    <file name="Inc_Userlib_Step5.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="47b8ebcfa15182e9a914135446d4bb03"/>
+    </file>
+    <file name="Inc_Userlib_Step6.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="2919a3fa1c61e8d45ba5fc024a0b1c9a"/>
+    </file>
+    <file name="Inc_Var.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="b879b205aebe306745053c441591b389"/>
+    </file>
+    <file name="Moebius_Main.pb">
+      <config load="1" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="4946580072f563e833c80201d0a66a26"/>
+    </file>
+    <file name="Moebius_MainThread.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="e3f3267420c396f85a1c87788ccdefd2"/>
+    </file>
+  </section>
+  <section name="targets">
+    <target name="Cible par défaut" enabled="1" default="1">
+      <inputfile value=""/>
+      <outputfile value=""/>
+      <options xpskin="1" debug="1"/>
+      <purifier enable="1"/>
+    </target>
+  </section>
+</project>
