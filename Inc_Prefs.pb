@@ -72,6 +72,7 @@ ProcedureDLL Moebius_ReadParameters()
   gProject\bBatFile  = #False
   gProject\sSubsystem  = ""
   gProject\bTypeOutput = #TypeOutput_UserLib  
+  gProject\bLogInStreaming = #False
   
   ; now we read command line
   For IncA = 0 To CountProgramParameters()-1
@@ -168,3 +169,9 @@ ProcedureDLL Moebius_ReadParameters()
     EndSelect
   Next
 EndProcedure 
+
+; IDE Options = PureBasic 4.60 Beta 3 (Windows - x86)
+; CursorPosition = 74
+; FirstLine = 57
+; Folding = ------
+; EnableXP
