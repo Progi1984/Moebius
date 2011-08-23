@@ -96,16 +96,20 @@ Procedure MoebiusGUI_Init()
       gGUIPrefs\lAlwaysAskBeforeLoadingProject = #False
       WritePreferenceString("Language", "English")
       gGUIPrefs\sLanguage = "English"
+      WritePreferenceString("Profile", "Default")
+      gGUIPrefs\sProfile  = "Default"
     ClosePreferences()
   EndIf
   If OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_Prefs.ini") <> 0
     PreferenceGroup("Main")
       gGUIPrefs\lAlwaysAskBeforeLoadingProject = ReadPreferenceLong("AlwaysAskBeforeLoadingProject", #False)
       gGUIPrefs\sLanguage = ReadPreferenceString("Language", "French")
+      gGUIPrefs\sProfile  = ReadPreferenceString("Profile", "Default")
     ClosePreferences()
   Else
     gGUIPrefs\lAlwaysAskBeforeLoadingProject = #False
     gGUIPrefs\sLanguage = "English"
+    gGUIPrefs\sProfile = "Default"
   EndIf
 
   ; Languages
@@ -243,6 +247,12 @@ Procedure MoebiusGUI_OpenWindow()
                   EndIf
                 Else
                   SetGadgetState(#ComboBox_01, 1)
+                  For plInc = 0 To CountGadgetItems(#ComboBox_01) - 1
+                    If GetGadgetItemText(#ComboBox_01, plInc) = gGUIPrefs\sProfile
+                      SetGadgetState(#ComboBox_01, plInc)
+                      Break
+                    EndIf
+                  Next
                   M_GUI_ProfilePB_Load()
                 EndIf
               EndIf

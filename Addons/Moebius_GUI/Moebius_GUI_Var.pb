@@ -93,6 +93,7 @@ EndEnumeration
 Structure S_MoebiusGUIPrefs
   lAlwaysAskBeforeLoadingProject.l
   sLanguage.s
+  sProfile.s
 EndStructure
 
 ;- Macros

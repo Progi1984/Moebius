@@ -128,14 +128,14 @@ Repeat
             JaPBe_RegisterPlugin()
           ;}
         CompilerEndIf
-        Case #CheckBox_00   ;{ Always ask before loading a project
+        Case #CheckBox_00     ;{ Always ask before loading a project
           ; save in preferences
           OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_Prefs.ini")
             PreferenceGroup("Main")
             WritePreferenceLong("AlwaysAskBeforeLoadingProject", GetGadgetState(#CheckBox_00))
           ClosePreferences()
         ;}
-        Case #ComboBox_00  ;{ Language
+        Case #ComboBox_00     ;{ Language
           Define.s dsReturnValue
           glReturnValue = #False
           ; save in preferences
@@ -152,7 +152,18 @@ Repeat
             M_GUI_LanguageLoad(GetGadgetItemText(#ComboBox_00, GetGadgetState(#ComboBox_00)))
             M_GUI_LanguageApply()
           EndIf
-        ;}      
+        ;}
+        Case #ComboBox_01     ;{ Profils
+          Define.s dsReturnValue
+          ; save in preferences
+          OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_Prefs.ini")
+            PreferenceGroup("Main")
+            dsReturnValue = ReadPreferenceString("Profile", "")
+            If dsReturnValue <> GetGadgetItemText(#ComboBox_01, GetGadgetState(#ComboBox_01))
+              WritePreferenceString("Profile", GetGadgetItemText(#ComboBox_01, GetGadgetState(#ComboBox_01)))
+            EndIf
+          ClosePreferences()
+        ;}  
         ; Create a resident
         Case #Button_07       ;{ Browse > Main Source File
           Define.s dsRetString
