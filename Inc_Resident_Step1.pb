@@ -36,8 +36,8 @@ ProcedureDLL Moebius_Resident_Step1()
   sCompilerParam + #DQuote + sResFile + #DQuote
   
   ; launch the compiler
-  lCompiler = RunProgram(gConf\sPath_PBCOMPILER, #DQuote + gProject\sFileName + #DQuote + " " + sCompilerParam, gProject\sDirProject, #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
-  Output_Add("From > " + gProject\sDirProject, #Output_Log)
+  lCompiler = RunProgram(gConf\sPath_PBCOMPILER, #DQuote + gProject\sFileName + #DQuote + " " + sCompilerParam, GetPathPart(gProject\sFileName), #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+  Output_Add("From > " + GetPathPart(gProject\sFileName), #Output_Log)
   Output_Add(#DQuote + gConf\sPath_PBCOMPILER + #DQuote + " " + #DQuote + gProject\sFileName + #DQuote + " " + sCompilerParam, #Output_Log|#Output_Bat)
   
   ; keep the output compiler for log and test success
