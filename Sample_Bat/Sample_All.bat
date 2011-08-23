@@ -14,6 +14,7 @@ moebius /bat /log /ln  "Sample_05" /pbi "Prefs/Profile_Windows.ini" "Sample_Lib/
 pause
 moebius /bat /log /ln  "Sample_06" /pbi "Prefs/Profile_Windows.ini" "Sample_Lib/Sample_06.pb"
 pause
+moebius /log /ln "Sample_07_Res" /to 1 /pbi "Prefs/Profile_Windows.ini" "Sample_Lib/Sample_07_Resident.pb"
 moebius /bat /log /ln  "Sample_07" /pbi "Prefs/Profile_Windows.ini" "Sample_Lib/Sample_07.pb"
 pause
 moebius /bat /log /ln  "Sample_08" /pbi "Prefs/Profile_Windows.ini" "Sample_Lib/Sample_08.pb"
