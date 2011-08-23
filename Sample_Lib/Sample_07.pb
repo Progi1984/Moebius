@@ -22,7 +22,3 @@ ProcedureDLL S07_GetVarPoint(List MyListPoint.Point())
 	MessageRequester("S07_GetVarPoint", sContent)
 	ProcedureReturn #True
 EndProcedure
-
-; IDE Options = PureBasic 4.60 Beta 3 (Windows - x86)
-; Folding = -
-; EnableXP

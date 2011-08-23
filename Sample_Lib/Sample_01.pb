@@ -10,7 +10,6 @@ EndProcedure
 ProcedureDLL S01_FunctionTrisTest(PrimParam.l, TestSecundo.s, ThirdParam.b)
 	ProcedureReturn PrimParam
 EndProcedure
-
 ProcedureDLL S01_FunctionTrisQuad(MyParam.l)
   Protected Val.l = S01_FunctionTestPriv(MyParam) * 2
   ProcedureReturn Val

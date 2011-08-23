@@ -10,5 +10,5 @@ EndProcedure
 ProcedureDLL S06_End()
 	If S06_gVar
 		FreeMemory(S06_gVar)
-	endif
+	EndIf
 EndProcedure
