@@ -1,4 +1,4 @@
-ProcedureDLL S07_GetVarL(List MyListL.l(), Num.l) ; Commebt
+ProcedureDLL S07_GetVarL(List MyListL.l(), Num.l) ; Comment
 	Protected sContent.s
 	ForEach MyListL()
 	  sContent + "ID : " + Str(ListIndex(MyListL()))+ " - Element : "+Str(MyListL())+Chr(13) + Chr(10)
@@ -22,3 +22,7 @@ ProcedureDLL S07_GetVarPoint(List MyListPoint.Point())
 	MessageRequester("S07_GetVarPoint", sContent)
 	ProcedureReturn #True
 EndProcedure
+
+; IDE Options = PureBasic 4.60 Beta 3 (Windows - x86)
+; Folding = -
+; EnableXP
