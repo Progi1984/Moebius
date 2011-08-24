@@ -296,6 +296,7 @@ Repeat
             gProject\bInlineASM = GetGadgetState(#CheckBox_11)
             gProject\bLogFile = GetGadgetState(#CheckBox_03)
             gProject\bBatFile = GetGadgetState(#CheckBox_04)
+            gProject\bDontKeepSrcFiles = 1 - GetGadgetState(#CheckBox_13)
   
             gConf\sPureBasic_Path = GetGadgetText(#String_00)
             gConf\sPath_PBCOMPILER = GetGadgetText(#String_01)
@@ -467,9 +468,9 @@ Repeat
             
             ; No or Yes for CHM, ? for Log, Yes for Output
             If GetGadgetText(#String_12) = ""
-              M_Moebius_InitDir(#False, 1- GetGadgetState(#CheckBox_07), #True) 
+              M_Moebius_InitDir(#False, 1 - GetGadgetState(#CheckBox_07), #True) 
             Else
-              M_Moebius_InitDir(#True, 1- GetGadgetState(#CheckBox_07), #True) 
+              M_Moebius_InitDir(#True, 1 - GetGadgetState(#CheckBox_07), #True) 
             EndIf
             
             ; Cleans all variables before a new building

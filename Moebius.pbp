@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://www.purebasic.com/namespace" version="1.0" creator="PureBasic 4.60 Beta 3 (Windows - x86)">
+<project xmlns="http://www.purebasic.com/namespace" version="1.0" creator="PureBasic 4.60 Beta 4 (Windows - x86)">
   <section name="config">
     <options closefiles="1" openmode="3" name="Moebius"/>
   </section>
   <section name="data">
     <explorer view="" pattern="0"/>
     <log show="1"/>
-    <lastopen date="2011-07-20 11:51" user="flefevre" host="MALH644"/>
+    <lastopen date="2011-08-23 15:57" user="flefevre" host="MALH644"/>
   </section>
   <section name="files">
     <file name="Inc_Declare.pb">
@@ -15,8 +15,8 @@
       <fingerprint md5="75b19e4b525be7527b8dc3eda3e9dfcc"/>
     </file>
     <file name="Inc_Misc.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="5c3d0b1ca27953f8832b216306c9bf23"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="bdb662d9d77890626fe4b7f571d52878"/>
     </file>
     <file name="Inc_OS_Linux.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
@@ -35,7 +35,7 @@
       <fingerprint md5="ac012df934814b4baf74412dd1547cf8"/>
     </file>
     <file name="Inc_Prefs.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
       <fingerprint md5="40d802c1270cf5c8aec9a12c1b3816a6"/>
     </file>
     <file name="Inc_Resident_Step0.pb">
@@ -44,7 +44,7 @@
     </file>
     <file name="Inc_Resident_Step1.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
-      <fingerprint md5="ed6bfd3ef10b8ac41abe2c7ff02ffb86"/>
+      <fingerprint md5="3197b9af95fb19b1738068336eee15ac"/>
     </file>
     <file name="Inc_Resident_Step2.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
@@ -79,11 +79,11 @@
       <fingerprint md5="2919a3fa1c61e8d45ba5fc024a0b1c9a"/>
     </file>
     <file name="Inc_Var.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
       <fingerprint md5="b879b205aebe306745053c441591b389"/>
     </file>
     <file name="Moebius_Main.pb">
-      <config load="1" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <config load="1" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
       <fingerprint md5="4946580072f563e833c80201d0a66a26"/>
     </file>
     <file name="Moebius_MainThread.pb">
@@ -93,8 +93,9 @@
   </section>
   <section name="targets">
     <target name="Cible par défaut" enabled="1" default="1">
-      <inputfile value=""/>
-      <outputfile value=""/>
+      <inputfile value="Moebius_Main.pb"/>
+      <outputfile value="moebius.exe"/>
+      <executable value="moebius.exe"/>
       <options xpskin="1" debug="1"/>
       <purifier enable="1"/>
     </target>

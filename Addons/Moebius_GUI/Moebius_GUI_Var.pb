@@ -35,6 +35,7 @@ Enumeration
   #CheckBox_10
   #CheckBox_11
   #CheckBox_12
+  #CheckBox_13
   #ComboBox_00
   #ComboBox_01
   #ComboBox_02
