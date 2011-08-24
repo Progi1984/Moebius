@@ -258,11 +258,16 @@ Repeat
             dsGroupName = GetGadgetItemText(#ComboBox_02, GetGadgetState(#ComboBox_02))
           EndIf
           If dsGroupName <> ""
-            If Not(OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesResident.ini")) = #False
+            If FileSize(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesResident.ini") = -1
+              CreatePreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesResident.ini")
+              ClosePreferences()
+            EndIf
+            If OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesResident.ini") <> 0
               ExaminePreferenceGroups()
+              dbNewGroup = #True
               While NextPreferenceGroup()
                 If PreferenceGroupName() = dsGroupName
-                  dbNewGroup = #True
+                  dbNewGroup = #False
                 EndIf
               Wend
               PreferenceGroup(dsGroupName)
@@ -271,6 +276,7 @@ Repeat
                 WritePreferenceLong("Threadsafe", GetGadgetState(#CheckBox_02))
                 WritePreferenceLong("Batch", GetGadgetState(#CheckBox_03))
                 WritePreferenceLong("Log", GetGadgetState(#CheckBox_04))
+                WritePreferenceLong("DontKeepSrcFiles", 1 - GetGadgetState(#CheckBox_13))
                 WritePreferenceString("LibName", GetGadgetText(#String_05))
                 WritePreferenceString("OutputFile", GetGadgetText(#String_06))
                 WritePreferenceString("DirProject", GetGadgetText(#String_07))
@@ -414,11 +420,16 @@ Repeat
             dsGroupName = GetGadgetItemText(#ComboBox_03, GetGadgetState(#ComboBox_03))
           EndIf
           If dsGroupName <> ""
-            If Not(OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesUserLib.ini")) = #False
+            If FileSize(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesUserLib.ini") = -1
+              CreatePreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesUserLib.ini")
+              ClosePreferences()
+            EndIf
+            If OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_ProfilesUserLib.ini") <> 0
               ExaminePreferenceGroups()
+              dbNewGroup = #True
               While NextPreferenceGroup()
                 If PreferenceGroupName() = dsGroupName
-                  dbNewGroup = #True
+                  dbNewGroup = #False
                 EndIf
               Wend
               PreferenceGroup(dsGroupName)

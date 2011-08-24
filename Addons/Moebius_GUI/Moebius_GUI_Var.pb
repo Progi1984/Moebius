@@ -98,6 +98,9 @@ Structure S_MoebiusGUIPrefs
 EndStructure
 
 ;- Macros
+Macro M_Quote
+  "
+EndMacro
 Macro M_GUI_ProfilePB_Load()
   OpenPreferences(gsPath+"Prefs"+#System_Separator+"Profile_"+GetGadgetItemText(#ComboBox_01, GetGadgetState(#ComboBox_01))+".ini")
     PreferenceGroup("PATH")
@@ -231,7 +234,7 @@ Macro M_GUI_GetStringError(Error)
 EndMacro
 Macro M_GUI_LoadProfile(ComboID, ProfileType)
   AddGadgetItem(ComboID, 0, "<"+dimLanguageItems(0)+">")
-  OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_Profiles#ProfileType.ini")
+  OpenPreferences(gsPath+"Prefs"+#System_Separator+"MoebiusGUI_Profiles"+M_Quote#ProfileType#M_Quote+".ini")
     ExaminePreferenceGroups()
     While NextPreferenceGroup()
       AddGadgetItem(ComboID, -1, PreferenceGroupName())
