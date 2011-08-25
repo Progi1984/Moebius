@@ -32,6 +32,8 @@
   EndStructure
   Structure S_Project
     sFileName.s           ; PB Filename for compiling
+    sPBPFileName.s        ; PBP Filename for extracting the target
+    sPBPTarget.s 
     bTypeOutput.b
     sFileOutput.s         ; filename (without path) of the library
     
@@ -166,6 +168,7 @@
     #Error_034
     #Error_035
     #Error_036
+    #Error_037
     #Error_Last
   EndEnumeration
   Enumeration 0

@@ -7,7 +7,7 @@
   <section name="data">
     <explorer view="" pattern="0"/>
     <log show="1"/>
-    <lastopen date="2011-08-23 15:57" user="flefevre" host="MALH644"/>
+    <lastopen date="2011-08-25 14:48" user="flefevre" host="MALH644"/>
   </section>
   <section name="files">
     <file name="Inc_Declare.pb">
@@ -19,24 +19,24 @@
       <fingerprint md5="bdb662d9d77890626fe4b7f571d52878"/>
     </file>
     <file name="Inc_OS_Linux.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
-      <fingerprint md5="1ed2387394bc562821ab6c28cee91a57"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="b9cac90f2f084142dd8a16fc5752a47f"/>
     </file>
     <file name="Inc_OS_MacOS.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
-      <fingerprint md5="41eb67e9f06c95a7beb6ea36760b6e5b"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="9b7e688b5d2e77a56fb7fa07e70c7756"/>
     </file>
     <file name="Inc_OS_Windows.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
-      <fingerprint md5="d63d989a90fd66f4896077ccbf5d4d47"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="65c5113064788d255a7b706203d46e6b"/>
     </file>
     <file name="Inc_PB.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
       <fingerprint md5="ac012df934814b4baf74412dd1547cf8"/>
     </file>
     <file name="Inc_Prefs.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
-      <fingerprint md5="40d802c1270cf5c8aec9a12c1b3816a6"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="4a2e96542272833598706c070636ec40"/>
     </file>
     <file name="Inc_Resident_Step0.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
@@ -79,11 +79,11 @@
       <fingerprint md5="2919a3fa1c61e8d45ba5fc024a0b1c9a"/>
     </file>
     <file name="Inc_Var.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
-      <fingerprint md5="b879b205aebe306745053c441591b389"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="cad1d6481fbf840e2e1dfdb7ee4ada22"/>
     </file>
     <file name="Moebius_Main.pb">
-      <config load="1" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <config load="1" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
       <fingerprint md5="4946580072f563e833c80201d0a66a26"/>
     </file>
     <file name="Moebius_MainThread.pb">
