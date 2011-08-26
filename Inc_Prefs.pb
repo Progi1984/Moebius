@@ -40,7 +40,7 @@ ProcedureDLL Moebius_ReadPrefs()
         gProject\bInlineASM         = ReadPreferenceLong("InlineASM", #False)
         gProject\bBatFile           = ReadPreferenceLong("BatFile", #False)
         gProject\bLogFile           = ReadPreferenceLong("LogFile", #False)
-        gProject\sPBPTarget         = ReadPreferenceLong("PBPTarget", #False)
+        gProject\sPBPTarget         = ReadPreferenceString("PBPTarget", "")
       ClosePreferences()
     EndIf
   EndIf
