@@ -51,20 +51,22 @@ ProcedureDLL Moebius_Userlib_Step4()
     ;{ Library functions
       sDescContent + "; Library functions" + #System_EOL
       ForEach LL_DLLFunctions()
-        If LL_DLLFunctions()\InDescFile = #True
-          If LL_DLLFunctions()\IsDLLFunction = #True
-            sDescContent + LL_DLLFunctions()\FuncName+LL_DLLFunctions()\ParamsRetType+", ("+LL_DLLFunctions()\ParamsClean+")"
-            If LL_DLLFunctions()\FuncDesc <> ""
-              sDescContent + " - "+LL_DLLFunctions()\FuncDesc
+        With LL_DLLFunctions()
+          If \InDescFile = #True
+            If \IsDLLFunction = #True
+              sDescContent + \FuncName+\ParamsRetType+", ("+\ParamsClean+")"
+              If \FuncDesc <> ""
+                sDescContent + " - "+\FuncDesc
+              EndIf
+              sDescContent + #System_EOL
+              sDescContent + \FuncRetType+" | "+\CallingConvention
+              If \FlagsReturn <> ""
+                sDescContent + \FlagsReturn
+              EndIf
+              sDescContent + #System_EOL
             EndIf
-            sDescContent + #System_EOL
-            sDescContent + LL_DLLFunctions()\FuncRetType+" | "+LL_DLLFunctions()\CallingConvention
-            If LL_DLLFunctions()\FlagsReturn <> ""
-              sDescContent + LL_DLLFunctions()\FlagsReturn
-            EndIf
-            sDescContent + #System_EOL
           EndIf
-        EndIf
+        Next
       Next
     ;}
     
@@ -150,4 +152,4 @@ ProcedureDLL Moebius_Userlib_Step4()
     EndIf
   ;}
 EndProcedure
-;- sContent de desc in sb
+;- TODO : sContent de desc in sb

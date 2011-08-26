@@ -6,11 +6,13 @@ ProcedureDLL Moebius_ReadPrefs()
   If gConf\sIni_Purebasic <> "" And FileSize(gConf\sIni_Purebasic) > 0
     If OpenPreferences(gConf\sIni_Purebasic) <> 0
       PreferenceGroup("PATH")
-      gConf\sPureBasic_Path.s = ReadPreferenceString("PureBasic", PB_GetPBFolder())
-      gConf\sPath_PBCOMPILER.s = ReadPreferenceString("PBCompiler", gConf\sPureBasic_Path+#System_Separator+"compilers"+#System_Separator+"pbcompiler"+#System_ExtExec)
-      gConf\sPath_FASM.s = ReadPreferenceString("PBFasm",gConf\sPureBasic_Path+#System_Separator+"compilers"+#System_Separator+"fasm"+#System_ExtExec)
-      gConf\sPath_OBJ2LIB.s = ReadPreferenceString("PBObj2Lib","")
-      gConf\sPath_PBLIBMAKER.s = ReadPreferenceString("PBLibMaker","")
+      With gConf
+        \sPureBasic_Path.s = ReadPreferenceString("PureBasic", PB_GetPBFolder())
+        \sPath_PBCOMPILER.s = ReadPreferenceString("PBCompiler", \sPureBasic_Path+#System_Separator+"compilers"+#System_Separator+"pbcompiler"+#System_ExtExec)
+        \sPath_FASM.s = ReadPreferenceString("PBFasm",\sPureBasic_Path+#System_Separator+"compilers"+#System_Separator+"fasm"+#System_ExtExec)
+        \sPath_OBJ2LIB.s = ReadPreferenceString("PBObj2Lib","")
+        \sPath_PBLIBMAKER.s = ReadPreferenceString("PBLibMaker","")
+      EndWith
       ClosePreferences()
     EndIf
   EndIf
@@ -20,27 +22,31 @@ ProcedureDLL Moebius_ReadPrefs()
   If gConf\sIni_Project <> "" And FileSize(gConf\sIni_Project) > 0
     If OpenPreferences(gConf\sIni_Project) <> 0
       PreferenceGroup(UCase(#System_OS))
-        gProject\sLibName           = ReadPreferenceString("LibName", "")
-        psFilename                  = ReadPreferenceString("FileName", "")
+      With gProject
+        \sLibName           = ReadPreferenceString("LibName", "")
+        psFilename          = ReadPreferenceString("FileName", "")
         If LCase(GetExtensionPart(psFilename)) = "pbp"
-          gProject\sPBPFileName     = psFilename
+          \sPBPFileName     = psFilename
         Else
-          gProject\sFileName        = psFilename
+          \sFileName        = psFilename
         EndIf
-        gConf\sSourceDir            = GetTemporaryDirectory() + "Moebius" + #System_Separator
-        gProject\sDirProject        = gConf\sSourceDir + gProject\sLibName + #System_Separator
-        M_Moebius_InitDir()
+        gConf\sSourceDir    = GetTemporaryDirectory() + "Moebius" + #System_Separator
+        \sDirProject        = gConf\sSourceDir + \sLibName + #System_Separator
+      EndWith
+      M_Moebius_InitDir()
       
       PreferenceGroup("PROJECT")
-        gProject\sFileOutput        = ReadPreferenceString("Output",gProject\sLibName)
-        gProject\bDontBuildLib      = ReadPreferenceLong("DontBuildLib", #False)
-        gProject\bDontKeepSrcFiles  = ReadPreferenceLong("DontKeepSrcFiles", #False)
-        gProject\bUnicode           = ReadPreferenceLong("Unicode", #False)
-        gProject\bThreadSafe        = ReadPreferenceLong("ThreadSafe", #False)
-        gProject\bInlineASM         = ReadPreferenceLong("InlineASM", #False)
-        gProject\bBatFile           = ReadPreferenceLong("BatFile", #False)
-        gProject\bLogFile           = ReadPreferenceLong("LogFile", #False)
-        gProject\sPBPTarget         = ReadPreferenceString("PBPTarget", "")
+      With gProject
+        \sFileOutput        = ReadPreferenceString("Output",\sLibName)
+        \bDontBuildLib      = ReadPreferenceLong("DontBuildLib", #False)
+        \bDontKeepSrcFiles  = ReadPreferenceLong("DontKeepSrcFiles", #False)
+        \bUnicode           = ReadPreferenceLong("Unicode", #False)
+        \bThreadSafe        = ReadPreferenceLong("ThreadSafe", #False)
+        \bInlineASM         = ReadPreferenceLong("InlineASM", #False)
+        \bBatFile           = ReadPreferenceLong("BatFile", #False)
+        \bLogFile           = ReadPreferenceLong("LogFile", #False)
+        \sPBPTarget         = ReadPreferenceString("PBPTarget", "")
+      EndWith
       ClosePreferences()
     EndIf
   EndIf
@@ -54,24 +60,28 @@ ProcedureDLL Moebius_ReadParameters()
   Protected psFilename.s
   ; Default informations
   ;-TODO : Verifier que la structure est intégré pour gConf dans les paramètres
-  gConf\sIni_Purebasic = ""
-  gConf\sIni_Project = ""
-  gConf\sSourceDir          = ""
+  With gConf
+    \sIni_Purebasic     = ""
+    \sIni_Project       = ""
+    \sSourceDir         = ""
+  EndWith
   
   ;-TODO : Verifier que la structure est intégré pour gProject dans les paramètres
-  gProject\sFileName = ""
-  gProject\sPBPFileName = ""
-  gProject\bDontBuildLib = #False
-  gProject\bDontKeepSrcFiles  = #True
-  gProject\bLogFile  = #False
-  gProject\bUnicode  = #False
-  gProject\bThreadSafe  = #False
-  gProject\bBatFile  = #False
-  gProject\sSubsystem  = ""
-  gProject\bTypeOutput = #TypeOutput_UserLib  
-  gProject\bLogInStreaming = #False
-  gProject\sPBPTarget = ""
-  gProject\sFileCHM = ""
+  With gProject
+    \sFileName          = ""
+    \sPBPFileName       = ""
+    \bDontBuildLib      = #False
+    \bDontKeepSrcFiles  = #True
+    \bLogFile           = #False
+    \bUnicode           = #False
+    \bThreadSafe        = #False
+    \bBatFile           = #False
+    \sSubsystem         = ""
+    \bTypeOutput        = #TypeOutput_UserLib  
+    \bLogInStreaming    = #False
+    \sPBPTarget         = ""
+    \sFileCHM           = ""
+  EndWith
   
   ; now we read command line
   For IncA = 0 To CountProgramParameters()-1

@@ -56,58 +56,66 @@ ProcedureDLL Output_Init()
       hFileLog = OpenFile(#PB_Any, gProject\sFileLog)
       If hFileLog
         If gProject\bTypeOutput = #TypeOutput_UserLib
-          WriteStringN(hFileLog, "PARAM >gProject\sFileName ="+gProject\sFileName)
-          WriteStringN(hFileLog, "PARAM >gProject\sFileDesc ="+gProject\sFileDesc)
-          WriteStringN(hFileLog, "PARAM >gProject\sFileCHM ="+gProject\sFileCHM)
-          WriteStringN(hFileLog, "PARAM >gProject\sFileOutput ="+gProject\sFileOutput)
-          WriteStringN(hFileLog, "PARAM >gProject\sFileLog ="+gProject\sFileLog)
-          
-          WriteStringN(hFileLog, "PARAM >gProject\sLibName ="+gProject\sLibName)
-          WriteStringN(hFileLog, "PARAM >gProject\sSubsystem ="+gProject\sSubsystem)
-          
-          WriteStringN(hFileLog, "PARAM >gProject\sDirProject ="+gProject\sDirProject)
-          WriteStringN(hFileLog, "PARAM >gProject\sDirAsm ="+gProject\sDirAsm)
-          WriteStringN(hFileLog, "PARAM >gProject\sDirObj ="+gProject\sDirObj)
-          WriteStringN(hFileLog, "PARAM >gProject\sDirLib ="+gProject\sDirLib)
-          WriteStringN(hFileLog, "PARAM >gProject\sDirBat ="+gProject\sDirBat)
-          WriteStringN(hFileLog, "PARAM >gProject\sDirLogs ="+gProject\sDirLogs)
-          
-          WriteStringN(hFileLog, "PARAM >gProject\bUnicode ="+Str(gProject\bUnicode))
-          WriteStringN(hFileLog, "PARAM >gProject\bThreadSafe ="+Str(gProject\bThreadSafe))
-          WriteStringN(hFileLog, "PARAM >gProject\bInlineASM ="+Str(gProject\bInlineASM))
-          WriteStringN(hFileLog, "PARAM >gProject\bDontBuildLib ="+Str(gProject\bDontBuildLib))
-          WriteStringN(hFileLog, "PARAM >gProject\bDontKeepSrcFiles ="+Str(gProject\bDontKeepSrcFiles))
-          WriteStringN(hFileLog, "PARAM >gProject\bLogFile ="+Str(gProject\bLogFile))
-          WriteStringN(hFileLog, "PARAM >gProject\bLogInStreaming ="+Str(gProject\bLogInStreaming))
-          WriteStringN(hFileLog, "PARAM >gProject\bBatFile ="+Str(gProject\bBatFile))
+          With gProject
+            WriteStringN(hFileLog, "PARAM >gProject\sFileName ="+\sFileName)
+            WriteStringN(hFileLog, "PARAM >gProject\sFileDesc ="+\sFileDesc)
+            WriteStringN(hFileLog, "PARAM >gProject\sFileCHM ="+\sFileCHM)
+            WriteStringN(hFileLog, "PARAM >gProject\sFileOutput ="+\sFileOutput)
+            WriteStringN(hFileLog, "PARAM >gProject\sFileLog ="+\sFileLog)
+            
+            WriteStringN(hFileLog, "PARAM >gProject\sLibName ="+\sLibName)
+            WriteStringN(hFileLog, "PARAM >gProject\sSubsystem ="+\sSubsystem)
+            
+            WriteStringN(hFileLog, "PARAM >gProject\sDirProject ="+\sDirProject)
+            WriteStringN(hFileLog, "PARAM >gProject\sDirAsm ="+\sDirAsm)
+            WriteStringN(hFileLog, "PARAM >gProject\sDirObj ="+\sDirObj)
+            WriteStringN(hFileLog, "PARAM >gProject\sDirLib ="+\sDirLib)
+            WriteStringN(hFileLog, "PARAM >gProject\sDirBat ="+\sDirBat)
+            WriteStringN(hFileLog, "PARAM >gProject\sDirLogs ="+\sDirLogs)
+            
+            WriteStringN(hFileLog, "PARAM >gProject\bUnicode ="+Str(\bUnicode))
+            WriteStringN(hFileLog, "PARAM >gProject\bThreadSafe ="+Str(\bThreadSafe))
+            WriteStringN(hFileLog, "PARAM >gProject\bInlineASM ="+Str(\bInlineASM))
+            WriteStringN(hFileLog, "PARAM >gProject\bDontBuildLib ="+Str(\bDontBuildLib))
+            WriteStringN(hFileLog, "PARAM >gProject\bDontKeepSrcFiles ="+Str(\bDontKeepSrcFiles))
+            WriteStringN(hFileLog, "PARAM >gProject\bLogFile ="+Str(\bLogFile))
+            WriteStringN(hFileLog, "PARAM >gProject\bLogInStreaming ="+Str(\bLogInStreaming))
+            WriteStringN(hFileLog, "PARAM >gProject\bBatFile ="+Str(\bBatFile))
+          EndWith
     
-          WriteStringN(hFileLog, "PARAM >gConf\sPureBasic_Path = "+gConf\sPureBasic_Path)
-          WriteStringN(hFileLog, "PARAM >gConf\sPath_PBCOMPILER = "+gConf\sPath_PBCOMPILER)
-          WriteStringN(hFileLog, "PARAM >gConf\sPath_FASM = "+gConf\sPath_FASM)
-          WriteStringN(hFileLog, "PARAM >gConf\sPath_OBJ2LIB = "+gConf\sPath_OBJ2LIB)
-          WriteStringN(hFileLog, "PARAM >gConf\sPath_PBLIBMAKER = "+gConf\sPath_PBLIBMAKER)
-          WriteStringN(hFileLog, "PARAM >gConf\sSourceDir = "+gConf\sSourceDir)
-          
-          WriteStringN(hFileLog, "PARAM >gConf\sIni_Purebasic = "+gConf\sIni_Purebasic)
-          WriteStringN(hFileLog, "PARAM >gConf\sIni_Project = "+gConf\sIni_Project)
+          With gConf
+            WriteStringN(hFileLog, "PARAM >gConf\sPureBasic_Path = "+\sPureBasic_Path)
+            WriteStringN(hFileLog, "PARAM >gConf\sPath_PBCOMPILER = "+\sPath_PBCOMPILER)
+            WriteStringN(hFileLog, "PARAM >gConf\sPath_FASM = "+\sPath_FASM)
+            WriteStringN(hFileLog, "PARAM >gConf\sPath_OBJ2LIB = "+\sPath_OBJ2LIB)
+            WriteStringN(hFileLog, "PARAM >gConf\sPath_PBLIBMAKER = "+\sPath_PBLIBMAKER)
+            WriteStringN(hFileLog, "PARAM >gConf\sSourceDir = "+\sSourceDir)
+            
+            WriteStringN(hFileLog, "PARAM >gConf\sIni_Purebasic = "+\sIni_Purebasic)
+            WriteStringN(hFileLog, "PARAM >gConf\sIni_Project = "+\sIni_Project)
+          EndWith
         ElseIf gProject\bTypeOutput = #TypeOutput_Resident
-          WriteStringN(hFileLog, "PARAM >gProject\sFileName ="+gProject\sFileName)
-          WriteStringN(hFileLog, "PARAM >gProject\sFileOutput ="+gProject\sFileOutput)
-          WriteStringN(hFileLog, "PARAM >gProject\sFileLog ="+gProject\sFileLog)
-          
-          WriteStringN(hFileLog, "PARAM >gProject\sLibName ="+gProject\sLibName)
-          
-          WriteStringN(hFileLog, "PARAM >gProject\sDirProject ="+gProject\sDirProject)
-          WriteStringN(hFileLog, "PARAM >gProject\sDirLogs ="+gProject\sDirLogs)
-          
-          WriteStringN(hFileLog, "PARAM >gProject\bUnicode ="+Str(gProject\bUnicode))
-          WriteStringN(hFileLog, "PARAM >gProject\bLogFile ="+Str(gProject\bLogFile))
+          With gProject
+            WriteStringN(hFileLog, "PARAM >gProject\sFileName ="+\sFileName)
+            WriteStringN(hFileLog, "PARAM >gProject\sFileOutput ="+\sFileOutput)
+            WriteStringN(hFileLog, "PARAM >gProject\sFileLog ="+\sFileLog)
+            
+            WriteStringN(hFileLog, "PARAM >gProject\sLibName ="+\sLibName)
+            
+            WriteStringN(hFileLog, "PARAM >gProject\sDirProject ="+\sDirProject)
+            WriteStringN(hFileLog, "PARAM >gProject\sDirLogs ="+\sDirLogs)
+            
+            WriteStringN(hFileLog, "PARAM >gProject\bUnicode ="+Str(\bUnicode))
+            WriteStringN(hFileLog, "PARAM >gProject\bLogFile ="+Str(\bLogFile))
+          EndWith
     
-          WriteStringN(hFileLog, "PARAM >gConf\sPureBasic_Path = "+gConf\sPureBasic_Path)
-          WriteStringN(hFileLog, "PARAM >gConf\sPath_PBCOMPILER = "+gConf\sPath_PBCOMPILER)
-  
-          WriteStringN(hFileLog, "PARAM >gConf\sIni_Purebasic = "+gConf\sIni_Purebasic)
-          WriteStringN(hFileLog, "PARAM >gConf\sIni_Project = "+gConf\sIni_Project)
+          With gConf
+            WriteStringN(hFileLog, "PARAM >gConf\sPureBasic_Path = "+\sPureBasic_Path)
+            WriteStringN(hFileLog, "PARAM >gConf\sPath_PBCOMPILER = "+\sPath_PBCOMPILER)
+    
+            WriteStringN(hFileLog, "PARAM >gConf\sIni_Purebasic = "+\sIni_Purebasic)
+            WriteStringN(hFileLog, "PARAM >gConf\sIni_Project = "+\sIni_Project)
+          EndWith
         EndIf
         WriteStringN(hFileLog, "")
       EndIf

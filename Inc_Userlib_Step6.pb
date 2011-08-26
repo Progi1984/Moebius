@@ -7,28 +7,30 @@ ProcedureDLL Moebius_Userlib_Step6()
   gState = #State_Step6
 
   ; if we don't keep files, we delete directories and their contents
-  If gProject\bDontKeepSrcFiles = #False
-    If FileSize(gProject\sDirAsm) = -2
-      If DeleteDirectory(gProject\sDirAsm, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = #False
-        ProcedureReturn #Error_029
+  With gProject
+    If \bDontKeepSrcFiles = #False
+      If FileSize(\sDirAsm) = -2
+        If DeleteDirectory(\sDirAsm, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = #False
+          ProcedureReturn #Error_029
+        EndIf
+      EndIf
+      If FileSize(\sDirObj) = -2
+        If DeleteDirectory(\sDirObj, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = #False
+          ProcedureReturn #Error_030
+        EndIf
+      EndIf
+      If FileSize(\sDirLib) = -2
+        If DeleteDirectory(\sDirLib, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = #False
+          ProcedureReturn #Error_031
+        EndIf
+      EndIf
+      If FileSize(\sDirBat) = -2
+        If DeleteDirectory(\sDirBat, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = #False
+          ProcedureReturn #Error_032
+        EndIf
       EndIf
     EndIf
-    If FileSize(gProject\sDirObj) = -2
-      If DeleteDirectory(gProject\sDirObj, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = #False
-        ProcedureReturn #Error_030
-      EndIf
-    EndIf
-    If FileSize(gProject\sDirLib) = -2
-      If DeleteDirectory(gProject\sDirLib, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = #False
-        ProcedureReturn #Error_031
-      EndIf
-    EndIf
-    If FileSize(gProject\sDirBat) = -2
-      If DeleteDirectory(gProject\sDirBat, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = #False
-        ProcedureReturn #Error_032
-      EndIf
-    EndIf
-  EndIf
+  EndWith
   
   ; we close logs & batchs
   Output_End()

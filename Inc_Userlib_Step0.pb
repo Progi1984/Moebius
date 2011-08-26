@@ -20,45 +20,49 @@ ProcedureDLL Moebius_Userlib_Step0()
     EndIf
   EndIf
   ;Deletes old content of directories
-  If FileSize(gProject\sDirAsm) = -2
-    If DeleteDirectory(gProject\sDirAsm, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
-      ProcedureReturn #Error_002
+  With gProject
+    If FileSize(\sDirAsm) = -2
+      If DeleteDirectory(\sDirAsm, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
+        ProcedureReturn #Error_002
+      EndIf
     EndIf
-  EndIf
-  If FileSize(gProject\sDirBat) = -2
-    If DeleteDirectory(gProject\sDirBat, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
-      ProcedureReturn #Error_003
+    If FileSize(\sDirBat) = -2
+      If DeleteDirectory(\sDirBat, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
+        ProcedureReturn #Error_003
+      EndIf
     EndIf
-  EndIf
-  If FileSize(gProject\sDirLib) = -2
-    If DeleteDirectory(gProject\sDirLib, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
-      ProcedureReturn #Error_004
+    If FileSize(\sDirLib) = -2
+      If DeleteDirectory(\sDirLib, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
+        ProcedureReturn #Error_004
+      EndIf
     EndIf
-  EndIf
-  If FileSize(gProject\sDirObj) = -2
-    If DeleteDirectory(gProject\sDirObj, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
-      ProcedureReturn #Error_005
+    If FileSize(\sDirObj) = -2
+      If DeleteDirectory(\sDirObj, "*.*", #PB_FileSystem_Force | #PB_FileSystem_Recursive) = 0
+        ProcedureReturn #Error_005
+      EndIf
     EndIf
-  EndIf
+  EndWith
   ; Creates directories if inexistant
-  If CreateDirectoryEx(gProject\sDirProject) = #False
-    ProcedureReturn #Error_006
-  EndIf
-  If CreateDirectoryEx(gProject\sDirBat)= #False
-    ProcedureReturn #Error_007
-  EndIf
-  If CreateDirectoryEx(gProject\sDirAsm)= #False
-    ProcedureReturn #Error_008
-  EndIf
-  If CreateDirectoryEx(gProject\sDirLogs)= #False
-    ProcedureReturn#Error_009
-  EndIf
-  If CreateDirectoryEx(gProject\sDirLib)= #False
-    ProcedureReturn #Error_010
-  EndIf
-  If CreateDirectoryEx(gProject\sDirObj)= #False
-    ProcedureReturn #Error_011
-  EndIf
+  With gProject
+    If CreateDirectoryEx(\sDirProject) = #False
+      ProcedureReturn #Error_006
+    EndIf
+    If CreateDirectoryEx(\sDirBat)= #False
+      ProcedureReturn #Error_007
+    EndIf
+    If CreateDirectoryEx(\sDirAsm)= #False
+      ProcedureReturn #Error_008
+    EndIf
+    If CreateDirectoryEx(\sDirLogs)= #False
+      ProcedureReturn#Error_009
+    EndIf
+    If CreateDirectoryEx(\sDirLib)= #False
+      ProcedureReturn #Error_010
+    EndIf
+    If CreateDirectoryEx(\sDirObj)= #False
+      ProcedureReturn #Error_011
+    EndIf
+  EndWith
   ; Initializes batch and log files
   Output_Init()
   ; Initializes regural expressions
