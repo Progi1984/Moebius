@@ -295,6 +295,9 @@ Repeat
             gProject\sFileName = GetGadgetText(#String_08)
             gProject\bTypeOutput =  #TypeOutput_Resident
             gProject\sFileOutput = GetGadgetText(#String_06)
+            If Right(LCase(gProject\sFileOutput, 4) <> ".res"
+              gProject\sFileOutput + ".res"
+            EndIf
             gProject\sLibName = GetGadgetText(#String_05)
             gProject\sDirProject = GetGadgetText(#String_07)
             gProject\bUnicode = GetGadgetState(#CheckBox_01)
