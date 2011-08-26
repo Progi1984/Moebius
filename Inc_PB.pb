@@ -215,42 +215,41 @@ EndProcedure
 ;@desc Retrieves Purebasic folder [empty string if not installed]
 ;@return Purebasic Path
 ProcedureDLL.s PB_GetPBFolder()
+  Protected psPBFolder.s
   CompilerSelect #PB_Compiler_OS
     CompilerCase #PB_OS_Linux
     CompilerCase #PB_OS_MacOS  ;{
-      Protected hCompiler.l, PBFolder.s
+      Protected hCompiler.l
       hCompiler = RunProgram("which", "pbcompiler ", "", #PB_Program_Open|#PB_Program_Read)
-      PBFolder = ""
       If hCompiler
         While ProgramRunning(hCompiler)
-          PBFolder + ReadProgramString(hCompiler) + Chr(13)
+          psPBFolder + ReadProgramString(hCompiler) + Chr(13)
         Wend
         CloseProgram(hCompiler)
       Else
-        PBFolder = ""
+        psPBFolder = ""
       EndIf
-      If PBFolder = "" 
+      If psPBFolder = "" 
         If GetEnvironmentVariable ( "PUREBASIC_HOME" ) <> ""
-          PBFolder = GetEnvironmentVariable ( "PUREBASIC_HOME" )
-          If Right(PBFolder, 1) <> #System_Separator
-            PBFolder + #System_Separator
+          psPBFolder = GetEnvironmentVariable ( "PUREBASIC_HOME" )
+          If Right(psPBFolder, 1) <> #System_Separator
+            psPBFolder + #System_Separator
           EndIf
         EndIf
       Else
-        PBFolder = RemoveString(PBFolder, Chr(13))
-        PBFolder = GetPathPart(PBFolder)
-        PBFolder = GetPathPart(Left(PBFolder, Len(PBFolder) - 1))
-        If Right(PBFolder, 1) <> #System_Separator
-            PBFolder + #System_Separator
+        psPBFolder = RemoveString(psPBFolder, Chr(13))
+        psPBFolder = GetPathPart(psPBFolder)
+        psPBFolder = GetPathPart(Left(psPBFolder, Len(psPBFolder) - 1))
+        If Right(psPBFolder, 1) <> #System_Separator
+            psPBFolder + #System_Separator
         EndIf
       EndIf
       ProcedureReturn PBFolder
     ;}
     CompilerCase #PB_OS_Windows ;{
-      Protected hKey1.l, Type.l, Res.l, Folder.s, lpbData.l, cbData.l, WindowsVersion.l
+      Protected hKey1.l, Type.l, Res.l, lpbData.l, cbData.l, WindowsVersion.l
       cbData = (#MAX_PATH * 2) + 2
       lpbData = AllocateMemory(cbData)
-      Folder=""
       hKey1=0
       Type=0
       Res=-1
@@ -267,8 +266,8 @@ ProcedureDLL.s PB_GetPBFolder()
       EndSelect
       If Res = #ERROR_SUCCESS And hKey1
         If RegQueryValueEx_(hKey1, "", 0, @Type, lpbData, @cbData)=#ERROR_SUCCESS
-          Folder = PeekS(lpbData)
-          Folder = GetPathPart(StringField(Folder,2,Chr(34)))
+          psPBFolder = PeekS(lpbData)
+          psPBFolder = GetPathPart(StringField(psPBFolder,2,Chr(34)))
         EndIf
         RegCloseKey_(hKey1)
       EndIf
@@ -276,7 +275,15 @@ ProcedureDLL.s PB_GetPBFolder()
         FreeMemory(lpbData)
         lpbData=0
       EndIf
-      ProcedureReturn Folder
+      If psPBFolder = ""
+        If GetEnvironmentVariable ( "PUREBASIC_HOME" ) <> ""
+          psPBFolder = GetEnvironmentVariable ( "PUREBASIC_HOME" )
+          If Right(psPBFolder, 1) <> #System_Separator
+            psPBFolder + #System_Separator
+          EndIf
+        EndIf
+      EndIf
+      ProcedureReturn psPBFolder
     ;}
   CompilerEndSelect
 EndProcedure
