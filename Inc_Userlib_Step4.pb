@@ -5,7 +5,7 @@
 ;@return : #Error_023 > Error : polib can't be launched
 ;@return : #Error_024 > Error : the library isn't generated
 ProcedureDLL Moebius_Userlib_Step4()
-  Protected StringTmp.s, sDescContent.s, sProgRequest.s, sProgReturn.s
+  Protected StringTmp.s, psDescContent.s, psProgRequest.s, psProgReturn.s
   Protected lDescFile.l, lNbImportLib.l, lError.l
   
   gState = #State_Step4
@@ -13,57 +13,57 @@ ProcedureDLL Moebius_Userlib_Step4()
   Output_Add("Creating descriptor file", #Output_Log, 2)
   ;{ Creating descriptor file
     ;{ Langage used to code the library
-      sDescContent = "; Langage used to code the library" + #System_EOL
-      sDescContent + "ASM" + #System_EOL
-      sDescContent + "" + #System_EOL
+      psDescContent = "; Langage used to code the library" + #System_EOL
+      psDescContent + "ASM" + #System_EOL
+      psDescContent + "" + #System_EOL
     ;}
     ;{ Lib Systems
-      sDescContent + "; Number of Libraries than the library need" + #System_EOL
-      sDescContent + Str(ListSize(LL_DLLUsed())) + #System_EOL
+      psDescContent + "; Number of Libraries than the library need" + #System_EOL
+      psDescContent + Str(ListSize(LL_DLLUsed())) + #System_EOL
       ForEach LL_DLLUsed()
-        sDescContent + LL_DLLUsed() + #System_EOL
+        psDescContent + LL_DLLUsed() + #System_EOL
       Next
-      sDescContent + "" + #System_EOL
+      psDescContent + "" + #System_EOL
     ;}
     ;{ Library Type
-      sDescContent + "; Library Type" + #System_EOL
-      sDescContent + "LIB" + #System_EOL
+      psDescContent + "; Library Type" + #System_EOL
+      psDescContent + "LIB" + #System_EOL
       ForEach LL_LibUsed()
         If LL_LibUsed() = "glibc"
           DeleteElement(LL_LibUsed())
         EndIf
       Next
-      sDescContent + "" + #System_EOL
+      psDescContent + "" + #System_EOL
     ;}
     ;{ PureBasic library needed by the library
-      sDescContent + "; PureBasic library needed by the library" + #System_EOL
-      sDescContent + Str(ListSize(LL_LibUsed())) + #System_EOL
+      psDescContent + "; PureBasic library needed by the library" + #System_EOL
+      psDescContent + Str(ListSize(LL_LibUsed())) + #System_EOL
       ForEach LL_LibUsed()
-        sDescContent + LL_LibUsed() + #System_EOL
+        psDescContent + LL_LibUsed() + #System_EOL
       Next
-      sDescContent + "" + #System_EOL
+      psDescContent + "" + #System_EOL
     ;}
     ;{ Help directory name
-      sDescContent + "; Help directory name" + #System_EOL
-      sDescContent + gProject\sFileCHM + #System_EOL
-      sDescContent + "" + #System_EOL
+      psDescContent + "; Help directory name" + #System_EOL
+      psDescContent + gProject\sFileCHM + #System_EOL
+      psDescContent + "" + #System_EOL
     ;}
     ;{ Library functions
-      sDescContent + "; Library functions" + #System_EOL
+      psDescContent + "; Library functions" + #System_EOL
       ForEach LL_DLLFunctions()
         With LL_DLLFunctions()
           If \InDescFile = #True
             If \IsDLLFunction = #True
-              sDescContent + \FuncName+\ParamsRetType+", ("+\ParamsClean+")"
+              psDescContent + \FuncName+\ParamsRetType+", ("+\ParamsClean+")"
               If \FuncDesc <> ""
-                sDescContent + " - "+\FuncDesc
+                psDescContent + " - "+\FuncDesc
               EndIf
-              sDescContent + #System_EOL
-              sDescContent + \FuncRetType+" | "+\CallingConvention
+              psDescContent + #System_EOL
+              psDescContent + \FuncRetType+" | "+\CallingConvention
               If \FlagsReturn <> ""
-                sDescContent + \FlagsReturn
+                psDescContent + \FlagsReturn
               EndIf
-              sDescContent + #System_EOL
+              psDescContent + #System_EOL
             EndIf
           EndIf
         Next
@@ -72,8 +72,8 @@ ProcedureDLL Moebius_Userlib_Step4()
     
     lDescFile = CreateFile(#PB_Any, gProject\sFileDesc)
     If lDescFile
-      WriteString(lDescFile, sDescContent)
-      Output_Add(sDescContent, #Output_Log, 2)
+      WriteString(lDescFile, psDescContent)
+      Output_Add(psDescContent, #Output_Log, 2)
       CloseFile(lDescFile)
     Else
       ProcedureReturn #Error_020
@@ -97,11 +97,11 @@ ProcedureDLL Moebius_Userlib_Step4()
   ;{ Generates a file which contains all objects files
     CompilerSelect #PB_Compiler_OS
       CompilerCase #PB_OS_Linux;{
-        sProgRequest = "ar rvs "
-        sProgRequest + #DQuote+gProject\sDirLib+ M_LibName_Clean(gProject\sLibName) + #System_ExtLib+#DQuote+" "
-        sProgRequest + gProject\sDirObj + "*"
+        psProgRequest = "ar rvs "
+        psProgRequest + #DQuote+gProject\sDirLib+ M_LibName_Clean(gProject\sLibName) + #System_ExtLib+#DQuote+" "
+        psProgRequest + gProject\sDirObj + "*"
         
-        sProgReturn = Str(system_(@sProgRequest))
+        psProgReturn = Str(system_(@psProgRequest))
       ;}
       CompilerCase #PB_OS_MacOS;{
         MessageRequester("Moebius", "Inc_Userlib_Step4.pb l96")
@@ -123,24 +123,24 @@ ProcedureDLL Moebius_Userlib_Step4()
           ProcedureReturn #Error_022
         EndIf
         
-        sProgRequest = "/out:" + #DQuote + gProject\sDirLib + M_LibName_Clean(gProject\sLibName) + #System_ExtLib + #DQuote
-        sProgRequest + " @" + #DQuote + gProject\sDirObj + "ObjList.txt" + #DQuote
+        psProgRequest = "/out:" + #DQuote + gProject\sDirLib + M_LibName_Clean(gProject\sLibName) + #System_ExtLib + #DQuote
+        psProgRequest + " @" + #DQuote + gProject\sDirObj + "ObjList.txt" + #DQuote
         
-        lPgm_Polib = RunProgram(gConf\sPath_OBJ2LIB, sProgRequest, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+        lPgm_Polib = RunProgram(gConf\sPath_OBJ2LIB, psProgRequest, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
         If lPgm_Polib
           While ProgramRunning(lPgm_Polib)
-            sProgReturn + ReadProgramString(lPgm_Polib) + #System_EOL
+            psProgReturn + ReadProgramString(lPgm_Polib) + #System_EOL
           Wend
           CloseProgram(lPgm_Polib)
         Else
-          sProgReturn = "Error in RunProgram"
+          psProgReturn = "Error in RunProgram"
           lError = #Error_023
         EndIf
-        sProgRequest = #DQuote + gConf\sPath_OBJ2LIB + #DQuote + " " + sProgRequest
+        psProgRequest = #DQuote + gConf\sPath_OBJ2LIB + #DQuote + " " + psProgRequest
       ;}
     CompilerEndSelect
-    Output_Add(sProgRequest, #Output_Log | #Output_Bat, 4)
-    Output_Add(sProgReturn, #Output_Log, 4)
+    Output_Add(psProgRequest, #Output_Log | #Output_Bat, 4)
+    Output_Add(psProgReturn, #Output_Log, 4)
 
     If FileSize(gProject\sDirLib + M_LibName_Clean(gProject\sLibName) + #System_ExtLib) = 0
       lError = #Error_024

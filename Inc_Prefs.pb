@@ -185,57 +185,62 @@ ProcedureDLL Moebius_ReadParameters()
   Next
 
   ; we define last informations
-  If gProject\sPBPFileName <> "" And gProject\sPBPTarget <> ""
-    If FileSize(gProject\sPBPFileName) > 0
-      plXML = LoadXML(#PB_Any, gProject\sPBPFileName, #PB_UTF8)
-      If plXML > 0 
-        If XMLStatus(plXML) = #PB_XML_Success
-          piXMLNode = MainXMLNode(plXML)
-          piXMLNodeSection = ChildXMLNode(piXMLNode)
-          ; Loop for analysing MainNode\project
-          Repeat 
-            ExamineXMLAttributes(piXMLNodeSection)
-            If GetXMLAttribute(piXMLNodeSection, "name") = "targets"
-              pbFound = #True
-            Else
-              piXMLNodeSection = NextXMLNode(piXMLNodeSection)
-              If piXMLNodeSection = 0
-                pbFound = -1
-              EndIf
-            EndIf
-          Until pbFound <> #False
-          If pbFound = #True 
-            pbFound = #False
-            piXMLNodeTarget = ChildXMLNode(piXMLNodeSection)
-            ; Loop for analysing MainNode\project\section['name=targets']
+  With gProject
+    If \sPBPFileName <> "" And \sPBPTarget <> ""
+      If FileSize(\sPBPFileName) > 0
+        plXML = LoadXML(#PB_Any, \sPBPFileName, #PB_UTF8)
+        If plXML > 0 
+          If XMLStatus(plXML) = #PB_XML_Success
+            piXMLNode = MainXMLNode(plXML)
+            piXMLNodeSection = ChildXMLNode(piXMLNode)
+            ; Loop for analysing MainNode\project
             Repeat 
-              ExamineXMLAttributes(piXMLNodeTarget)
-              If GetXMLAttribute(piXMLNodeTarget, "name") = gProject\sPBPTarget
+              ExamineXMLAttributes(piXMLNodeSection)
+              If GetXMLAttribute(piXMLNodeSection, "name") = "targets"
                 pbFound = #True
               Else
-                piXMLNodeTarget = NextXMLNode(piXMLNodeTarget)
-                If piXMLNodeTarget = 0
+                piXMLNodeSection = NextXMLNode(piXMLNodeSection)
+                If piXMLNodeSection = 0
                   pbFound = -1
                 EndIf
               EndIf
             Until pbFound <> #False
             If pbFound = #True 
               pbFound = #False
-              piXMLNodeInputFile = ChildXMLNode(piXMLNodeTarget)
-              ; Loop for analysing MainNode\project\section['name=targets']\target['name=gProject\sPBPTarget']
+              piXMLNodeTarget = ChildXMLNode(piXMLNodeSection)
+              ; Loop for analysing MainNode\project\section['name=targets']
               Repeat 
-                ExamineXMLAttributes(piXMLNodeInputFile)
-                If GetXMLAttribute(piXMLNodeInputFile, "value") <> ""
+                ExamineXMLAttributes(piXMLNodeTarget)
+                If GetXMLAttribute(piXMLNodeTarget, "name") = \sPBPTarget
                   pbFound = #True
                 Else
-                  piXMLNodeInputFile = NextXMLNode(piXMLNodeInputFile)
-                  If piXMLNodeInputFile = 0
+                  piXMLNodeTarget = NextXMLNode(piXMLNodeTarget)
+                  If piXMLNodeTarget = 0
                     pbFound = -1
                   EndIf
                 EndIf
               Until pbFound <> #False
-              If pbFound = #True
-                gProject\sFileName = GetPathPart(gProject\sPBPFileName) + GetXMLAttribute(piXMLNodeInputFile, "value")
+              If pbFound = #True 
+                pbFound = #False
+                piXMLNodeInputFile = ChildXMLNode(piXMLNodeTarget)
+                ; Loop for analysing MainNode\project\section['name=targets']\target['name=gProject\sPBPTarget']
+                Repeat 
+                  ExamineXMLAttributes(piXMLNodeInputFile)
+                  If GetXMLAttribute(piXMLNodeInputFile, "value") <> ""
+                    pbFound = #True
+                  Else
+                    piXMLNodeInputFile = NextXMLNode(piXMLNodeInputFile)
+                    If piXMLNodeInputFile = 0
+                      pbFound = -1
+                    EndIf
+                  EndIf
+                Until pbFound <> #False
+                If pbFound = #True
+                  \sFileName = GetPathPart(\sPBPFileName) + GetXMLAttribute(piXMLNodeInputFile, "value")
+                Else
+                  ;-TODO : Where is the error exactly ?
+                  ProcedureReturn #Error_037
+                EndIf
               Else
                 ;-TODO : Where is the error exactly ?
                 ProcedureReturn #Error_037
@@ -245,32 +250,29 @@ ProcedureDLL Moebius_ReadParameters()
               ProcedureReturn #Error_037
             EndIf
           Else
-            ;-TODO : Where is the error exactly ?
-            ProcedureReturn #Error_037
+            ;-TODO : Error XML to draw
           EndIf
-        Else
-          ;-TODO : Error XML to draw
+          FreeXML(plXML)
         EndIf
-        FreeXML(plXML)
       EndIf
     EndIf
-  EndIf
-  If gProject\sFileName <> ""
-    CompilerSelect #PB_Compiler_OS
-      CompilerCase #PB_OS_Linux
-      CompilerCase #PB_OS_MacOS;{
-        If Left(gProject\sFileName,1) <> #System_Separator
-          gProject\sFileName = GetCurrentDirectory()+gProject\sFileName
-        EndIf
-      ;}
-      CompilerCase #PB_OS_Windows;{
-        If Mid(gProject\sFileName,3,1) <> #System_Separator
-          gProject\sFileName = GetCurrentDirectory()+gProject\sFileName
-        EndIf
-      ;}
-    CompilerEndSelect
-  EndIf
-  gProject\sLibName  = Left(GetFilePart(gProject\sFileName), Len(GetFilePart(gProject\sFileName)) - Len(GetExtensionPart(gProject\sFileName))-1)
+    If \sFileName <> ""
+      CompilerSelect #PB_Compiler_OS
+        CompilerCase #PB_OS_Linux
+        CompilerCase #PB_OS_MacOS;{
+          If Left(\sFileName,1) <> #System_Separator
+            \sFileName = GetCurrentDirectory()+\sFileName
+          EndIf
+        ;}
+        CompilerCase #PB_OS_Windows;{
+          If Mid(gProject\sFileName,3,1) <> #System_Separator
+            \sFileName = GetCurrentDirectory()+\sFileName
+          EndIf
+        ;}
+      CompilerEndSelect
+    EndIf
+    \sLibName  = Left(GetFilePart(\sFileName), Len(GetFilePart(\sFileName)) - Len(GetExtensionPart(\sFileName))-1)
+   EndWith
 
   If gConf\sSourceDir = ""
     gConf\sSourceDir = GetTemporaryDirectory() + "Moebius" + #System_Separator

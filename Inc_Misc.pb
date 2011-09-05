@@ -10,23 +10,24 @@
 ;@+ ; - C:\Program files\truc\bidule
 ;@return 1 if the creation of the directory has a success
 ;@+ 0 if not
-ProcedureDLL.l CreateDirectoryEx(FolderPath.s)
- Protected Folder.s, Txt.s, Cpt.l
- If FileSize(Folder) = -1
-  Folder = StringField(FolderPath, 1, #System_Separator) + #System_Separator
-  Cpt     = 1
-  Repeat
-   Cpt + 1
-   Txt      = StringField(FolderPath, Cpt, #System_Separator)
-   Folder = Folder + Txt + #System_Separator
-   CreateDirectory(Folder)
-  Until Txt = ""
- EndIf
- If FileSize(FolderPath) = -2
-  ProcedureReturn #True
- Else
-  ProcedureReturn #False
- EndIf
+ProcedureDLL.l CreateDirectoryEx(sFolderPath.s)
+  Protected psFolder.s, psTxt.s
+  Protected piCpt.i
+  If FileSize(psFolder) = -1
+    psFolder= StringField(sFolderPath, 1, #System_Separator) + #System_Separator
+    piCpt   = 1
+    Repeat
+      piCpt     + 1
+      psTxt     = StringField(sFolderPath, piCpt, #System_Separator)
+      psFolder  = psFolder + psTxt + #System_Separator
+      CreateDirectory(psFolder)
+    Until psTxt = ""
+  EndIf
+  If FileSize(sFolderPath) = -2
+    ProcedureReturn #True
+  Else
+    ProcedureReturn #False
+  EndIf
 EndProcedure 
 ;@author Dr. Dri
 ;@desc Permits to know if a string is a numeric
@@ -82,7 +83,6 @@ ProcedureDLL Output_Init()
             WriteStringN(hFileLog, "PARAM >gProject\bLogInStreaming ="+Str(\bLogInStreaming))
             WriteStringN(hFileLog, "PARAM >gProject\bBatFile ="+Str(\bBatFile))
           EndWith
-    
           With gConf
             WriteStringN(hFileLog, "PARAM >gConf\sPureBasic_Path = "+\sPureBasic_Path)
             WriteStringN(hFileLog, "PARAM >gConf\sPath_PBCOMPILER = "+\sPath_PBCOMPILER)
@@ -108,7 +108,6 @@ ProcedureDLL Output_Init()
             WriteStringN(hFileLog, "PARAM >gProject\bUnicode ="+Str(\bUnicode))
             WriteStringN(hFileLog, "PARAM >gProject\bLogFile ="+Str(\bLogFile))
           EndWith
-    
           With gConf
             WriteStringN(hFileLog, "PARAM >gConf\sPureBasic_Path = "+\sPureBasic_Path)
             WriteStringN(hFileLog, "PARAM >gConf\sPath_PBCOMPILER = "+\sPath_PBCOMPILER)
@@ -132,14 +131,14 @@ EndProcedure
 ProcedureDLL Output_End()
   ; Log
   If gProject\bLogFile = #True
-    Protected sTimeStart.s = "TIME > Start    > " + FormatDate("%hh:%ii:%ss", lTimeStart)
-    Protected sTimeEnd.s = "TIME > End      > " + FormatDate("%hh:%ii:%ss", Date())
-    Protected sTimeDuration.s = "TIME > Duration > " + Str(Date() - lTimeStart)+"s"
+    Protected psTimeStart.s    = "TIME > Start    > " + FormatDate("%hh:%ii:%ss", lTimeStart)
+    Protected psTimeEnd.s      = "TIME > End      > " + FormatDate("%hh:%ii:%ss", Date())
+    Protected psTimeDuration.s = "TIME > Duration > " + Str(Date() - lTimeStart)+"s"
     If gProject\bLogInStreaming = #False
       If hFileLog
-        WriteStringN(hFileLog, sTimeStart)
-        WriteStringN(hFileLog, sTimeEnd)
-        WriteStringN(hFileLog, sTimeDuration)
+        WriteStringN(hFileLog, psTimeStart)
+        WriteStringN(hFileLog, psTimeEnd)
+        WriteStringN(hFileLog, psTimeDuration)
         CloseFile(hFileLog)
       EndIf
     Else
@@ -148,16 +147,16 @@ ProcedureDLL Output_End()
         ForEach LL_Logs()
           WriteStringN(hFileLog, LL_Logs())
         Next
-        WriteStringN(hFileLog, sTimeStart)
-        WriteStringN(hFileLog, sTimeEnd)
-        WriteStringN(hFileLog, sTimeDuration)
+        WriteStringN(hFileLog, psTimeStart)
+        WriteStringN(hFileLog, psTimeEnd)
+        WriteStringN(hFileLog, psTimeDuration)
         CloseFile(hFileLog)
       EndIf
     EndIf
     CompilerIf #PB_Compiler_Debugger = #True
-      Debug sTimeStart
-      Debug sTimeEnd
-      Debug sTimeDuration
+      Debug psTimeStart
+      Debug psTimeEnd
+      Debug psTimeDuration
     CompilerEndIf
   EndIf
   ; Batch
@@ -173,22 +172,22 @@ EndProcedure
 ;@desc Add content to batch or/and log files
 ProcedureDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
   CreateMutex()
-  Protected sLogContent.s = FormatDate("%hh:%ii:%ss", Date())+"  "+Space(lNumTabs) + sContent
-  Protected sBatContent.s = sContent
+  Protected psLogContent.s = FormatDate("%hh:%ii:%ss", Date())+"  "+Space(lNumTabs) + sContent
+  Protected psBatContent.s = sContent
   ; Log
   If gProject\bLogFile = #True
     If lFlags & #Output_Log
       If gProject\bLogInStreaming = #False
         If hFileLog
-          WriteStringN(hFileLog, sLogContent)
+          WriteStringN(hFileLog, psLogContent)
         EndIf
         CompilerIf #PB_Compiler_Debugger = #True
-          Debug "LOG > "+sLogContent
+          Debug "LOG > "+psLogContent
         CompilerEndIf
       Else
         LastElement(LL_Logs())
         If AddElement(LL_Logs())
-          LL_Logs() = sLogContent
+          LL_Logs() = psLogContent
         EndIf
       EndIf
     EndIf
@@ -199,11 +198,11 @@ ProcedureDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
       If bEnableLogEditor = #True
         If gProject\bTypeOutput = #TypeOutput_Resident
           If IsGadget(#Editor_00) <> 0
-            AddGadgetItem(#Editor_00, -1, sLogContent)
+            AddGadgetItem(#Editor_00, -1, psLogContent)
           EndIf
         ElseIf gProject\bTypeOutput = #TypeOutput_UserLib
           If IsGadget(#Editor_01) <> 0
-            AddGadgetItem(#Editor_01, -1, sLogContent)
+            AddGadgetItem(#Editor_01, -1, psLogContent)
           EndIf
         EndIf
       EndIf
@@ -213,9 +212,9 @@ ProcedureDLL Output_Add(sContent.s, lFlags.l, lNumTabs.l = 0)
   If gProject\bBatFile = #True
     If lFlags & #Output_Bat
       If hFileBatch
-        WriteStringN(hFileBatch, sBatContent)
+        WriteStringN(hFileBatch, psBatContent)
         CompilerIf #PB_Compiler_Debugger = #True
-          Debug "BATCH > "+sBatContent
+          Debug "BATCH > "+psBatContent
         CompilerEndIf
       EndIf
     EndIf

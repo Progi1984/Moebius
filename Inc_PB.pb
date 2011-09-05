@@ -1,19 +1,19 @@
 ;@desc Extracts all informations from userlibs
 ProcedureDLL PB_GetInfoUserLib(LibFileName.s)
-  Protected LibName.s = GetFilePart(LibFileName)
-  Protected LibSize.l, hDLL.l, hPL.l, IncA.l, lTest.l
+  Protected psLibName.s = GetFilePart(LibFileName)
+  Protected plLibSize.l, hDLL.l, hPL.l, IncA.l, lTest.l
   Protected *MemLib_Header, *MemLib_Footer
   Protected DLLName.s, PLName.s
   Protected *MemSeeker.S_Seeker
-  Protected Arging.b
+  Protected pbArging.b
   If ReadFile(0, LibFileName)
-    LibSize = Lof(0)
-    *MemLib_Header = AllocateMemory(LibSize)
+    plLibSize = Lof(0)
+    *MemLib_Header = AllocateMemory(plLibSize)
     If *MemLib_Header
-      ReadData(0,*MemLib_Header, LibSize)
+      ReadData(0,*MemLib_Header, plLibSize)
       CloseFile(0)
     EndIf
-    *MemLib_Footer = *MemLib_Header+LibSize
+    *MemLib_Footer = *MemLib_Header+plLibSize
     *MemSeeker = *MemLib_Header
     If *MemSeeker\l='PURE' And PeekL(*MemSeeker+8)='LIB3' And PeekL(*MemSeeker+16)='3BIL'
       *MemSeeker = *MemLib_Header+20
@@ -59,14 +59,14 @@ ProcedureDLL PB_GetInfoUserLib(LibFileName.s)
           
           LL_PBFunctions()\Params = ""
           LL_PBFunctions()\FuncDesc = ""
-          LL_PBFunctions()\LibContaining = LibName
+          LL_PBFunctions()\LibContaining = psLibName
           If *MemSeeker\b='('
-            Arging = #True
+            pbArging = #True
             While *MemSeeker\b<>0
               If *MemSeeker\b='-'
-                Arging = #False
+                pbArging = #False
               EndIf
-              If Arging
+              If pbArging
                 LL_PBFunctions()\Params+Chr(*MemSeeker\b)
               Else
                 LL_PBFunctions()\FuncDesc+Chr(*MemSeeker\b)
@@ -87,7 +87,7 @@ ProcedureDLL PB_GetInfoUserLib(LibFileName.s)
 EndProcedure
 ;@desc Extracts function names and libs which are containing them
 ProcedureDLL PB_GetInfoLib(FileName.s)
-  Protected LibName.s = GetFilePart(FileName)
+  Protected psLibName.s = GetFilePart(FileName)
   Protected hFile = ReadFile(#PB_Any, FileName)
   Protected Ndx.l
   Protected Filesize.q = FileSize(FileName)
@@ -105,7 +105,7 @@ ProcedureDLL PB_GetInfoLib(FileName.s)
       While Eof(hFile) = 0
       If AddElement(LL_PBFunctions())
         LL_PBFunctions()\FuncName = ReadString(hFile)
-        LL_PBFunctions()\LibContaining = LibName
+        LL_PBFunctions()\LibContaining = psLibName
         If (Loc(hFile)<(Lof(hFile)-2))
           FileSeek(hFile, Loc(hFile) + 2)
         Else ; erreur
@@ -289,15 +289,15 @@ ProcedureDLL.s PB_GetPBFolder()
 EndProcedure
 ;@desc Connects to PBCompiler for restarting the compiler
 ProcedureDLL PB_Connect()
-  Protected ReponseComp.s
+  Protected psAnswerCompiler.s
   hCompiler = RunProgram(gConf\sPath_PBCOMPILER, #Switch_StandBy, "", #PB_Program_Open|#PB_Program_Read|#PB_Program_Write|#PB_Program_Hide)
   If hCompiler = 0
     ProcedureReturn #False
   Else
     While ProgramRunning(hCompiler)
       If AvailableProgramOutput(hCompiler)
-        ReponseComp = ReadProgramString(hCompiler)
-        If ReponseComp = "READY"
+        psAnswerCompiler = ReadProgramString(hCompiler)
+        If psAnswerCompiler = "READY"
           ProcedureReturn #True
         EndIf
       EndIf

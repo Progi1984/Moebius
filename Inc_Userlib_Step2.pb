@@ -1,13 +1,13 @@
 ;@desc Load the content of purebasic.asm in memory
 ProcedureDLL Moebius_Userlib_Step2_LoadASMFileInMemory()
-  Protected lFileID.l = ReadFile(#PB_Any, gProject\sDirProject+"purebasic.asm")
-  If lFileID
-    gFileMemContentLen = Lof(lFileID)
+  Protected plFileID.l = ReadFile(#PB_Any, gProject\sDirProject+"purebasic.asm")
+  If plFileID
+    gFileMemContentLen = Lof(plFileID)
     If gFileMemContentLen
       gFileMemContent = AllocateMemory(gFileMemContentLen)
       If gFileMemContent
-        If ReadData(lFileID, gFileMemContent, gFileMemContentLen) = gFileMemContentLen
-          CloseFile(lFileID)
+        If ReadData(plFileID, gFileMemContent, gFileMemContentLen) = gFileMemContentLen
+          CloseFile(plFileID)
         EndIf
       EndIf
     EndIf
@@ -469,8 +469,10 @@ ProcedureDLL Moebius_Userlib_Step2_ModifyASM()
             Default ;{ In the function, getting the code
               If bNotCapture = 0 And bInFunction = #True 
                 AddElement(LL_Lines())
-                LL_Lines()\Function = LL_DLLFunctions()\FuncName
-                LL_Lines()\Line = sLineCurrentTrimmed
+                With LL_Lines()
+                  \Function = LL_DLLFunctions()\FuncName
+                  \Line = sLineCurrentTrimmed
+                EndWith
               EndIf
             ;}
           EndSelect
@@ -480,8 +482,10 @@ ProcedureDLL Moebius_Userlib_Step2_ModifyASM()
           If Left(sLineCurrentTrimmed, 2) = "l_"
             If FindString(sLineCurrentTrimmed, " ", 1) = 0
               AddElement(LL_LabelsInFunctions())
-              LL_LabelsInFunctions()\Function = LL_DLLFunctions()\FuncName
-              LL_LabelsInFunctions()\Label = sLineCurrentTrimmed
+              With LL_LabelsInFunctions()
+                \Function = LL_DLLFunctions()\FuncName
+                \Label = sLineCurrentTrimmed
+              EndWith
             EndIf
           EndIf
         EndIf
@@ -645,14 +649,14 @@ ProcedureDLL Moebius_Userlib_Step2_CreateSharedFunction()
   ;{ Adding function in LL_DLLFunctions()
     If AddElement(LL_DLLFunctions())
       With LL_DLLFunctions()
-        \FuncName = ReplaceString(gProject\sLibName, " ", "_")+"_Shared" 
-        \FuncRetType = "SharedCode"
-        \FuncDesc = ""
-        \Params = ""
-        \ParamsRetType = ""
-        \Code = ""
-        \IsDLLFunction = #False
-        \InDescFile = #False
+        \FuncName       = ReplaceString(gProject\sLibName, " ", "_")+"_Shared" 
+        \FuncRetType    = "SharedCode"
+        \FuncDesc       = ""
+        \Params         = ""
+        \ParamsRetType  = ""
+        \Code           = ""
+        \IsDLLFunction  = #False
+        \InDescFile     = #False
       EndWith
     EndIf
   ;}
