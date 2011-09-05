@@ -88,18 +88,17 @@
 ;-{ Linked Lists }
   Global NewList LL_DLLFunctions.S_DLLFunctions()
   Global NewList LL_PBFunctions.S_PBFunctionInfo()
-  Global NewList LL_Functions.s()
-  ;Global NewList LL_LibUsed.s()
-  Global NewList LL_DLLUsed.s()
-  Global NewList LL_ImportUsed.s()
-  Global NewList LL_ASM_extrn.s()
-  Global NewList LL_ASM_extrn_Removed.s()
   Global NewList LL_Logs.s()
   Global NewList LL_Lines.S_CodeLine()
   Global NewList LL_LabelsInFunctions.S_LabelsList()
 ;}
 ;-{ Maps}
-  Global Map MAP_LibUsed.s()
+  Global NewMap MAP_ASM_extrn.s()
+  Global NewMap MAP_ASM_extrn_Removed.s()
+  Global NewMap MAP_DLLUsed.s()
+  Global NewMap MAP_Functions.s()
+  Global NewMap MAP_ImportUsed.s()
+  Global NewMap MAP_LibUsed.s()
 ;}
 ;-{ Arrays }
   Global Dim D_Parameters.s(9)
@@ -234,48 +233,15 @@
     ; Clear variables before any compilation
     ClearList(LL_DLLFunctions())
     ClearList(LL_PBFunctions())
-    ClearList(LL_Functions())
-    ;ClearList(LL_LibUsed())
-    ClearList(LL_DLLUsed())
-    ClearList(LL_ImportUsed())
-    ClearList(LL_ASM_extrn())
+    ClearMap(MAP_ASM_extrn())
+    ClearMap(MAP_ASM_extrn_Removed())
+    ClearMap(MAP_DLLUsed())
+    ClearMap(MAP_Functions())
+    ClearMap(MAP_ImportUsed())
     ClearMap(MAP_LibUsed())
     hCompiler = #False
     hFileLog = #False
     hFileBatch = #False
     gState = #State_StepStart
-  EndMacro
-  Macro M_AddInLLWithDichotomicSearch(LinkedList, StringCompared, StringSearched, Add = #True)
-    Define.s DichoSearch_sValue
-    Define.q DichoSearch_qIndStart, DichoSearch_qIndEnd, DichoSearch_qIndMid
-    Define.b DichoSearch_bFound
-    Define.l DichoSearch_lCompare
-    ResetList(LinkedList)
-    DichoSearch_bFound = #False
-    DichoSearch_qIndStart = 0
-    DichoSearch_qIndEnd = ListSize(LinkedList) -1
-    If DichoSearch_qIndEnd >= 0
-      While DichoSearch_qIndStart <= DichoSearch_qIndEnd
-        DichoSearch_qIndMid = (DichoSearch_qIndStart + DichoSearch_qIndEnd +1) >>1
-        SelectElement(LinkedList, DichoSearch_qIndMid)
-        DichoSearch_sValue = StringCompared
-        DichoSearch_lCompare = CompareMemoryString(@DichoSearch_sValue, @StringSearched, #PB_String_NoCase)
-        If DichoSearch_lCompare = 0
-          DichoSearch_bFound = #True
-          DichoSearch_qIndStart = DichoSearch_qIndEnd + 1
-        ElseIf DichoSearch_lCompare > 0
-          DichoSearch_qIndEnd = DichoSearch_qIndMid -1
-        ElseIf DichoSearch_lCompare < 0
-          DichoSearch_qIndStart = DichoSearch_qIndMid +1
-        EndIf
-      Wend
-    EndIf
-    If Add = #True
-      If DichoSearch_bFound = #False
-        AddElement(LinkedList)
-        LinkedList = StringSearched
-        SortList(LinkedList, #PB_Sort_Ascending | #PB_Sort_NoCase)
-      EndIf
-    EndIf
   EndMacro
 ;}

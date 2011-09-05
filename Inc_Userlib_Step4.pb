@@ -19,9 +19,9 @@ ProcedureDLL Moebius_Userlib_Step4()
     ;}
     ;{ Lib Systems
       psDescContent + "; Number of Libraries than the library need" + #System_EOL
-      psDescContent + Str(ListSize(LL_DLLUsed())) + #System_EOL
-      ForEach LL_DLLUsed()
-        psDescContent + LL_DLLUsed() + #System_EOL
+      psDescContent + Str(MapSize(MAP_DLLUsed())) + #System_EOL
+      ForEach MAP_DLLUsed()
+        psDescContent + MAP_DLLUsed() + #System_EOL
       Next
       psDescContent + "" + #System_EOL
     ;}
@@ -29,23 +29,14 @@ ProcedureDLL Moebius_Userlib_Step4()
       psDescContent + "; Library Type" + #System_EOL
       psDescContent + "LIB" + #System_EOL
       DeleteMapElement(MAP_LibUsed(), "glibc")
-      ;ForEach LL_LibUsed()
-      ;  If LL_LibUsed() = "glibc"
-      ;    DeleteElement(LL_LibUsed())
-      ;  EndIf
-      ;Next
       psDescContent + "" + #System_EOL
     ;}
     ;{ PureBasic library needed by the library
       psDescContent + "; PureBasic library needed by the library" + #System_EOL
-      psDescContent + Str(MapSize((MAP_LibUsed())) + #System_EOL
+      psDescContent + Str(MapSize(MAP_LibUsed())) + #System_EOL
       ForEach MAP_LibUsed()
         psDescContent + MAP_LibUsed() + #System_EOL
       Next
-      ;psDescContent + Str(ListSize(LL_LibUsed())) + #System_EOL
-      ;ForEach LL_LibUsed()
-      ;  psDescContent + LL_LibUsed() + #System_EOL
-      ;Next
       psDescContent + "" + #System_EOL
     ;}
     ;{ Help directory name
@@ -71,7 +62,7 @@ ProcedureDLL Moebius_Userlib_Step4()
               psDescContent + #System_EOL
             EndIf
           EndIf
-        Next
+        EndWith
       Next
     ;}
     
@@ -87,13 +78,13 @@ ProcedureDLL Moebius_Userlib_Step4()
 
   Output_Add("Working on Import", #Output_Log, 2)
   ;{ Working on Import .lib/.a
-    ForEach LL_ImportUsed()
-      If CopyFile(LL_ImportUsed(), gProject\sDirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed()))= #False
+    ForEach MAP_ImportUsed()
+      If CopyFile(MAP_ImportUsed(), gProject\sDirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(MAP_ImportUsed()))= #False
         ProcedureReturn #Error_021
       Else
-        Output_Add("IN  > "+LL_ImportUsed(), #Output_Log, 4)
-        LL_ImportUsed() = gProject\sDirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(LL_ImportUsed())
-        Output_Add("OUT > "+LL_ImportUsed(), #Output_Log, 4)
+        Output_Add("IN  > "+MAP_ImportUsed(), #Output_Log, 4)
+        MAP_ImportUsed() = gProject\sDirObj+"ImportedLib_"+Str(lNbImportLib)+"."+GetExtensionPart(MAP_ImportUsed())
+        Output_Add("OUT > "+MAP_ImportUsed(), #Output_Log, 4)
       EndIf
     Next
   ;}
@@ -120,8 +111,8 @@ ProcedureDLL Moebius_Userlib_Step4()
           ForEach LL_DLLFunctions()
             WriteStringN(lObjFile, #DQuote+gProject\sDirObj+LL_DLLFunctions()\FuncName+#System_ExtObj+#DQuote)
           Next
-          ForEach LL_ImportUsed()
-            WriteStringN(lObjFile, #DQuote+LL_ImportUsed()+#DQuote)
+          ForEach MAP_ImportUsed()
+            WriteStringN(lObjFile, #DQuote+MAP_ImportUsed()+#DQuote)
           Next
           CloseFile(lObjFile)
         Else

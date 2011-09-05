@@ -2,12 +2,12 @@
 
 <project xmlns="http://www.purebasic.com/namespace" version="1.0" creator="PureBasic 4.60 Beta 4 (Windows - x86)">
   <section name="config">
-    <options closefiles="1" openmode="3" name="Moebius"/>
+    <options closefiles="1" openmode="4" name="Moebius"/>
   </section>
   <section name="data">
     <explorer view="" pattern="0"/>
     <log show="1"/>
-    <lastopen date="2011-09-05 14:20" user="flefevre" host="MALH644"/>
+    <lastopen date="2011-09-05 14:34" user="flefevre" host="MALH644"/>
   </section>
   <section name="files">
     <file name="Inc_Declare.pb">
@@ -68,7 +68,7 @@
     </file>
     <file name="Inc_Userlib_Step4.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="ac0023e1918210b6f20343414e3a0cc1"/>
+      <fingerprint md5="c6f0d1279d04514f061f1bb127815823"/>
     </file>
     <file name="Inc_Userlib_Step5.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
@@ -80,7 +80,7 @@
     </file>
     <file name="Inc_Var.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="edbd0b6363a4322d4296298a142cd500"/>
+      <fingerprint md5="f8e33e2750a8795a0c877a6d964ceecf"/>
     </file>
     <file name="Moebius_Main.pb">
       <config load="1" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>

@@ -316,7 +316,7 @@ EndProcedure
 ;@desc Permits in functions of some code to extract, remove some code & informations
 ProcedureDLL Moebius_Userlib_Step2_ModifyASM()
   Protected Inc.l, lNbLines.l
-  Protected sLineCurrentTrimmed.s, sNameOfFunction.s, sLinePrevious.s, sLineNext.s
+  Protected sLineCurrentTrimmed.s, sNameOfFunction.s, sLinePrevious.s, sLineNext.s, psString.s
   Protected bFound.b, bNotCapture.b, bInFunction.b, bInBSSSection.b, bInSharedCode.b, bInSystemLib.b, bInImportLib.b, bInPBLib.b, bLineNext.b
   Protected bInHeader.b = #True
   sLineCurrentTrimmed = Trim(PeekLine(gFileMemContent, gFileMemContentLen))
@@ -326,10 +326,10 @@ ProcedureDLL Moebius_Userlib_Step2_ModifyASM()
       If sLineCurrentTrimmed <> ""
         If Left(sLineCurrentTrimmed, 4) = "_PB_" And sLineCurrentTrimmed <> "_PB_EOP:" And sLineCurrentTrimmed <> "_PB_EOP_NoValue:" And sLineCurrentTrimmed <> "_PB_BSSSection:"    
           ; In the case of functions not defined in ProcedureDLL
-          If AddElement(LL_Functions())
-            LL_Functions() = Right(sLineCurrentTrimmed, Len(sLineCurrentTrimmed)-4)
-            LL_Functions() = Left(sLineCurrentTrimmed, Len(sLineCurrentTrimmed)-1)
-          EndIf
+          psString  = Right(sLineCurrentTrimmed, Len(sLineCurrentTrimmed)-4)
+          psString  = Left(psString, Len(psString)-1)
+          AddMapElement(MAP_Functions(), psString)
+          MAP_Functions() = psString
         Else
           Select Trim(StringField(sLineCurrentTrimmed, 1, " "))
             Case "extrn" ;{ Extracts extrn functions
@@ -344,15 +344,11 @@ ProcedureDLL Moebius_Userlib_Step2_ModifyASM()
               If sLibName <> ""
                 bFound = #False
                 ; in DLL ?
-                ForEach LL_DLLUsed()
-                  If LCase(LL_DLLUsed()) = LCase(sLibName)
-                    bFound = #True
-                    Break
-                  EndIf
-                Next
+                If FindMapElement(MAP_DLLUsed(), sLibName)
+                  bFound = #True
+                EndIf
                 ; in Lib ?
                 If bFound = #False
-                  ;M_AddInLLWithDichotomicSearch(LL_LibUsed(), LL_LibUsed(), sLibName)
                   If Not FindMapElement(MAP_LibUsed(), sLibName)
                     AddMapElement(MAP_LibUsed(), sLibName)
                   EndIf
@@ -449,18 +445,16 @@ ProcedureDLL Moebius_Userlib_Step2_ModifyASM()
                     ; add the lib, import or dll
                     If StringField(sLineCurrentTrimmed, 2, " ") <> ""
                       If bInSystemLib = #True 
-                        AddElement(LL_DLLUsed())
-                        LL_DLLUsed() = StringField(sLineCurrentTrimmed, 2, " ")
-                        Output_Add("LL_DLLUsed() > "+LL_DLLUsed(), #Output_Log, 4)
+                        AddMapElement(MAP_DLLUsed(), StringField(sLineCurrentTrimmed, 2, " "))
+                        MAP_DLLUsed() = StringField(sLineCurrentTrimmed, 2, " ")
+                        Output_Add("MAP_DLLUsed() > "+MAP_DLLUsed(), #Output_Log, 4)
                       ElseIf bInImportLib = #True
-                        AddElement(LL_ImportUsed())
-                        LL_ImportUsed() = Trim(RemoveString(sLineCurrentTrimmed, ";"))
-                        Output_Add("LL_ImportUsed() > "+LL_ImportUsed(), #Output_Log, 4)
+                        AddMapElement(MAP_ImportUsed(), Trim(RemoveString(sLineCurrentTrimmed, ";")))
+                        MAP_ImportUsed() = Trim(RemoveString(sLineCurrentTrimmed, ";"))
+                        Output_Add("MAP_ImportUsed() > "+MAP_ImportUsed(), #Output_Log, 4)
                       ElseIf bInPBLib = #True
                         AddMapElement(MAP_LibUsed(), sLibName)
                         MAP_LibUsed() =  Trim(LCase(RemoveString(sLineCurrentTrimmed, ";")))
-                        ;AddElement(LL_LibUsed())
-                        ;LL_LibUsed() = Trim(LCase(RemoveString(sLineCurrentTrimmed, ";")))
                         Output_Add("MAP_LibUsed() > "+MAP_LibUsed(), #Output_Log, 4)
                       EndIf
                     EndIf
@@ -592,54 +586,14 @@ ProcedureDLL Moebius_Userlib_Step2_AddExtrn(sPart.s)
     EndIf
   ;}
   ;{ verify if part must not removed
-  ForEach LL_ASM_extrn_Removed()
-    If sPartCleaned = LL_ASM_extrn_Removed()
+    If FindMapElement(MAP_ASM_extrn_Removed(), sPartCleaned)
       ProcedureReturn #False
     EndIf
-  Next
   ;}
   ;{ add to linked lists only if doesn't exist
-    ResetList(LL_ASM_extrn())
-    bFound = #False
-    qIndStart = 0
-    qIndEnd = ListSize(LL_ASM_extrn()) -1
-    If qIndEnd > 0
-      Repeat
-        qIndMid = qIndStart + ((qIndEnd-qIndStart) / 2)
-        SelectElement(LL_ASM_extrn(), qIndMid)
-        sValue = LL_ASM_extrn()
-        lCompare = CompareMemoryString(@sValue, @sPartCleaned, #PB_String_NoCase)
-        If lCompare = 0
-          bFound = #True
-        ElseIf lCompare > 0 ; svalue > sPartCleaned
-          qIndEnd = qIndMid -1
-          If qIndEnd >= 0
-            SelectElement(LL_ASM_extrn(), qIndEnd)
-            If LL_ASM_extrn() = sPartCleaned
-              qIndMid = qIndEnd
-              bFound = #True
-            EndIf
-          EndIf
-        ElseIf lCompare < 0 ; svalue < sPartCleaned
-          qIndStart = qIndMid +1
-          SelectElement(LL_ASM_extrn(), qIndStart)
-          If LL_ASM_extrn() = sPartCleaned
-            qIndMid = qIndStart
-            bFound = #True
-          EndIf
-        EndIf
-      Until (bFound = #True) Or (qIndStart >= qIndEnd)
-    ElseIf qIndEnd = 0
-      SelectElement(LL_ASM_extrn(), qIndEnd)
-      If LL_ASM_extrn() = sPartCleaned
-        bFound = #True
-      EndIf
-    EndIf
-    If bFound = #False
-      If AddElement(LL_ASM_extrn())
-        LL_ASM_extrn() = sPartCleaned
-        SortList(LL_ASM_extrn(), #PB_Sort_Ascending | #PB_Sort_NoCase)
-      EndIf
+    If Not FindMapElement(MAP_ASM_extrn(), sPartCleaned)
+      AddMapElement(MAP_ASM_extrn(), sPartCleaned)
+      MAP_ASM_extrn() = sPartCleaned
     EndIf
   ;}
 EndProcedure
@@ -736,7 +690,7 @@ ProcedureDLL Moebius_Userlib_Step2_CreateSharedFunction()
   ;}
   Output_Add("Search extrn", #Output_Log, 4)
   ;{ Search extrn
-    ClearList(LL_ASM_extrn())
+    ClearMap(MAP_ASM_extrn())
     lCodeShared = AllocateMemory((Len(sCodeShared) + 1)*SizeOf(Character))
     If lCodeShared
       PokeS(lCodeShared, sCodeShared, Len(sCodeShared))
@@ -783,11 +737,11 @@ ProcedureDLL Moebius_Userlib_Step2_CreateSharedFunction()
       Output_Add("Write Extrn", #Output_Log, 6)
       lASMShared = sbCreate(2048)
       If lASMShared
-        ForEach LL_ASM_extrn()
+        ForEach MAP_ASM_extrn()
           CompilerIf #PB_Compiler_OS <> #PB_OS_MacOS
-            sbAddLiteral(lASMShared, "public "+LL_ASM_extrn() + #System_EOL) 
+            sbAddLiteral(lASMShared, "public "+MAP_ASM_extrn() + #System_EOL) 
           CompilerElse
-            sbAddLiteral(lASMShared, "global "+LL_ASM_extrn() + #System_EOL) 
+            sbAddLiteral(lASMShared, "global "+MAP_ASM_extrn() + #System_EOL) 
           CompilerEndIf
         Next
         WriteStringN(lFile, sbGetStringAndDestroy(lASMShared))
@@ -896,8 +850,8 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
     ForEach LL_DLLFunctions()
       Output_Add(LL_DLLFunctions()\FuncName+" > Loading sASMContent", #Output_Log, 6)
       
-      ClearList(LL_ASM_extrn())
-      ClearList(LL_ASM_extrn_Removed())
+      ClearMap(MAP_ASM_extrn())
+      ClearMap(MAP_ASM_extrn_Removed())
       lASMContent = sbCreate(2048)
       
       Output_Add("Format", #Output_Log, 8)
@@ -954,8 +908,8 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
               Case "extrn" ;{
                 sLinePart = StringField(sLineCurrentTrimmed, CountString(sLineCurrentTrimmed, " ")+1, " ")
                 If sLinePart <> ""
-                  AddElement(LL_ASM_extrn_Removed())
-                  LL_ASM_extrn_Removed() = sLinePart
+                  AddMapElement(MAP_ASM_extrn_Removed(), sLinePart)
+                  MAP_ASM_extrn_Removed() = sLinePart
                 EndIf
               ;}
               Default ;{
@@ -1059,12 +1013,12 @@ ProcedureDLL.b Moebius_Userlib_Step2_CreateASMFiles()
         
         ; Extrn
         Output_Add("Extrn > Write", #Output_Log, 10)
-        If ListSize(LL_ASM_extrn()) > 0
-          ForEach LL_ASM_extrn()
+        If MapSize(MAP_ASM_extrn()) > 0
+          ForEach MAP_ASM_extrn()
             CompilerIf #PB_Compiler_OS <> #PB_OS_MacOS
-              sbAddLiteral(lASMContent, "extrn "+LL_ASM_extrn() + #System_EOL)
+              sbAddLiteral(lASMContent, "extrn "+MAP_ASM_extrn() + #System_EOL)
             CompilerElse
-              sbAddLiteral(lASMContent, "extern "+LL_ASM_extrn() + #System_EOL)
+              sbAddLiteral(lASMContent, "extern "+MAP_ASM_extrn() + #System_EOL)
             CompilerEndIf
           Next
         EndIf
