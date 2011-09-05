@@ -28,19 +28,24 @@ ProcedureDLL Moebius_Userlib_Step4()
     ;{ Library Type
       psDescContent + "; Library Type" + #System_EOL
       psDescContent + "LIB" + #System_EOL
-      ForEach LL_LibUsed()
-        If LL_LibUsed() = "glibc"
-          DeleteElement(LL_LibUsed())
-        EndIf
-      Next
+      DeleteMapElement(MAP_LibUsed(), "glibc")
+      ;ForEach LL_LibUsed()
+      ;  If LL_LibUsed() = "glibc"
+      ;    DeleteElement(LL_LibUsed())
+      ;  EndIf
+      ;Next
       psDescContent + "" + #System_EOL
     ;}
     ;{ PureBasic library needed by the library
       psDescContent + "; PureBasic library needed by the library" + #System_EOL
-      psDescContent + Str(ListSize(LL_LibUsed())) + #System_EOL
-      ForEach LL_LibUsed()
-        psDescContent + LL_LibUsed() + #System_EOL
+      psDescContent + Str(MapSize((MAP_LibUsed())) + #System_EOL
+      ForEach MAP_LibUsed()
+        psDescContent + MAP_LibUsed() + #System_EOL
       Next
+      ;psDescContent + Str(ListSize(LL_LibUsed())) + #System_EOL
+      ;ForEach LL_LibUsed()
+      ;  psDescContent + LL_LibUsed() + #System_EOL
+      ;Next
       psDescContent + "" + #System_EOL
     ;}
     ;{ Help directory name

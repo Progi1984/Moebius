@@ -352,7 +352,10 @@ ProcedureDLL Moebius_Userlib_Step2_ModifyASM()
                 Next
                 ; in Lib ?
                 If bFound = #False
-                  M_AddInLLWithDichotomicSearch(LL_LibUsed(), LL_LibUsed(), sLibName)
+                  ;M_AddInLLWithDichotomicSearch(LL_LibUsed(), LL_LibUsed(), sLibName)
+                  If Not FindMapElement(MAP_LibUsed(), sLibName)
+                    AddMapElement(MAP_LibUsed(), sLibName)
+                  EndIf
                 EndIf
               EndIf
             ;}
@@ -454,9 +457,11 @@ ProcedureDLL Moebius_Userlib_Step2_ModifyASM()
                         LL_ImportUsed() = Trim(RemoveString(sLineCurrentTrimmed, ";"))
                         Output_Add("LL_ImportUsed() > "+LL_ImportUsed(), #Output_Log, 4)
                       ElseIf bInPBLib = #True
-                        AddElement(LL_LibUsed())
-                        LL_LibUsed() = Trim(LCase(RemoveString(sLineCurrentTrimmed, ";")))
-                        Output_Add("LL_LibUsed() > "+LL_LibUsed(), #Output_Log, 4)
+                        AddMapElement(MAP_LibUsed(), sLibName)
+                        MAP_LibUsed() =  Trim(LCase(RemoveString(sLineCurrentTrimmed, ";")))
+                        ;AddElement(LL_LibUsed())
+                        ;LL_LibUsed() = Trim(LCase(RemoveString(sLineCurrentTrimmed, ";")))
+                        Output_Add("MAP_LibUsed() > "+MAP_LibUsed(), #Output_Log, 4)
                       EndIf
                     EndIf
                   EndIf

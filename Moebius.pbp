@@ -7,16 +7,16 @@
   <section name="data">
     <explorer view="" pattern="0"/>
     <log show="1"/>
-    <lastopen date="2011-08-26 14:47" user="flefevre" host="MALH644"/>
+    <lastopen date="2011-09-05 14:20" user="flefevre" host="MALH644"/>
   </section>
   <section name="files">
     <file name="Inc_Declare.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
       <fingerprint md5="75b19e4b525be7527b8dc3eda3e9dfcc"/>
     </file>
     <file name="Inc_Misc.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
-      <fingerprint md5="2494f2efc8ec399abd17c36c96a13c8b"/>
+      <fingerprint md5="e70a83459940bcee274351f0a07e4b6e"/>
     </file>
     <file name="Inc_OS_Linux.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
@@ -31,12 +31,12 @@
       <fingerprint md5="65c5113064788d255a7b706203d46e6b"/>
     </file>
     <file name="Inc_PB.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="e1b71e0df0db5c60d7fb76495bcfdbdf"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="19b183f7ec74a956709031f9150f601a"/>
     </file>
     <file name="Inc_Prefs.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
-      <fingerprint md5="d67d991387fbc49323b7743ecdffde13"/>
+      <fingerprint md5="a4393ad78b9ec2a8b5e20d3243e0efe7"/>
     </file>
     <file name="Inc_Resident_Step0.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
@@ -56,19 +56,19 @@
     </file>
     <file name="Inc_Userlib_Step1.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
-      <fingerprint md5="60f4350bcb43ba58eec20fe277c91289"/>
+      <fingerprint md5="9bab4e36b14c7613425004c87e8cd718"/>
     </file>
     <file name="Inc_Userlib_Step2.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
-      <fingerprint md5="6c31d2c5a0493144074e9bbba704ea0a"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="b906ed7ed4b4de04047da322aa6a0f11"/>
     </file>
     <file name="Inc_Userlib_Step3.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
       <fingerprint md5="180d2557855ccb28ef0bc618460d138f"/>
     </file>
     <file name="Inc_Userlib_Step4.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
-      <fingerprint md5="fae2675fa55680cdad27536cf8b8ee86"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="ac0023e1918210b6f20343414e3a0cc1"/>
     </file>
     <file name="Inc_Userlib_Step5.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
@@ -79,8 +79,8 @@
       <fingerprint md5="27dd82d691f3e98dd240a5cb7692a55e"/>
     </file>
     <file name="Inc_Var.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
-      <fingerprint md5="cad1d6481fbf840e2e1dfdb7ee4ada22"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="edbd0b6363a4322d4296298a142cd500"/>
     </file>
     <file name="Moebius_Main.pb">
       <config load="1" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>

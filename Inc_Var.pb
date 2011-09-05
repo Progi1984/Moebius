@@ -85,11 +85,11 @@
     ; we have not initialized the structure/class.
   EndStructure 
 ;}
-;-{ Linked lists }
+;-{ Linked Lists }
   Global NewList LL_DLLFunctions.S_DLLFunctions()
   Global NewList LL_PBFunctions.S_PBFunctionInfo()
   Global NewList LL_Functions.s()
-  Global NewList LL_LibUsed.s()
+  ;Global NewList LL_LibUsed.s()
   Global NewList LL_DLLUsed.s()
   Global NewList LL_ImportUsed.s()
   Global NewList LL_ASM_extrn.s()
@@ -97,6 +97,9 @@
   Global NewList LL_Logs.s()
   Global NewList LL_Lines.S_CodeLine()
   Global NewList LL_LabelsInFunctions.S_LabelsList()
+;}
+;-{ Maps}
+  Global Map MAP_LibUsed.s()
 ;}
 ;-{ Arrays }
   Global Dim D_Parameters.s(9)
@@ -232,10 +235,11 @@
     ClearList(LL_DLLFunctions())
     ClearList(LL_PBFunctions())
     ClearList(LL_Functions())
-    ClearList(LL_LibUsed())
+    ;ClearList(LL_LibUsed())
     ClearList(LL_DLLUsed())
     ClearList(LL_ImportUsed())
     ClearList(LL_ASM_extrn())
+    ClearMap(MAP_LibUsed())
     hCompiler = #False
     hFileLog = #False
     hFileBatch = #False
