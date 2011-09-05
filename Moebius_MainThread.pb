@@ -74,5 +74,5 @@ ProcedureDLL Moebius_MainThread(Param.l)
     EndIf
   EndIf
   gError = RetValue
-  gState = #State_StepLast+gState
+  gState = #State_StepLast + gState
 EndProcedure

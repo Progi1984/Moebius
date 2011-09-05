@@ -242,6 +242,7 @@
     hCompiler = #False
     hFileLog = #False
     hFileBatch = #False
+    gsErrorContent  = ""
     gState = #State_StepStart
   EndMacro
 ;}
