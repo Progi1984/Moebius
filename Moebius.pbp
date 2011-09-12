@@ -7,11 +7,11 @@
   <section name="data">
     <explorer view="" pattern="0"/>
     <log show="1"/>
-    <lastopen date="2011-09-05 14:34" user="flefevre" host="MALH644"/>
+    <lastopen date="2011-09-05 15:15" user="flefevre" host="MALH644"/>
   </section>
   <section name="files">
     <file name="Inc_Declare.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
       <fingerprint md5="75b19e4b525be7527b8dc3eda3e9dfcc"/>
     </file>
     <file name="Inc_Misc.pb">
@@ -59,16 +59,16 @@
       <fingerprint md5="9bab4e36b14c7613425004c87e8cd718"/>
     </file>
     <file name="Inc_Userlib_Step2.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="b906ed7ed4b4de04047da322aa6a0f11"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="aae16e508b825fd840c4834e18f78842"/>
     </file>
     <file name="Inc_Userlib_Step3.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
-      <fingerprint md5="180d2557855ccb28ef0bc618460d138f"/>
+      <fingerprint md5="c6ec223475ca9840b697792cb04c4222"/>
     </file>
     <file name="Inc_Userlib_Step4.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="c6f0d1279d04514f061f1bb127815823"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="a4df1bb8e73694cd436cf0a21077e5fb"/>
     </file>
     <file name="Inc_Userlib_Step5.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
@@ -79,8 +79,8 @@
       <fingerprint md5="27dd82d691f3e98dd240a5cb7692a55e"/>
     </file>
     <file name="Inc_Var.pb">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="f8e33e2750a8795a0c877a6d964ceecf"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="d8f0874843b3b203d68befaea3a66f68"/>
     </file>
     <file name="Moebius_Main.pb">
       <config load="1" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
@@ -88,7 +88,7 @@
     </file>
     <file name="Moebius_MainThread.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
-      <fingerprint md5="e3f3267420c396f85a1c87788ccdefd2"/>
+      <fingerprint md5="ffaa3786d0569416f2d7a263b8048e37"/>
     </file>
   </section>
   <section name="targets">

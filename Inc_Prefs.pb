@@ -7,11 +7,11 @@ ProcedureDLL Moebius_ReadPrefs()
     If OpenPreferences(gConf\sIni_Purebasic) <> 0
       PreferenceGroup("PATH")
       With gConf
-        \sPureBasic_Path.s = ReadPreferenceString("PureBasic", PB_GetPBFolder())
-        \sPath_PBCOMPILER.s = ReadPreferenceString("PBCompiler", \sPureBasic_Path+#System_Separator+"compilers"+#System_Separator+"pbcompiler"+#System_ExtExec)
-        \sPath_FASM.s = ReadPreferenceString("PBFasm",\sPureBasic_Path+#System_Separator+"compilers"+#System_Separator+"fasm"+#System_ExtExec)
-        \sPath_OBJ2LIB.s = ReadPreferenceString("PBObj2Lib","")
-        \sPath_PBLIBMAKER.s = ReadPreferenceString("PBLibMaker","")
+        \sPureBasic_Path  = ReadPreferenceString("PureBasic", PB_GetPBFolder())
+        \sPath_PBCOMPILER = ReadPreferenceString("PBCompiler", \sPureBasic_Path+#System_Separator+"compilers"+#System_Separator+"pbcompiler"+#System_ExtExec)
+        \sPath_FASM       = ReadPreferenceString("PBFasm",\sPureBasic_Path+#System_Separator+"compilers"+#System_Separator+"fasm"+#System_ExtExec)
+        \sPath_OBJ2LIB    = ReadPreferenceString("PBObj2Lib","")
+        \sPath_PBLIBMAKER = ReadPreferenceString("PBLibMaker","")
       EndWith
       ClosePreferences()
     EndIf
@@ -59,30 +59,44 @@ ProcedureDLL Moebius_ReadParameters()
   Protected piXMLNode.i, piXMLNodeSection.i, piXMLNodeTarget.i, piXMLNodeInputFile.i
   Protected psFilename.s
   ; Default informations
-  ;-TODO : Verifier que la structure est intégré pour gConf dans les paramètres
   With gConf
+    \sPureBasic_Path    = ""
+    \sPath_PBCOMPILER   = ""
+    \sPath_FASM         = ""
+    \sPath_OBJ2LIB      = ""
+    \sPath_PBLIBMAKER   = ""
+    \sSourceDir         = ""
     \sIni_Purebasic     = ""
     \sIni_Project       = ""
-    \sSourceDir         = ""
   EndWith
-  
-  ;-TODO : Verifier que la structure est intégré pour gProject dans les paramètres
+
   With gProject
     \sFileName          = ""
     \sPBPFileName       = ""
+    \sPBPTarget         = ""
+    \bTypeOutput        = #TypeOutput_UserLib  
+    \sFileOutput        = ""
+    \sFileDesc          = ""
+    \sFileCHM           = ""
+    \sFileLog           = ""
+    \sLibName           = ""
+    \sSubsystem         = ""
+    \sDirProject        = ""
+    \sDirAsm            = ""  
+    \sDirObj            = ""
+    \sDirLib            = ""
+    \sDirBat            = ""
+    \sDirLogs           = ""
+    \bUnicode           = #False
+    \bThreadSafe        = #False
+    \bInlineASM         = #False
     \bDontBuildLib      = #False
     \bDontKeepSrcFiles  = #True
     \bLogFile           = #False
-    \bUnicode           = #False
-    \bThreadSafe        = #False
-    \bBatFile           = #False
-    \sSubsystem         = ""
-    \bTypeOutput        = #TypeOutput_UserLib  
     \bLogInStreaming    = #False
-    \sPBPTarget         = ""
-    \sFileCHM           = ""
+    \bBatFile           = #False
   EndWith
-  
+
   ; now we read command line
   For IncA = 0 To CountProgramParameters()-1
     Select ProgramParameter(IncA)
