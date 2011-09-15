@@ -1,6 +1,0 @@
-Debug S02_FunctionTest(Random(255))
-Debug S02_FunctionBis(Random(255), Str(Random(255)))
-MessageRequester("Title "+ Str(S02_FunctionBis(Random(255), Str(Random(255)))), "Message "+ Str(S02_FunctionBis(Random(255), Str(Random(255)))))
-;Debug S02_FunctionTestPriv(Random(255))
-Debug S02_FunctionTrisTest(Random(255), Str(Random(255)), Random(255))
-Debug S02_FunctionTrisQuad(Random(255))

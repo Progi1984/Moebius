@@ -1,5 +1,0 @@
-Debug S00_FunctionTest(Random(255))
-Debug S00_FunctionBis(Random(255), Str(Random(255)))
-; Debug S00_FunctionTestPriv(Random(255))
-Debug S00_FunctionTrisTest(Random(255), Str(Random(255)), Random(255))
-Debug S00_FunctionTrisQuad(Random(255))
