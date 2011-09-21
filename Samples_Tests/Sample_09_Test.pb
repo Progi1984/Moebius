@@ -1,7 +1,0 @@
-S09_FuncL(Random(255), "S_S09_FuncL_S")
-S09_FuncL(Random(255), "S_S09_FuncL2_S", Random(255))
-S09_FuncS(Random(255), "S_S09_FuncS_S")
-S09_FuncS(Random(255), "S_S09_FuncS2_S", "S_S09_FuncS2_S")
-S09_FuncSL(Random(255), "S_S09_FuncSL_S")
-S09_FuncSL(Random(255), "S_S09_FuncSL2_S", "S_S09_FuncSL2_S")
-S09_FuncSL(Random(255), "S_S09_FuncSL3_S", "S_S09_FuncSL3_S", Random(255))

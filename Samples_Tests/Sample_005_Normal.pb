@@ -1,0 +1,6 @@
+Debug S005_FunctionSet(Random(255))
+Debug S005_FunctionGet()
+Debug S005_FunctionSet(Random(255))
+Debug S005_FunctionGet()
+Debug S005_FunctionSet(S005_FunctionGet()*2)
+Debug S005_FunctionGet()
